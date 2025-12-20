@@ -3,115 +3,108 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🍗 မြင်သာကြက်ကင် POS - Smart System</title>
+    <title>🍗 မြင်သာကြက်ကင် POS - Smart Store</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Pyidaungsu:wght@400;700&display=swap" rel="stylesheet">
     <style>
-        :root { --amazon-orange: #ff9900; --amazon-dark: #232f3e; --bg: #f3f3f3; }
+        :root { --amazon-orange: #febd69; --amazon-gold: #f0c14b; --dark: #131921; --bg: #eaeded; }
         body { font-family: 'Pyidaungsu', sans-serif; background: var(--bg); margin: 0; padding: 0; color: #111; }
-        .app-container { max-width: 500px; margin: auto; background: white; min-height: 100vh; position: relative; }
+        .container { max-width: 500px; margin: auto; background: white; min-height: 100vh; }
         
-        /* Amazon Style Header */
-        header { background: var(--amazon-dark); color: white; padding: 15px; text-align: center; }
-        .nav-tabs { display: flex; background: #37475a; position: sticky; top: 0; z-index: 100; }
-        .nav-tabs button { flex: 1; padding: 12px; border: none; background: none; color: #ccc; cursor: pointer; font-size: 14px; }
-        .nav-tabs button.active { color: white; border-bottom: 4px solid var(--amazon-orange); font-weight: bold; }
-        
-        .content { padding: 15px; padding-bottom: 150px; }
-        .card { background: white; border: 1px solid #ddd; border-radius: 8px; padding: 15px; margin-bottom: 15px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+        /* Amazon Header */
+        header { background: var(--dark); color: white; padding: 12px; display: flex; align-items: center; justify-content: space-between; }
+        .nav-tabs { display: flex; background: #232f3e; overflow-x: auto; }
+        .nav-tabs button { flex: 1; padding: 12px; border: none; background: none; color: white; cursor: pointer; font-family: 'Pyidaungsu'; font-size: 13px; opacity: 0.8; }
+        .nav-tabs button.active { opacity: 1; border-bottom: 3px solid var(--amazon-orange); font-weight: bold; }
+
+        .content { padding: 15px; }
         .hidden { display: none !important; }
-
+        
         /* Item Style */
-        .item-row { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid #eee; }
-        .qty-ctrl { display: flex; align-items: center; gap: 10px; }
-        .btn-qty { width: 30px; height: 30px; border: 1px solid #bbb; background: #e7e9ec; border-radius: 4px; cursor: pointer; }
-        
-        /* Payment Section */
-        .pay-box { background: #fff9f0; border: 1px solid #ffcc66; padding: 15px; border-radius: 8px; margin: 10px 0; }
-        .pay-method { display: flex; gap: 10px; margin-top: 10px; }
-        .pay-method label { flex: 1; border: 1px solid #ddd; padding: 10px; text-align: center; border-radius: 5px; cursor: pointer; }
-        .pay-method input:checked + label { border-color: var(--amazon-orange); background: #fff5e6; }
+        .item-card { display: flex; justify-content: space-between; align-items: center; padding: 15px 0; border-bottom: 1px solid #ddd; }
+        .price { color: #B12704; font-weight: bold; font-size: 16px; }
+        .qty-btn { background: #e7e9ec; border: 1px solid #adb1b8; border-radius: 3px; width: 35px; height: 35px; cursor: pointer; }
 
-        /* Admin/Voucher Style */
-        .voucher-box { border: 2px dashed #bbb; padding: 20px; background: #fff; text-align: center; }
-        .status-badge { padding: 4px 8px; border-radius: 4px; font-size: 12px; background: #eee; }
+        /* Checkout Card */
+        .payment-box { background: #fcf5ee; border: 1px solid #fbd8b4; border-radius: 8px; padding: 15px; margin: 15px 0; }
+        .pay-info { background: white; border: 1px solid #ddd; padding: 10px; border-radius: 5px; margin-bottom: 10px; text-align: center; }
         
-        /* Footer Cart */
-        .footer-cart { position: fixed; bottom: 0; max-width: 500px; width: 100%; background: white; border-top: 1px solid #ddd; padding: 20px; box-sizing: border-box; }
-        .btn-buy { background: #ffd814; border: 1px solid #fcd200; border-radius: 20px; width: 100%; padding: 12px; font-weight: bold; cursor: pointer; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        /* Admin Order List */
+        .order-card { background: white; border: 1px solid #ddd; padding: 15px; border-radius: 8px; margin-bottom: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        .detail-line { display: flex; justify-content: space-between; font-size: 13px; margin: 3px 0; }
+
+        /* Amazon Style Buttons */
+        .btn-amazon { background: linear-gradient(to bottom, #f7dfa5, #f0c14b); border: 1px solid #a88734; border-radius: 3px; width: 100%; padding: 12px; font-weight: bold; cursor: pointer; }
+        .footer-cart { position: fixed; bottom: 0; max-width: 500px; width: 100%; background: white; border-top: 1px solid #ddd; padding: 15px; box-sizing: border-box; z-index: 100; }
         
-        input[type="text"], input[type="tel"], select { width: 100%; padding: 10px; margin: 5px 0 15px; border: 1px solid #bbb; border-radius: 4px; box-sizing: border-box; }
+        input { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #888; border-radius: 3px; box-sizing: border-box; }
     </style>
 </head>
 <body>
 
-<div class="app-container">
+<div class="container">
     <header>
-        <h3 style="margin:0;">MYINTHAR BBQ</h3>
+        <span style="font-weight:bold; font-size:18px;">Myinthar Chicken</span>
+        <span id="header-time" style="font-size:12px;"></span>
     </header>
 
     <div class="nav-tabs">
-        <button id="tab-buy" class="active" onclick="switchTab('buy')">SHOP</button>
-        <button id="tab-orders" onclick="switchTab('orders')">MY ORDERS</button>
-        <button id="tab-admin" onclick="switchTab('admin')">ADMIN</button>
+        <button id="tab-shop" class="active" onclick="showTab('shop')">SHOP</button>
+        <button id="tab-myorders" onclick="showTab('myorders')">ORDERS</button>
+        <button id="tab-admin" onclick="showTab('admin')">ADMIN</button>
     </div>
 
-    <div id="sec-buy" class="content">
-        <div class="card">
-            <label>👤 ဝယ်ယူသူအမည်</label>
-            <input type="text" id="c_name" placeholder="Name">
-            <label>📞 ဖုန်းနံပါတ်</label>
-            <input type="tel" id="c_phone" placeholder="09xxxxxxxxx">
+    <div id="sec-shop" class="content">
+        <div style="background:#f3f3f3; padding:10px; border-radius:5px; margin-bottom:15px;">
+            <input type="text" id="cust_name" placeholder="ဝယ်ယူသူအမည်">
+            <input type="tel" id="cust_phone" placeholder="ဖုန်းနံပါတ်">
         </div>
-        <div id="menu_list"></div>
+        <div id="item-list"></div>
     </div>
 
-    <div id="sec-checkout" class="content hidden">
-        <div class="card" id="voucher_print">
-            <h3 style="text-align:center; color:var(--amazon-orange);">VOUCHER</h3>
-            <div id="order_summary" style="font-size:14px; margin-bottom:15px;"></div>
-            <hr>
-            <div class="pay-box">
-                <p style="margin:0 0 10px; font-weight:bold;">💰 ငွေပေးချေရန်</p>
-                <p style="font-size:13px; margin:2px 0;"><b>KPay:</b> 09123456789 (U Ye Win)</p>
-                <p style="font-size:13px; margin:2px 0;"><b>AYA Pay:</b> 09123456789 (U Ye Win)</p>
+    <div id="sec-pay" class="content hidden">
+        <h3 style="margin-top:0;">Finalize Your Order</h3>
+        <div id="voucher-summary" class="order-card" style="background:#fff9f0;"></div>
+        
+        <div class="payment-box">
+            <p style="font-weight:bold; margin-top:0;">💰 ငွေပေးချေရန် (KPay / AYA Pay)</p>
+            <div class="pay-info">
+                <span style="font-size:18px; color:#B12704; font-weight:bold;">09767287345</span><br>
+                <small>(U Ye Win)</small>
             </div>
-            <div class="pay-method">
-                <input type="radio" name="pm" id="kp" value="KPay" checked class="hidden">
-                <label for="kp">KPay</label>
-                <input type="radio" name="pm" id="ap" value="AYA Pay" class="hidden">
-                <label for="ap">AYA Pay</label>
-            </div>
-            <label style="display:block; margin-top:15px; font-size:13px;">ငွေလွှဲဖြတ်ပိုင်း တင်ပါ</label>
-            <input type="file" id="p_img" accept="image/*">
-            <input type="text" id="p_txid" placeholder="Transaction ID (နောက်ဆုံး ၆ လုံး)">
+            <p style="font-size:12px; color:#555;">အပေါ်ကနံပါတ်ကို ငွေလွှဲပြီးလျှင် Screenshot တင်ပေးပါ။</p>
+            <input type="file" id="pay_file" accept="image/*">
+            <input type="text" id="pay_txid" placeholder="Transaction ID (နောက်ဆုံး ၆ လုံး)">
         </div>
-        <button class="btn-buy" onclick="submitOrder()">အော်ဒါအတည်ပြုမည်</button>
-        <button onclick="switchTab('buy')" style="width:100%; background:none; border:none; margin-top:10px; color:gray;">Back to Shop</button>
+        <button class="btn-amazon" onclick="submitFinalOrder()">မှာယူမှုကို အတည်ပြုမည်</button>
+        <button onclick="showTab('shop')" style="width:100%; background:none; border:none; color:#0066c0; margin-top:10px;">Back to Menu</button>
     </div>
 
     <div id="sec-admin" class="content hidden">
-        <div id="admin_auth">
-            <input type="password" id="admin_pass" placeholder="Admin Password">
-            <button class="btn-buy" onclick="adminLogin()">Login</button>
+        <div id="admin-auth">
+            <input type="password" id="adm-pass" placeholder="Admin Password">
+            <button class="btn-amazon" onclick="adminLogin()">Login</button>
         </div>
-        <div id="admin_dashboard" class="hidden">
-            <div style="display:flex; justify-content:space-between; margin-bottom:20px;">
-                <div class="card" style="flex:1; text-align:center; margin-right:5px;"><b>ရောင်းရငွေ</b><br><span id="total_sales">0</span> K</div>
-                <div class="card" style="flex:1; text-align:center;"><b>အော်ဒါ</b><br><span id="order_count">0</span></div>
+        <div id="admin-panel" class="hidden">
+            <div style="display:flex; gap:10px; margin-bottom:20px;">
+                <div style="flex:1; background:var(--dark); color:white; padding:10px; border-radius:5px; text-align:center;">
+                    <small>Today Sales</small><br><b id="adm-total">0</b> K
+                </div>
+                <div style="flex:1; background:var(--amazon-gold); padding:10px; border-radius:5px; text-align:center;">
+                    <small>Orders</small><br><b id="adm-count">0</b>
+                </div>
             </div>
-            <h4>အော်ဒါစာရင်းအသေးစိတ်</h4>
-            <div id="admin_order_list"></div>
+            <h4>အော်ဒါစာရင်း အသေးစိတ်</h4>
+            <div id="adm-order-list"></div>
         </div>
     </div>
 
-    <div id="cart_footer" class="footer-cart">
+    <div id="cart-footer" class="footer-cart">
         <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
-            <span style="font-weight:bold;">Total:</span>
-            <span style="color:var(--amazon-orange); font-weight:bold;"><span id="total_price">0</span> MMK</span>
+            <span style="font-weight:bold;">Subtotal:</span>
+            <span class="price"><span id="total-val">0</span> MMK</span>
         </div>
-        <button class="btn-buy" onclick="goToCheckOut()">အော်ဒါတင်ရန် ဆက်သွားမည်</button>
+        <button class="btn-amazon" onclick="goToPay()">မှာယူရန် ဆက်သွားမည်</button>
     </div>
 </div>
 
@@ -123,23 +116,33 @@
     const TG_TOKEN = "8215695761:AAF1qDjAJn7gjiHyzf8t7W6c8e51cim98sU";
     const TG_CHAT_ID = "8116152317";
 
-    let menu = [];
+    const menu = [
+        {id:1, name:'ကြက်ပေါင်', price:4000}, {id:2, name:'ကြက်ရင်အုံ', price:4000}, {id:3, name:'ဆိတ်သားကင်', price:1500},
+        {id:4, name:'အသားချောင်း(ကြက်)', price:800}, {id:5, name:'အရေခွံ', price:500}, {id:6, name:'အတောင်ပျံ', price:500},
+        {id:7, name:'အတောင်ပျံ(CP)', price:1000}, {id:8, name:'အူ', price:500}, {id:9, name:'ခေါင်း', price:300},
+        {id:10, name:'လည်ချောင်း', price:300}, {id:11, name:'အသည်းမြစ်', price:500}, {id:12, name:'ခြေထောက်', price:300},
+        {id:13, name:'ခြေထောက်(CP)', price:700}, {id:14, name:'လက်မောင်းလုံး', price:1000}, {id:15, name:'အဆီပူး', price:800},
+        {id:16, name:'အသားတု', price:400}, {id:17, name:'ရုံးပတေသီး', price:300}, {id:18, name:'အပ်မှို', price:1000}, {id:19, name:'ငုံးဥ', price:1000}
+    ];
+
     let cart = {};
 
-    async function init() {
-        const { data } = await _supabase.from('inventory').select('*').order('id', { ascending: true });
-        menu = data;
-        renderMenu();
+    function showTab(tab) {
+        document.querySelectorAll('.content').forEach(c => c.classList.add('hidden'));
+        document.querySelectorAll('.nav-tabs button').forEach(b => b.classList.remove('active'));
+        document.getElementById('sec-' + tab).classList.remove('hidden');
+        document.getElementById('tab-' + tab)?.classList.add('active');
+        document.getElementById('cart-footer').classList.toggle('hidden', tab !== 'shop');
     }
 
-    function renderMenu() {
-        document.getElementById('menu_list').innerHTML = menu.map(item => `
-            <div class="item-row ${item.is_available ? '' : 'hidden'}">
-                <span><b>${item.item_name}</b><br><small>${item.price} K</small></span>
-                <div class="qty-ctrl">
-                    <button class="btn-qty" onclick="updateQty('${item.item_name}', -1)">-</button>
-                    <span id="q_${item.item_name}">0</span>
-                    <button class="btn-qty" onclick="updateQty('${item.item_name}', 1)">+</button>
+    function renderShop() {
+        document.getElementById('item-list').innerHTML = menu.map(item => `
+            <div class="item-card">
+                <div><b>${item.name}</b><br><span class="price">${item.price} K</span></div>
+                <div style="display:flex; align-items:center; gap:10px;">
+                    <button class="qty-btn" onclick="updateQty('${item.name}', -1)">-</button>
+                    <b id="q-${item.name}">0</b>
+                    <button class="qty-btn" onclick="updateQty('${item.name}', 1)">+</button>
                 </div>
             </div>
         `).join('');
@@ -147,89 +150,79 @@
 
     function updateQty(name, change) {
         cart[name] = (cart[name] || 0) + change;
-        if (cart[name] < 0) cart[name] = 0;
-        document.getElementById(`q_${name}`).innerText = cart[name];
+        if(cart[name] < 0) cart[name] = 0;
+        document.getElementById('q-'+name).innerText = cart[name];
         let total = 0;
-        for (let k in cart) total += (cart[k] * menu.find(i => i.item_name === k).price);
-        document.getElementById('total_price').innerText = total.toLocaleString();
+        for(let k in cart) total += (cart[k] * menu.find(m => m.name === k).price);
+        document.getElementById('total-val').innerText = total.toLocaleString();
     }
 
-    function switchTab(tab) {
-        document.querySelectorAll('.content').forEach(s => s.classList.add('hidden'));
-        document.querySelectorAll('.nav-tabs button').forEach(b => b.classList.remove('active'));
-        document.getElementById('sec-' + tab).classList.remove('hidden');
-        document.getElementById('tab-' + tab)?.classList.add('active');
-        document.getElementById('cart_footer').classList.toggle('hidden', tab !== 'buy');
+    function goToPay() {
+        if(!document.getElementById('cust_name').value || document.getElementById('total-val').innerText == "0") {
+            return alert("အမည်နှင့် ပစ္စည်းများ ရွေးချယ်ပေးပါ။");
+        }
+        let itemsHtml = "<b>Items:</b><br>";
+        for(let k in cart) if(cart[k] > 0) itemsHtml += `- ${k} (${cart[k]} ခု)<br>`;
+        document.getElementById('voucher-summary').innerHTML = `
+            <div style="text-align:center; font-weight:bold; border-bottom:1px solid #ddd; padding-bottom:5px; margin-bottom:10px;">Order Summary</div>
+            <div class="detail-line"><span>Customer:</span> <b>${document.getElementById('cust_name').value}</b></div>
+            <div style="font-size:13px; margin:10px 0;">${itemsHtml}</div>
+            <div class="detail-line" style="font-size:16px; border-top:1px solid #ddd; padding-top:5px;"><span>Total:</span> <b class="price">${document.getElementById('total-val').innerText} K</b></div>
+        `;
+        showTab('pay');
+        document.getElementById('cart-footer').classList.add('hidden');
     }
 
-    function goToCheckOut() {
-        const name = document.getElementById('c_name').value;
-        if (!name || document.getElementById('total_price').innerText == "0") return alert("အမည်နှင့် ပစ္စည်းများ ရွေးပေးပါ။");
-        
-        let summary = `<p><b>Name:</b> ${name}</p><p><b>Items:</b></p><ul>`;
-        for (let k in cart) if (cart[k] > 0) summary += `<li>${k} x ${cart[k]}</li>`;
-        summary += `</ul><p><b>Total:</b> ${document.getElementById('total_price').innerText} MMK</p>`;
-        
-        document.getElementById('order_summary').innerHTML = summary;
-        switchTab('checkout');
-        document.getElementById('cart_footer').classList.add('hidden');
-    }
+    async function submitFinalOrder() {
+        const btn = document.querySelector('.btn-amazon');
+        btn.disabled = true; btn.innerText = "Submitting...";
 
-    async function submitOrder() {
-        const btn = document.querySelector('.btn-buy');
-        btn.disabled = true; btn.innerText = "Please wait...";
-
-        const file = document.getElementById('p_img').files[0];
+        const file = document.getElementById('pay_file').files[0];
         let imgUrl = "";
-        if (file) {
+        if(file) {
             const fName = Date.now() + "_" + file.name;
             const { data } = await _supabase.storage.from('payment-proofs').upload(fName, file);
-            if (data) imgUrl = SB_URL + "/storage/v1/object/public/payment-proofs/" + fName;
+            if(data) imgUrl = SB_URL + "/storage/v1/object/public/payment-proofs/" + fName;
         }
 
-        const orderData = {
-            customer_name: document.getElementById('c_name').value,
-            phone: document.getElementById('c_phone').value,
+        const orderObj = {
+            customer_name: document.getElementById('cust_name').value,
+            phone: document.getElementById('cust_phone').value,
             items: Object.keys(cart).filter(k => cart[k] > 0).map(k => `${k}(${cart[k]})`).join(", "),
-            total: parseInt(document.getElementById('total_price').innerText.replace(/,/g, '')),
-            payment_method: document.querySelector('input[name="pm"]:checked').value,
-            transaction_id: document.getElementById('p_txid').value,
+            total: parseInt(document.getElementById('total-val').innerText.replace(/,/g, '')),
+            transaction_id: document.getElementById('pay_txid').value,
             payment_image: imgUrl
         };
 
-        const { data: res, error } = await _supabase.from('orders').insert([orderData]).select();
+        const { data: res, error } = await _supabase.from('orders').insert([orderObj]).select();
 
-        if (!error) {
-            const msg = `🔔 *အော်ဒါအသစ်*%0AID: #${res[0].id}%0A👤 Customer: ${orderData.customer_name}%0A📞 Phone: ${orderData.phone}%0A📦 *မှာယူသည့်စာရင်း:* ${orderData.items}%0A💰 စုစုပေါင်း: ${orderData.total} K%0A💳 Pay: ${orderData.payment_method}%0A🔑 TXID: ${orderData.transaction_id}`;
+        if(!error) {
+            const msg = `🔔 *အော်ဒါအသစ်*%0A------------------%0AID: #${res[0].id}%0A👤 ဝယ်သူ: ${orderObj.customer_name}%0A📞 ဖုန်း: ${orderObj.phone}%0A📦 *မှာယူသည့်စာရင်း:*%0A${orderObj.items}%0A💰 စုစုပေါင်း: ${orderObj.total} K%0A🔑 TXID: ${orderObj.transaction_id}`;
             fetch(`https://api.telegram.org/bot${TG_TOKEN}/sendMessage?chat_id=${TG_CHAT_ID}&text=${msg}&parse_mode=Markdown`);
-            alert("Order Submitted! Please save your voucher.");
+            alert("Order Success! Telegram ဆီသို့ အချက်အလက်များ ပို့ထားပါသည်။");
             location.reload();
         }
     }
 
-    // Admin Dashboard Logic
     async function adminLogin() {
-        if (document.getElementById('admin_pass').value === "2012@Yewin") {
-            document.getElementById('admin_auth').classList.add('hidden');
-            document.getElementById('admin_dashboard').classList.remove('hidden');
-            const { data: ords } = await _supabase.from('orders').select('*').order('id', { descending: true });
-            const total = ords.reduce((a, b) => a + b.total, 0);
-            document.getElementById('total_sales').innerText = total.toLocaleString();
-            document.getElementById('order_count').innerText = ords.length;
-            
-            document.getElementById('admin_order_list').innerHTML = ords.map(o => `
-                <div class="card" style="font-size:13px;">
-                    <b>#${o.id} - ${o.customer_name}</b> (${o.phone})<br>
-                    <span style="color:#d35400;">${o.items}</span><br>
-                    <b>${o.total} K</b> | ${o.payment_method} | ID: ${o.transaction_id || 'No ID'}<br>
-                    ${o.payment_image ? `<a href="${o.payment_image}" target="_blank">View Screenshot</a>` : 'No Image'}
+        if(document.getElementById('adm-pass').value === "2012@Yewin") {
+            document.getElementById('admin-auth').classList.add('hidden');
+            document.getElementById('admin-panel').classList.remove('hidden');
+            const { data: ords } = await _supabase.from('orders').select('*').order('id', {descending:true});
+            document.getElementById('adm-total').innerText = ords.reduce((a,b)=> a+b.total, 0).toLocaleString();
+            document.getElementById('adm-count').innerText = ords.length;
+            document.getElementById('adm-order-list').innerHTML = ords.map(o => `
+                <div class="order-card">
+                    <div class="detail-line"><b>#${o.id} - ${o.customer_name}</b> <span>${new Date(o.created_at).toLocaleTimeString()}</span></div>
+                    <div style="color:#B12704; font-size:13px; margin:5px 0;">${o.items}</div>
+                    <div class="detail-line"><span>Phone: ${o.phone}</span> <b>${o.total} K</b></div>
+                    <div class="detail-line"><small>TXID: ${o.transaction_id || 'N/A'}</small> ${o.payment_image ? `<a href="${o.payment_image}" target="_blank">View Photo</a>` : ''}</div>
                 </div>
             `).join('');
         }
     }
 
-    window.onload = init;
+    renderShop();
 </script>
 </body>
 </html>
-
