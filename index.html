@@ -1,36 +1,41 @@
+
 <!DOCTYPE html>
 <html lang="my">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>မြင်သာကြက်ကင် POS</title>
+    <title>🧾 မြင်သာကြက်ကင် - POS System</title>
     <style>
-        body { font-family: sans-serif; background: #f4f4f4; padding: 20px; }
-        .container { max-width: 600px; margin: auto; background: white; padding: 20px; border-radius: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
-        h1 { text-align: center; color: #ff6b35; }
-        .menu-item { display: flex; justify-content: space-between; align-items: center; padding: 10px; border-bottom: 1px solid #eee; }
-        .btn-add { background: #ff6b35; color: white; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer; }
-        .cart-section { margin-top: 30px; border-top: 2px solid #ff6b35; padding-top: 20px; }
-        .invoice-box { background: #fffde7; padding: 15px; border: 1px dashed #fbc02d; margin-top: 10px; white-space: pre-wrap; }
-        .btn-invoice { width: 100%; background: #2ecc71; color: white; border: none; padding: 15px; font-size: 18px; border-radius: 10px; cursor: pointer; margin-top: 10px; }
+        body { font-family: 'Pyidaungsu', sans-serif; background: #fdf2e9; padding: 20px; color: #333; }
+        .container { max-width: 500px; margin: auto; background: white; padding: 20px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
+        h1 { text-align: center; color: #d35400; margin-bottom: 5px; }
+        .menu-grid { margin-top: 20px; }
+        .menu-item { display: flex; justify-content: space-between; align-items: center; padding: 12px; border-bottom: 1px solid #eee; }
+        .price { color: #e67e22; font-weight: bold; }
+        .btn-add { background: #e67e22; color: white; border: none; padding: 6px 12px; border-radius: 8px; cursor: pointer; transition: 0.3s; }
+        .btn-add:hover { background: #d35400; }
+        .cart-box { margin-top: 30px; background: #fffaf0; padding: 15px; border-radius: 15px; border: 2px dashed #f39c12; }
+        .total-price { font-size: 1.5em; text-align: center; color: #d35400; margin: 15px 0; font-weight: bold; }
+        .btn-invoice { width: 100%; background: #27ae60; color: white; border: none; padding: 15px; font-size: 1.1em; border-radius: 10px; cursor: pointer; }
+        .invoice-display { display: none; background: #eee; padding: 15px; margin-top: 15px; border-radius: 10px; white-space: pre-wrap; font-family: monospace; }
     </style>
 </head>
 <body>
 
 <div class="container">
     <h1>🍗 မြင်သာကြက်ကင်</h1>
-    <p style="text-align:center;">မှာယူလိုသည်များကို ရွေးချယ်ပါ</p>
+    <p style="text-align:center;">Online POS မှာယူရန်စနစ်</p>
 
-    <div id="menu-list"></div>
+    <div id="menu-list" class="menu-grid"></div>
 
-    <div class="cart-section">
-        <h2>🛒 မှာယူမည့်စာရင်း (Cart)</h2>
-        <div id="cart-display">ပစ္စည်းမရှိသေးပါ။</div>
-        <h3 id="total-price">စုစုပေါင်း: 0 MMK</h3>
-        
-        <button class="btn-invoice" onclick="showInvoice()">📄 Invoice ထုတ်မည်</button>
-        <div id="invoice-result" class="invoice-box" style="display:none;"></div>
+    <div class="cart-box">
+        <h3>🛒 မှာယူမည့်စာရင်း</h3>
+        <div id="cart-items">ပစ္စည်းမရွေးရသေးပါ။</div>
+        <div class="total-price" id="total-price">စုစုပေါင်း: 0 MMK</div>
+        <button class="btn-invoice" onclick="generateInvoice()">📄 Invoice (ဘောက်ချာ) ထုတ်မည်</button>
     </div>
+
+    <div id="invoice-result" class="invoice-display"></div>
 </div>
 
 <script>
@@ -45,62 +50,66 @@
 
     let cart = {};
 
-    function renderMenu() {
-        const menuDiv = document.getElementById('menu-list');
+    // Menu ကို Website ပေါ်တင်ခြင်း
+    function displayMenu() {
+        const menuList = document.getElementById('menu-list');
         for (let item in menu) {
-            menuDiv.innerHTML += `
+            menuList.innerHTML += `
                 <div class="menu-item">
-                    <span>${item} (${menu[item]} K)</span>
-                    <button class="btn-add" onclick="addToCart('${item}')">+ ထည့်ရန်</button>
+                    <span>${item}</span>
+                    <span class="price">${menu[item]} K</span>
+                    <button class="btn-add" onclick="addToCart('${item}')">ထည့်ရန်</button>
                 </div>`;
         }
     }
 
+    // Cart ထဲသို့ ပစ္စည်းထည့်ခြင်း
     function addToCart(item) {
         cart[item] = (cart[item] || 0) + 1;
-        updateCart();
+        updateCartDisplay();
     }
 
-    function updateCart() {
-        const cartDiv = document.getElementById('cart-display');
-        const totalDiv = document.getElementById('total-price');
+    // Cart စာရင်းကို ပြသခြင်း
+    function updateCartDisplay() {
+        const cartItems = document.getElementById('cart-items');
+        const totalPrice = document.getElementById('total-price');
         let html = "";
         let total = 0;
 
         for (let item in cart) {
             let subtotal = cart[item] * menu[item];
             total += subtotal;
-            html += `<div>${item} x ${cart[item]} = ${subtotal} K</div>`;
+            html += `<div>✅ ${item} x ${cart[item]} = ${subtotal} K</div>`;
         }
-        
-        cartDiv.innerHTML = html || "ပစ္စည်းမရှိသေးပါ။";
-        totalDiv.innerText = `စုစုပေါင်း: ${total} MMK`;
+
+        cartItems.innerHTML = html || "ပစ္စည်းမရွေးရသေးပါ။";
+        totalPrice.innerText = `စုစုပေါင်း: ${total.toLocaleString()} MMK`;
     }
 
-    function showInvoice() {
-        if (Object.keys(cart).length === 0) return alert("Cart ထဲမှာ ပစ္စည်းမရှိသေးပါ။");
-        
+    // Invoice ထုတ်ပေးခြင်း
+    function generateInvoice() {
+        if (Object.keys(cart).length === 0) return alert("ပစ္စည်းအရင်ရွေးပါ!");
+
         let total = 0;
-        let invoiceText = "🧾 --- မြင်သာကြက်ကင် --- \n\n";
+        let text = "🧾 --- မြင်သာကြက်ကင် အော်ဒါ --- \n\n";
         for (let item in cart) {
             let subtotal = cart[item] * menu[item];
             total += subtotal;
-            invoiceText += `• ${item} x ${cart[item]} = ${subtotal} K\n`;
+            text += `• ${item} x ${cart[item]} = ${subtotal} K\n`;
         }
-        invoiceText += `\n💰 စုစုပေါင်း: ${total} MMK\n\n📞 ဖုန်းနံပါတ်နှင့် လိပ်စာ ရိုက်ထည့်ပေးပါ။`;
-        
-        const resDiv = document.getElementById('invoice-result');
-        resDiv.innerText = invoiceText;
-        resDiv.style.display = "block";
-        
+        text += `\n💰 စုစုပေါင်းကျသင့်ငွေ: ${total.toLocaleString()} MMK\n\n📍 လိပ်စာနှင့် ဖုန်းနံပါတ်ပေးပါရန်။`;
+
+        const res = document.getElementById('invoice-result');
+        res.innerText = text;
+        res.style.display = "block";
+
         // Auto Copy to Clipboard
-        navigator.clipboard.writeText(invoiceText);
-        alert("ဘောက်ချာကို Copy ကူးပြီးပါပြီ။ Messenger/Viber မှာ ပို့နိုင်ပါပြီ။");
+        navigator.clipboard.writeText(text);
+        alert("ဘောက်ချာကို Copy ကူးလိုက်ပါပြီ။ Messenger/WhatsApp မှာ Paste လုပ်ပြီး ပို့လိုက်ပါ။");
     }
 
-    renderMenu();
+    displayMenu();
 </script>
 
 </body>
 </html>
-
