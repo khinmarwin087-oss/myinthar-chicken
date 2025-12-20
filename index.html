@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🍗 မြင်သာကြက်ကင် - Premium POS</title>
+    <title>🍗 မြင်သာကြက်ကင် - POS</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link href="https://fonts.googleapis.com/css2?family=Pyidaungsu:wght@400;700&display=swap" rel="stylesheet">
     <style>
@@ -12,18 +12,17 @@
         .container { max-width: 500px; margin: auto; background: white; border-radius: 20px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
         .header { background: linear-gradient(135deg, #f39c12, #d35400); color: white; padding: 20px; text-align: center; }
         .nav-tabs { display: flex; background: #eee; }
-        .nav-tabs button { flex: 1; padding: 12px; border: none; cursor: pointer; font-weight: bold; font-family: 'Pyidaungsu'; }
+        .nav-tabs button { flex: 1; padding: 12px; border: none; cursor: pointer; font-weight: bold; }
         .nav-tabs button.active { background: white; color: var(--secondary); border-bottom: 3px solid var(--secondary); }
         .content { padding: 20px; min-height: 300px; }
         .hidden { display: none !important; }
         .menu-item { display: flex; justify-content: space-between; align-items: center; padding: 12px; border-bottom: 1px solid #eee; }
-        .qty-controls { display: flex; align-items: center; gap: 10px; }
-        .btn-qty { background: #f0f0f0; border: 1px solid #ddd; padding: 5px 12px; border-radius: 5px; cursor: pointer; font-weight: bold; }
+        .btn-qty { background: #f0f0f0; border: 1px solid #ddd; padding: 5px 12px; border-radius: 5px; cursor: pointer; }
         .footer-cart { background: var(--dark); color: white; padding: 20px; text-align: center; position: sticky; bottom: 0; }
-        .btn-main { width: 100%; padding: 15px; background: var(--secondary); color: white; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; font-size: 16px; margin-top: 10px; }
+        .btn-main { width: 100%; padding: 15px; background: var(--secondary); color: white; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; }
         input { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; }
         .order-card { border: 1px solid #eee; padding: 15px; border-radius: 12px; margin-bottom: 15px; background: #f9f9f9; }
-        .status-badge { padding: 4px 10px; border-radius: 20px; font-size: 12px; float: right; }
+        .status-badge { padding: 4px 10px; border-radius: 20px; font-size: 12px; float: right; font-weight: bold; }
         .status-pending { background: #ffeaa7; color: #d35400; }
         .status-confirmed { background: #55efc4; color: #00b894; }
     </style>
@@ -33,7 +32,7 @@
 <div class="container">
     <div class="header">
         <h1>🍗 မြင်သာကြက်ကင်</h1>
-        <p>Real-time Ordering System</p>
+        <p>Real-time Order System</p>
     </div>
 
     <div class="nav-tabs">
@@ -43,10 +42,9 @@
     </div>
 
     <div id="content-order" class="content">
-        <input type="text" id="cust-name" placeholder="👤 ဝယ်ယူသူအမည်">
+        <input type="text" id="cust-name" placeholder="👤 အမည်">
         <input type="tel" id="cust-phone" placeholder="📞 ဖုန်းနံပါတ်">
-        <input type="text" id="pickup-time" placeholder="🕒 လာယူမည့်အချိန် (ဥပမာ - ညနေ ၆ နာရီ)">
-        <hr>
+        <input type="text" id="pickup-time" placeholder="🕒 လာယူမည့်အချိန်">
         <div id="menu-list"></div>
     </div>
 
@@ -57,11 +55,11 @@
 
     <div id="content-admin" class="content hidden">
         <div id="admin-login-box">
-            <input type="password" id="admin-pw" placeholder="Admin Password">
+            <input type="password" id="admin-pw" placeholder="Admin Password (1234)">
             <button class="btn-main" onclick="adminLogin()">Login</button>
         </div>
         <div id="admin-panel" class="hidden">
-            <h3 style="display:flex; justify-content: space-between;">📥 အော်ဒါအသစ်များ <button onclick="fetchAdminOrders()" style="font-size:12px;">Refresh</button></h3>
+            <h3>📥 အော်ဒါအသစ်များ</h3>
             <div id="all-orders-list"></div>
         </div>
     </div>
@@ -73,17 +71,13 @@
 </div>
 
 <script>
+    // ခင်ဗျားဆီကရတဲ့ URL နဲ့ Key ကို ဒီမှာ ထည့်ထားပါတယ်
     const SB_URL = "https://ltusknkpwbyriikeyday.supabase.co";
-    const SB_KEY = "Sb_publishable_u9Y8SIpzqsT4WkyONV4J2w__Xwc09Fv";
+    const SB_KEY = "sb_publishable_u9Y8SIpzqsT4WkyONV4J2w__Xwc09Fv";
     
-    // Supabase Client ကို စနစ်တကျ Initialize လုပ်ခြင်း
     const _supabase = window.supabase.createClient(SB_URL, SB_KEY);
 
-    const menu = {
-        'ကြက်ပေါင်': 4000, 'ကြက်ရင်အုံ': 4000, 'ဆိတ်သားကင်': 1500,
-        'အသားချောင်း': 800, 'အရေခွံ': 500, 'အတောင်ပျံ': 500,
-        'အူ': 500, 'ခေါင်း': 300, 'အပ်မှို': 1000
-    };
+    const menu = { 'ကြက်ပေါင်': 4000, 'ကြက်ရင်အုံ': 4000, 'အတောင်ပျံ': 1000, 'အသားချောင်း': 800, 'အရေခွံ': 500 };
     let cart = {};
 
     function showTab(tab) {
@@ -96,17 +90,15 @@
 
     function renderMenu() {
         const list = document.getElementById('menu-list');
-        list.innerHTML = "";
         for (let item in menu) {
-            list.innerHTML += `
-                <div class="menu-item">
-                    <span><b>${item}</b><br><small>${menu[item].toLocaleString()} K</small></span>
-                    <div class="qty-controls">
-                        <button class="btn-qty" onclick="updateQty('${item}', -1)">-</button>
-                        <span id="qty-${item}" style="font-weight:bold; min-width:20px; text-align:center;">0</span>
-                        <button class="btn-qty" onclick="updateQty('${item}', 1)">+</button>
-                    </div>
-                </div>`;
+            list.innerHTML += `<div class="menu-item">
+                <span>${item} (${menu[item]} K)</span>
+                <div>
+                    <button class="btn-qty" onclick="updateQty('${item}', -1)">-</button>
+                    <span id="qty-${item}">0</span>
+                    <button class="btn-qty" onclick="updateQty('${item}', 1)">+</button>
+                </div>
+            </div>`;
         }
     }
 
@@ -116,62 +108,35 @@
         document.getElementById(`qty-${item}`).innerText = cart[item];
         let total = 0;
         for (let k in cart) total += cart[k] * menu[k];
-        document.getElementById('total-price').innerText = total.toLocaleString();
+        document.getElementById('total-price').innerText = total;
     }
 
     async function submitOrder() {
         const name = document.getElementById('cust-name').value;
         const phone = document.getElementById('cust-phone').value;
         const time = document.getElementById('pickup-time').value;
-        const total = document.getElementById('total-price').innerText;
+        if (!name || !phone) return alert("အမည်နှင့် ဖုန်းဖြည့်ပါ။");
 
-        if (!name || !phone || total == "0") return alert("အချက်အလက်များကို ပြည့်စုံစွာ ဖြည့်ပေးပါ။");
-
-        document.getElementById('order-btn').innerText = "ခေတ္တစောင့်ပါ...";
-        document.getElementById('order-btn').disabled = true;
-
-        let itemsArr = [];
-        for (let k in cart) if (cart[k] > 0) itemsArr.push(`${k} (${cart[k]})`);
-        const itemsText = itemsArr.join(", ");
+        let itemsText = "";
+        for (let k in cart) if (cart[k] > 0) itemsText += `${k}(${cart[k]}), `;
+        if (!itemsText) return alert("ပစ္စည်းရွေးပါ။");
 
         const { error } = await _supabase.from('orders').insert([{
-            customer_name: name,
-            phone: phone,
-            items: itemsText,
-            total: total,
-            status: 'pending',
-            pickup_time: time
+            customer_name: name, phone: phone, items: itemsText, total: document.getElementById('total-price').innerText, status: 'pending', pickup_time: time
         }]);
 
-        if (error) {
-            alert("Error: " + error.message);
-            document.getElementById('order-btn').innerText = "🚀 အော်ဒါတင်မည်";
-            document.getElementById('order-btn').disabled = false;
-        } else {
-            alert("✅ အော်ဒါတင်ခြင်း အောင်မြင်ပါသည်။");
-            location.reload();
-        }
+        if (error) alert("Error: " + error.message);
+        else { alert("✅ အော်ဒါတင်ပြီးပါပြီ!"); location.reload(); }
     }
 
     async function fetchMyOrders() {
         const phone = document.getElementById('track-phone').value;
         if (phone.length < 7) return;
-
-        const { data, error } = await _supabase.from('orders').select('*').eq('phone', phone).order('created_at', { ascending: false });
-        const list = document.getElementById('my-orders-list');
-        
-        if (data.length === 0) {
-            list.innerHTML = "<p style='text-align:center; color:#999; margin-top:20px;'>အော်ဒါမှတ်တမ်း မရှိပါ။</p>";
-            return;
-        }
-
-        list.innerHTML = data.map(o => `
+        const { data } = await _supabase.from('orders').select('*').eq('phone', phone).order('created_at', { ascending: false });
+        document.getElementById('my-orders-list').innerHTML = data.map(o => `
             <div class="order-card">
-                <span class="status-badge status-${o.status}">${o.status == 'pending' ? '⏳ စောင့်ဆိုင်းဆဲ' : '✅ အတည်ပြုပြီး'}</span>
-                <b>ID: ${o.id}</b><br>
-                <small>${new Date(o.created_at).toLocaleString()}</small><hr>
-                <p>${o.items}</p>
-                <b>စုစုပေါင်း: ${o.total} MMK</b>
+                <span class="status-badge status-${o.status}">${o.status}</span>
+                <b>ID: ${o.id}</b><br><small>${o.items}</small><br><b>Total: ${o.total} K</b>
             </div>
         `).join('');
     }
@@ -181,23 +146,15 @@
             document.getElementById('admin-login-box').classList.add('hidden');
             document.getElementById('admin-panel').classList.remove('hidden');
             fetchAdminOrders();
-        } else {
-            alert("Password မှားယွင်းနေပါသည်။");
         }
     }
 
     async function fetchAdminOrders() {
-        const { data, error } = await _supabase.from('orders').select('*').order('created_at', { ascending: false });
-        const list = document.getElementById('all-orders-list');
-        list.innerHTML = data.map(o => `
+        const { data } = await _supabase.from('orders').select('*').order('created_at', { ascending: false });
+        document.getElementById('all-orders-list').innerHTML = data.map(o => `
             <div class="order-card">
-                <b>👤 ${o.customer_name}</b> (${o.phone})
-                <span class="status-badge status-${o.status}">${o.status}</span><br>
-                <small>🕒 ${o.pickup_time}</small><hr>
-                <p>${o.items}</p>
-                <b>💰 ${o.total} K</b><br><br>
-                ${o.status == 'pending' ? `<button class="btn-main" style="padding:8px; background:#27ae60;" onclick="updateStatus(${o.id}, 'confirmed')">Confirm Order</button>` : ''}
-                <button class="btn-main" style="padding:8px; background:#c0392b; margin-top:5px;" onclick="deleteOrder(${o.id})">Delete</button>
+                👤 ${o.customer_name} (${o.phone}) - ${o.status}<br>📦 ${o.items}<br>
+                ${o.status == 'pending' ? `<button onclick="updateStatus(${o.id}, 'confirmed')">Confirm</button>` : ''}
             </div>
         `).join('');
     }
@@ -207,14 +164,7 @@
         fetchAdminOrders();
     }
 
-    async function deleteOrder(id) {
-        if(confirm("ဖျက်မှာ သေချာပါသလား?")) {
-            await _supabase.from('orders').delete().eq('id', id);
-            fetchAdminOrders();
-        }
-    }
-
-    window.onload = renderMenu;
+    renderMenu();
 </script>
 </body>
 </html>
