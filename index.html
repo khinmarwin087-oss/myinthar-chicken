@@ -18,11 +18,12 @@
         .hidden { display: none !important; }
         .menu-grid { display: grid; gap: 8px; margin-top: 10px; }
         .menu-item { display: flex; justify-content: space-between; align-items: center; padding: 10px; background: #fff; border: 1px solid #eee; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        .menu-item img { width: 50px; height: 50px; border-radius: 8px; object-fit: cover; margin-right: 10px; }
         .qty-controls { display: flex; align-items: center; gap: 10px; }
-        .btn-qty { background: #f8f9fa; border: 1px solid #ddd; width: 35px; height: 35px; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 18px; }
+        .btn-qty { background: #f8f9fa; border: 1px solid #ddd; width: 30px; height: 30px; border-radius: 5px; cursor: pointer; font-weight: bold; }
         .footer-cart { background: var(--dark); color: white; padding: 20px; text-align: center; position: sticky; bottom: 0; border-radius: 20px 20px 0 0; }
         .btn-main { width: 100%; padding: 15px; background: var(--secondary); color: white; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; font-size: 16px; }
-        input { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; font-family: 'Pyidaungsu'; font-size: 14px; }
+        input { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; font-family: 'Pyidaungsu'; }
         .order-card { border: 2px dashed #ccc; padding: 15px; border-radius: 12px; margin-bottom: 15px; background: #fff; position: relative; }
         .status-badge { padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: bold; float: right; }
         .status-pending { background: #ffeaa7; color: #d35400; }
@@ -47,7 +48,7 @@
     <div id="content-order" class="content">
         <input type="text" id="cust-name" placeholder="👤 ဝယ်ယူသူအမည်">
         <input type="tel" id="cust-phone" placeholder="📞 ဖုန်းနံပါတ်">
-        <input type="text" id="pickup-time" placeholder="🕒 လာယူမည့်အချိန် (ဥပမာ - ၆ နာရီ)">
+        <input type="text" id="pickup-time" placeholder="🕒 လာယူမည့်အချိန်">
         <div class="menu-grid" id="menu-list"></div>
     </div>
 
@@ -83,14 +84,32 @@
     const TG_TOKEN = "8215695761:AAF1qDjAJn7gjiHyzf8t7W6c8e51cim98sU";
     const TG_CHAT_ID = "8116152317";
 
+    const storeOpen = "08:00"; // Open Time
+    const storeClose = "21:30"; // Close Time
+    const offDay = [0]; // Sunday off (0=Sun, 1=Mon...)
+
     const menu = {
-        'ကြက်ပေါင်': 4000, 'ကြက်ရင်အုံ': 4000, 'ဆိတ်သားကင်': 1500, 'အသားချောင်း(ကြက်)': 800,
-        'အရေခွံ': 500, 'အတောင်ပျံ': 500, 'အတောင်ပျံ(CP)': 1000, 'အူ': 500,
-        'ခေါင်း': 300, 'လည်ချောင်း': 300, 'အသည်းမြစ်': 500, 'ခြေထောက်': 300,
-        'ခြေထောက်(CP)': 700, 'လက်မောင်းလုံး': 1000, 'အဆီပူး': 800, 'အသားတု': 400,
-        'ရုံးပတေသီး': 300, 'အပ်မှို': 1000, 'ငုံးဥ': 1000
+        'ကြက်ပေါင်': {price: 4000, photo: 'https://example.com/images/kyetpaung.jpg', stock: 50},
+        'ကြက်ရင်အုံ': {price: 4000, photo: 'https://example.com/images/kyetryn.jpg', stock: 50},
+        'ဆိတ်သားကင်': {price: 1500, photo: 'https://example.com/images/seit.jpg', stock: 30},
+        'အသားချောင်း(ကြက်)': {price: 800, photo: 'https://example.com/images/achauk.jpg', stock: 50},
+        'အရေခွံ': {price: 500, photo: 'https://example.com/images/are.jpg', stock: 50},
+        'အတောင်ပျံ': {price: 500, photo: 'https://example.com/images/ataung.jpg', stock: 40},
+        'အတောင်ပျံ(CP)': {price: 1000, photo: 'https://example.com/images/ataung_cp.jpg', stock: 40},
+        'အူ': {price: 500, photo: 'https://example.com/images/oo.jpg', stock: 50},
+        'ခေါင်း': {price: 300, photo: 'https://example.com/images/kaung.jpg', stock: 50},
+        'လည်ချောင်း': {price: 300, photo: 'https://example.com/images/le.jpg', stock: 50},
+        'အသည်းမြစ်': {price: 500, photo: 'https://example.com/images/ah.jpg', stock: 30},
+        'ခြေထောက်': {price: 300, photo: 'https://example.com/images/htauk.jpg', stock: 50},
+        'ခြေထောက်(CP)': {price: 700, photo: 'https://example.com/images/htauk_cp.jpg', stock: 40},
+        'လက်မောင်းလုံး': {price: 1000, photo: 'https://example.com/images/larmoung.jpg', stock: 30},
+        'အဆီပူး': {price: 800, photo: 'https://example.com/images/ase.jpg', stock: 30},
+        'အသားတု': {price: 400, photo: 'https://example.com/images/ata.jpg', stock: 50},
+        'ရုံးပတေသီး': {price: 300, photo: 'https://example.com/images/yon.jpg', stock: 50},
+        'အပ်မှို': {price: 1000, photo: 'https://example.com/images/ap.jpg', stock: 30},
+        'ငုံးဥ': {price: 1000, photo: 'https://example.com/images/ngon.jpg', stock: 30}
     };
-    
+
     let cart = {};
     let lastOrderCount = 0;
 
@@ -108,7 +127,12 @@
         for (let item in menu) {
             list.innerHTML += `
                 <div class="menu-item">
-                    <span><b>${item}</b><br><small>${menu[item].toLocaleString()} K</small></span>
+                    <img src="${menu[item].photo}" alt="${item}">
+                    <span>
+                        <b>${item}</b><br>
+                        <small>${menu[item].price.toLocaleString()} K</small><br>
+                        <small>Stock: ${menu[item].stock}</small>
+                    </span>
                     <div class="qty-controls">
                         <button class="btn-qty" onclick="updateQty('${item}', -1)">-</button>
                         <span id="qty-${item}" style="min-width: 20px; text-align: center; font-weight: bold;">0</span>
@@ -121,45 +145,48 @@
     function updateQty(item, change) {
         cart[item] = (cart[item] || 0) + change;
         if (cart[item] < 0) cart[item] = 0;
+        if (cart[item] > menu[item].stock) cart[item] = menu[item].stock;
         document.getElementById(`qty-${item}`).innerText = cart[item];
         let total = 0;
-        for (let k in cart) total += cart[k] * menu[k];
+        for (let k in cart) total += cart[k] * menu[k].price;
         document.getElementById('total-price').innerText = total.toLocaleString();
     }
 
+    function isStoreOpen() {
+        const now = new Date();
+        if (offDay.includes(now.getDay())) return false;
+        const [openH, openM] = storeOpen.split(":").map(Number);
+        const [closeH, closeM] = storeClose.split(":").map(Number);
+        const nowMinutes = now.getHours() * 60 + now.getMinutes();
+        const openMinutes = openH * 60 + openM;
+        const closeMinutes = closeH * 60 + closeM;
+        return nowMinutes >= openMinutes && nowMinutes <= closeMinutes;
+    }
+
     async function submitOrder() {
+        if(!isStoreOpen()) return alert("ဆိုင်ပိတ်နေပါသည်။ နောက်ပိုင်းပြန်ကြိုးစားပါ။");
         const name = document.getElementById('cust-name').value;
         const phone = document.getElementById('cust-phone').value;
         const time = document.getElementById('pickup-time').value;
         const total = document.getElementById('total-price').innerText;
 
-        if (!name || !phone || total == "0") return alert("အမည်၊ ဖုန်းနှင့် ပစ္စည်းများကို ပြည့်စုံစွာ ဖြည့်ပေးပါ။");
+        if (!name || !phone || total == "0") return alert("အချက်အလက်ပြည့်စုံစွာ ဖြည့်ပေးပါ။");
 
         let itemsArr = [];
-        let tgItemsText = "";
-        for (let k in cart) {
-            if (cart[k] > 0) {
-                itemsArr.push(`${k}(${cart[k]})`);
-                tgItemsText += `🔸 ${k}: ${cart[k]} ခု (${(cart[k] * menu[k]).toLocaleString()} K)\n`;
-            }
-        }
+        for (let k in cart) if (cart[k] > 0) itemsArr.push(`${k}(${cart[k]})`);
         const itemsText = itemsArr.join(", ");
 
         const { data, error } = await _supabase.from('orders').insert([{
             customer_name: name, phone: phone, items: itemsText, total: total, status: 'pending', pickup_time: time
         }]).select();
 
-        if (error) return alert("Database Error: " + error.message);
+        if (error) return alert("Error: " + error.message);
 
-        // --- Telegram Notification Logic ---
-        const tgMsg = `🧾 မြင်သာကြက်ကင် - မှာယူမှုလွှာ\n🆔 အော်ဒါနံပါတ်: MT-${1000 + data[0].id}\n👤 အမည်: ${name}\n📞 ဖုန်း: ${phone}\n🕒 လာယူမည့်အချိန်: ${time}\n--------------------------------\n🛒 မှာယူသည့်စာရင်း:\n${tgItemsText}💰 စုစုပေါင်း: ${total} MMK\n--------------------------------\n📍 ဆိုင်လိပ်စာ: ၅/၇ ဗြဟ္မစိုဟ် လမ်းမီးပွိုင့်အောက် မြင်သာဈေးအရှေ့\n📞 ဆိုင်ဖုန်း: 09767287345`;
+        const tgMsg = `🔔 *အော်ဒါအသစ်ရပါပြီ!*%0A--------------------------%0A🆔 Order ID: #${data[0].id}%0A👤 အမည်: ${name}%0A📞 ဖုန်း: ${phone}%0A🕒 လာယူချိန်: ${time}%0A📦 ပစ္စည်းများ: ${itemsText}%0A💰 စုစုပေါင်း: ${total} MMK`;
+        fetch(`https://api.telegram.org/bot${TG_TOKEN}/sendMessage?chat_id=${TG_CHAT_ID}&text=${tgMsg}&parse_mode=Markdown`);
 
-        const tgUrl = `https://api.telegram.org/bot${TG_TOKEN}/sendMessage?chat_id=${TG_CHAT_ID}&text=${encodeURIComponent(tgMsg)}`;
-        
-        fetch(tgUrl).then(() => {
-            alert("✅ အော်ဒါတင်ခြင်း အောင်မြင်ပါသည်။ Telegram သို့လည်း အကြောင်းကြားစာ ပေးပို့ပြီးပါပြီ။");
-            location.reload();
-        });
+        alert("✅ အော်ဒါတင်ခြင်း အောင်မြင်ပါသည်။");
+        location.reload();
     }
 
     async function fetchMyOrders() {
@@ -171,9 +198,9 @@
             <div class="order-card">
                 <div class="voucher-title">📜 မြင်သာကြက်ကင် (VOUCHER)</div>
                 <span class="status-badge status-${o.status}">${o.status == 'pending' ? '⏳ စောင့်ဆိုင်းဆဲ' : '✅ အတည်ပြုပြီး'}</span>
-                <b>ID: MT-${1000 + o.id}</b><br>
+                <b>ID: #${o.id}</b><br>
                 <small>နေ့စွဲ: ${new Date(o.created_at).toLocaleString()}</small><hr>
-                <p style="font-size:14px; color:#333;">${o.items}</p>
+                <p style="font-size:14px;">${o.items}</p>
                 <b>စုစုပေါင်း: ${o.total} MMK</b>
             </div>
         `).join('');
@@ -184,47 +211,29 @@
             document.getElementById('admin-login-box').classList.add('hidden');
             document.getElementById('admin-panel').classList.remove('hidden');
             fetchAdminOrders();
-            // Real-time Update
-            _supabase.channel('custom-all-channel')
-            .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'orders' }, payload => {
-                document.getElementById('alarmSound').play();
-                fetchAdminOrders();
-            })
-            .subscribe();
+            setInterval(checkNewOrders, 5000);
         } else {
             alert("Password မှားယွင်းနေပါသည်။");
         }
     }
 
-    async function fetchAdminOrders() {
-        const { data } = await _supabase.from('orders').select('*').order('created_at', { ascending: false }).limit(50);
-        document.getElementById('all-orders-list').innerHTML = data.map(o => `
-            <div class="order-card" style="border-style: solid; border-color: #eee;">
-                <b>MT-${1000 + o.id} - ${o.customer_name}</b> (${o.phone})
-                <span class="status-badge status-${o.status}">${o.status}</span><br>
-                <small>🕒 လာယူချိန်: ${o.pickup_time || '-'} | ${new Date(o.created_at).toLocaleTimeString()}</small><hr>
-                <p style="font-size:14px;">${o.items}</p>
-                <b>💰 ${o.total} K</b><br><br>
-                ${o.status == 'pending' ? `<button onclick="updateStatus(${o.id}, 'confirmed')" style="background:#27ae60; color:white; border:none; padding:12px; border-radius:8px; width:100%; cursor:pointer; font-weight:bold;">Confirm Order</button>` : ''}
-                <button onclick="deleteOrder(${o.id})" style="background:none; color:#e74c3c; border:none; width:100%; margin-top:10px; cursor:pointer; font-size:11px;">❌ မှာယူမှုဖျက်ပါ</button>
-            </div>
-        `).join('');
-    }
-
-    async function updateStatus(id, newStatus) {
-        await _supabase.from('orders').update({ status: newStatus }).eq('id', id);
-        fetchAdminOrders();
-    }
-
-    async function deleteOrder(id) {
-        if(confirm("ဤအော်ဒါကို ဖျက်ရန် သေချာပါသလား?")) {
-            await _supabase.from('orders').delete().eq('id', id);
+    async function checkNewOrders() {
+        const { count } = await _supabase.from('orders').select('*', { count: 'exact', head: true });
+        if (lastOrderCount !== 0 && count > lastOrderCount) {
+            document.getElementById('alarmSound').play();
             fetchAdminOrders();
         }
+        lastOrderCount = count;
     }
 
-    window.onload = renderMenu;
-</script>
-</body>
-</html>
-
+    async function fetchAdminOrders() {
+        const { data } = await _supabase.from('orders').select('*').order('created_at', { ascending: false });
+        document.getElementById('all-orders-list').innerHTML = data.map(o => `
+            <div class="order-card" style="border-style: solid; border-color: #eee;">
+                <b>#${o.id} - ${o.customer_name}</b> (${o.phone})
+                <span class="status-badge status-${o.status}">${o.status}</span><br>
+                <small>🕒 ${o.pickup_time} | ${new Date(o.created_at).toLocaleTimeString()}</small><hr>
+                <p style="font-size:14px;">${o.items}</p>
+                <b>💰 ${o.total} K</b><br><br>
+                ${o.status == 'pending' ? `<button onclick="updateStatus(${o.id}, 'confirmed')" style="background:#27ae60; color:white; border:none; padding:10px; border-radius:8px; width:100%; cursor:pointer; font-weight:bold;">Confirm Order</button>` : ''}
+                <button onclick="deleteOrder(${o.id})" style="background:none
