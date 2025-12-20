@@ -3,30 +3,44 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🧾 မြင်သာကြက်ကင် - Multi-Channel POS</title>
+    <title>🍗 မြင်သာကြက်ကင် - Pickup POS</title>
     <link href="https://fonts.googleapis.com/css2?family=Pyidaungsu:wght@400;700&display=swap" rel="stylesheet">
     <style>
-        :root { --primary: #e67e22; --secondary: #d35400; --bg: #f8f9fa; --telegram: #0088cc; --viber: #7360f2; --sms: #27ae60; }
-        body { font-family: 'Pyidaungsu', sans-serif; background: var(--bg); margin: 0; padding: 15px; }
-        .container { max-width: 550px; margin: auto; background: white; border-radius: 25px; overflow: hidden; box-shadow: 0 20px 40px rgba(0,0,0,0.1); }
-        .header { background: linear-gradient(135deg, #f39c12, #d35400); color: white; padding: 25px 20px; text-align: center; }
-        .section { padding: 20px; }
+        :root { --primary: #e67e22; --secondary: #d35400; --bg: #f4f7f6; --telegram: #0088cc; --viber: #7360f2; --sms: #27ae60; --dark: #2c3e50; }
+        body { font-family: 'Pyidaungsu', sans-serif; background: var(--bg); margin: 0; padding: 15px; color: #333; }
+        .container { max-width: 550px; margin: auto; background: white; border-radius: 25px; overflow: hidden; box-shadow: 0 15px 35px rgba(0,0,0,0.1); }
+        .header { background: linear-gradient(135deg, #f39c12, #d35400); color: white; padding: 25px; text-align: center; }
+        .header h1 { margin: 0; font-size: 24px; letter-spacing: 1px; }
+        
+        /* ဆိုင်အချက်အလက် Box */
+        .shop-info { background: #fff8e1; border: 1px dashed #ffa000; margin: 15px; padding: 15px; border-radius: 12px; font-size: 14px; }
+        .shop-info b { color: #e65100; font-size: 17px; display: block; margin-bottom: 8px; }
+        .shop-info p { margin: 5px 0; display: flex; align-items: flex-start; gap: 10px; line-height: 1.5; }
+        .map-link { color: #d35400; font-weight: bold; text-decoration: none; border-bottom: 1px solid; }
+
+        .section { padding: 15px; }
         .input-group { display: grid; gap: 10px; margin-bottom: 20px; }
-        input { padding: 14px; border: 1px solid #ddd; border-radius: 12px; font-size: 16px; outline: none; }
-        .menu-card { background: #fff; border-radius: 15px; border: 1px solid #eee; margin-bottom: 12px; padding: 15px; display: flex; justify-content: space-between; align-items: center; transition: 0.2s; }
-        .menu-card:hover { border-color: var(--primary); }
-        .item-info b { font-size: 17px; }
-        .item-info p { margin: 5px 0 0; color: var(--primary); font-weight: bold; }
-        .qty-controls { display: flex; align-items: center; gap: 12px; background: #f1f2f6; padding: 6px 12px; border-radius: 25px; }
+        input { padding: 14px; border: 1px solid #ddd; border-radius: 12px; font-size: 16px; outline: none; width: 100%; box-sizing: border-box; }
+        input:focus { border-color: var(--primary); box-shadow: 0 0 10px rgba(230,126,34,0.1); }
+
+        .menu-list { max-height: 350px; overflow-y: auto; padding-right: 5px; }
+        .menu-card { background: #fff; border-radius: 15px; border: 1px solid #eee; margin-bottom: 10px; padding: 15px; display: flex; justify-content: space-between; align-items: center; }
+        .item-info b { font-size: 16px; }
+        .item-info p { margin: 3px 0 0; color: var(--primary); font-weight: bold; }
+        
+        .qty-controls { display: flex; align-items: center; gap: 12px; background: #f8f9fa; padding: 6px 15px; border-radius: 25px; border: 1px solid #eee; }
         .btn-qty { border: none; background: none; font-size: 22px; cursor: pointer; color: var(--secondary); font-weight: bold; }
-        .cart-summary { background: #2c3e50; color: white; padding: 25px; border-radius: 25px 25px 0 0; }
-        .total-row { display: flex; justify-content: space-between; font-size: 22px; font-weight: bold; margin-bottom: 20px; }
-        .btn-group { display: grid; gap: 10px; }
-        .btn-send { width: 100%; padding: 15px; border: none; border-radius: 12px; font-size: 16px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; color: white; transition: 0.3s; text-decoration: none; }
+        .qty-val { font-weight: bold; min-width: 20px; text-align: center; font-size: 18px; }
+
+        .cart-summary { background: var(--dark); color: white; padding: 25px; border-radius: 25px 25px 0 0; }
+        .total-row { display: flex; justify-content: space-between; font-size: 24px; font-weight: bold; margin-bottom: 20px; color: #f1c40f; }
+        
+        .btn-group { display: grid; gap: 12px; }
+        .btn-send { width: 100%; padding: 16px; border: none; border-radius: 15px; font-size: 16px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 12px; color: white; text-decoration: none; transition: 0.3s; }
         .btn-tg { background: var(--telegram); }
         .btn-vb { background: var(--viber); }
         .btn-sm { background: var(--sms); }
-        .btn-send:hover { opacity: 0.9; transform: scale(1.02); }
+        .btn-send:hover { transform: translateY(-3px); opacity: 0.9; }
     </style>
 </head>
 <body>
@@ -34,27 +48,33 @@
 <div class="container">
     <div class="header">
         <h1>🍗 မြင်သာကြက်ကင်</h1>
-        <p>မှာယူလိုသည့်နည်းလမ်းကို ရွေးချယ်ပါ</p>
+        <p>Premium Ordering System</p>
+    </div>
+
+    <div class="shop-info">
+        <b>🏪 ဆိုင်အချက်အလက်</b>
+        <p>📍 <b>လိပ်စာ:</b> ၅/၇ ဗြဟ္မစိုဟ် လမ်းမီးပွိုင့်အောက် မြင်သာဈေးအရှေ့</p>
+        <p>🗺️ <b>မြေပုံ:</b> <a href="http://maps.google.com/?q=Myin+Thar+Market" class="map-link" target="_blank">Google Maps တွင်ကြည့်ရန်</a></p>
+        <p>⏰ <b>ဖွင့်ချိန်:</b> ညနေ ၅:၃၀ မှ ည ၉:၀၀ အထိ</p>
+        <p>📞 <b>ဖုန်း:</b> 09767287345</p>
     </div>
 
     <div class="section">
         <div class="input-group">
             <input type="text" id="cust-name" placeholder="👤 ဝယ်ယူသူအမည်">
-            <input type="tel" id="cust-phone" placeholder="📞 ဖုန်းနံပါတ်">
+            <input type="tel" id="cust-phone" placeholder="📞 ဆက်သွယ်ရန်ဖုန်း">
+            <input type="text" id="pickup-time" placeholder="🕒 လာယူမည့်အချိန် (ဥပမာ - ညနေ ၆ နာရီ)">
         </div>
-        <div id="menu-container"></div>
+        
+        <div class="menu-list" id="menu-container"></div>
     </div>
 
     <div class="cart-summary">
-        <div class="total-row">
-            <span>စုစုပေါင်း</span>
-            <span><span id="total-price">0</span> MMK</span>
-        </div>
-        
+        <div class="total-row"><span>စုစုပေါင်း</span><span><span id="total-price">0</span> MMK</span></div>
         <div class="btn-group">
-            <button class="btn-send btn-tg" onclick="sendOrder('telegram')">✈️ Telegram သို့ ပို့မည်</button>
-            <button class="btn-send btn-vb" onclick="sendOrder('viber')">💜 Viber သို့ ပို့မည်</button>
-            <button class="btn-send btn-sm" onclick="sendOrder('sms')">💬 SMS ဖြင့် ပို့မည်</button>
+            <button class="btn-send btn-tg" onclick="sendOrder('telegram')">✈️ Telegram ဖြင့် မှာယူမည်</button>
+            <button class="btn-send btn-vb" onclick="sendOrder('viber')">💜 Viber ဖြင့် မှာယူမည်</button>
+            <button class="btn-send btn-sm" onclick="sendOrder('sms')">💬 SMS ဖြင့် မှာယူမည်</button>
         </div>
     </div>
 </div>
@@ -72,7 +92,10 @@
     let cart = {};
     const BOT_TOKEN = "8215695761:AAF1qDjAJn7gjiHyzf8t7W6c8e51cim98sU";
     const CHAT_ID = "8116152317";
-    const SHOP_PHONE = "09767287345"; // ခင်ဗျားပေးထားသော ဆိုင်ဖုန်းနံပါတ်
+    const SHOP_PHONE = "09767287345";
+    const SHOP_ADDRESS = "၅/၇ ဗြဟ္မစိုဟ် လမ်းမီးပွိုင့်အောက် မြင်သာဈေးအရှေ့";
+
+    window.onload = () => renderMenu();
 
     function renderMenu() {
         const container = document.getElementById('menu-container');
@@ -101,42 +124,47 @@
     function sendOrder(method) {
         const name = document.getElementById('cust-name').value;
         const phone = document.getElementById('cust-phone').value;
+        const pTime = document.getElementById('pickup-time').value;
         let itemsText = "";
         let total = 0;
 
         for (let item in cart) {
             if (cart[item] > 0) {
-                itemsText += `• ${item}: ${cart[item]} ခု\n`;
+                itemsText += `🔸 ${item}: ${cart[item]} ခု (${(cart[item] * menu[item]).toLocaleString()} K)\n`;
                 total += cart[item] * menu[item];
             }
         }
 
-        if (!name || !phone || total === 0) return alert("⚠️ အချက်အလက်စုံအောင် ဖြည့်ပါ။");
+        if (!name || !phone || !pTime || total === 0) return alert("⚠️ အချက်အလက်များ ပြည့်စုံစွာ ဖြည့်ပေးပါ။");
 
-        const fullMessage = `🔔 အော်ဒါအသစ်\n👤 အမည်: ${name}\n📞 ဖုန်း: ${phone}\n🛒 မှာယူမှု:\n${itemsText}💰 စုစုပေါင်း: ${total.toLocaleString()} MMK`;
+        const orderId = "MT-" + Math.floor(1000 + Math.random() * 9000);
+        const fullMessage = `🧾 **မြင်သာကြက်ကင် - မှာယူမှုလွှာ**\n` +
+                          `🆔 အော်ဒါနံပါတ်: ${orderId}\n` +
+                          `👤 အမည်: ${name}\n` +
+                          `📞 ဖုန်း: ${phone}\n` +
+                          `🕒 လာယူမည့်အချိန်: ${pTime}\n` +
+                          `--------------------------------\n` +
+                          `🛒 **မှာယူသည့်စာရင်း:**\n${itemsText}` +
+                          `💰 **စုစုပေါင်း: ${total.toLocaleString()} MMK**\n` +
+                          `--------------------------------\n` +
+                          `📍 **ဆိုင်လိပ်စာ:** ${SHOP_ADDRESS}\n` +
+                          `📞 **ဆိုင်ဖုန်း:** ${SHOP_PHONE}`;
 
         if (method === 'telegram') {
             fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ chat_id: CHAT_ID, text: fullMessage })
-            }).then(res => {
-                if(res.ok) alert("✅ Telegram သို့ အော်ဒါပို့ပြီးပါပြီ။");
-            });
-
+                body: JSON.stringify({ chat_id: CHAT_ID, text: fullMessage, parse_mode: "Markdown" })
+            }).then(() => alert("✅ အော်ဒါပို့ပြီးပါပြီ။"));
         } else if (method === 'viber') {
-            // Viber အတွက် Clipboard ကူးပြီး Viber ကို ဖွင့်ပေးခြင်း
             navigator.clipboard.writeText(fullMessage).then(() => {
-                alert("✅ ဘောက်ချာကို Copy ကူးပြီးပါပြီ။ Viber မှာ နံပါတ် " + SHOP_PHONE + " ကို ရှာပြီး Paste လုပ်ပေးပါ။");
-                window.location.href = "viber://pa?chatURI"; // Viber App ကို ဖွင့်ပေးခြင်း
+                alert("✅ ဘောက်ချာကို Copy ကူးပြီးပါပြီ။ Viber မှာ Paste လုပ်ပေးပါ။");
+                window.location.href = "viber://pa?chatURI";
             });
-
         } else if (method === 'sms') {
-            // SMS အတွက် ဖုန်းနံပါတ်ဆီသို့ တိုက်ရိုက် စာသားထည့်ပေးခြင်း
             window.location.href = `sms:${SHOP_PHONE}?body=${encodeURIComponent(fullMessage)}`;
         }
     }
-    renderMenu();
 </script>
 </body>
 </html>
