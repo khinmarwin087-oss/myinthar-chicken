@@ -3,38 +3,33 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🍗 MYINTHAR BBQ PREMIUM POS</title>
+    <title>🍗 MYINTHAR BBQ - PREMIUM POS</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link href="https://fonts.googleapis.com/css2?family=Pyidaungsu:wght@400;700&display=swap" rel="stylesheet">
     <style>
-        :root { --premium-dark: #0f172a; --premium-blue: #1e293b; --gold: #fbbf24; --soft-white: #f8fafc; --danger: #ef4444; }
-        body { font-family: 'Pyidaungsu', sans-serif; background: var(--premium-dark); margin: 0; color: var(--soft-white); }
-        .container { max-width: 500px; margin: auto; background: var(--premium-blue); min-height: 100vh; position: relative; box-shadow: 0 0 50px rgba(0,0,0,0.5); }
-        header { background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%); padding: 25px 15px; text-align: center; border-bottom: 2px solid var(--gold); }
-        .nav-tabs { display: flex; background: #334155; position: sticky; top: 0; z-index: 100; border-bottom: 1px solid #475569; }
-        .nav-tabs button { flex: 1; padding: 15px; border: none; background: none; color: #94a3b8; cursor: pointer; font-family: 'Pyidaungsu'; font-size: 13px; font-weight: bold; }
+        :root { --p-dark: #0f172a; --p-blue: #1e293b; --gold: #fbbf24; --text: #f8fafc; --danger: #ef4444; }
+        body { font-family: 'Pyidaungsu', sans-serif; background: var(--p-dark); margin: 0; color: var(--text); }
+        .container { max-width: 500px; margin: auto; background: var(--p-blue); min-height: 100vh; position: relative; }
+        header { background: #0f172a; padding: 20px; text-align: center; border-bottom: 2px solid var(--gold); }
+        .nav-tabs { display: flex; background: #334155; position: sticky; top: 0; z-index: 100; }
+        .nav-tabs button { flex: 1; padding: 15px; border: none; background: none; color: #94a3b8; cursor: pointer; font-family: 'Pyidaungsu'; }
         .nav-tabs button.active { color: var(--gold); border-bottom: 3px solid var(--gold); background: rgba(251, 191, 36, 0.1); }
         .content { padding: 20px; padding-bottom: 160px; }
         .hidden { display: none !important; }
         .card { background: #334155; border: 1px solid #475569; border-radius: 12px; padding: 15px; margin-bottom: 15px; }
         .item-row { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid #475569; }
         .btn-qty { width: 35px; height: 35px; border: none; background: #475569; color: white; border-radius: 8px; font-size: 20px; cursor: pointer; }
-        .btn-premium { background: var(--gold); color: black; border: none; border-radius: 12px; width: 100%; padding: 16px; font-weight: bold; cursor: pointer; transition: 0.3s; }
-        .btn-premium:active { transform: scale(0.98); }
-        input { width: 100%; padding: 12px; margin: 8px 0; background: #1e293b; border: 1px solid #475569; border-radius: 8px; color: white; box-sizing: border-box; }
-        .voucher { border: 1px solid #000; padding: 15px; background: #fff; color: #000; font-family: monospace; border-radius: 4px; }
-        .footer-fixed { position: fixed; bottom: 0; max-width: 500px; width: 100%; background: #1e293b; padding: 20px; box-sizing: border-box; border-radius: 20px 20px 0 0; border-top: 1px solid #475569; }
-        .badge { padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: bold; }
+        .btn-main { background: var(--gold); color: black; border: none; border-radius: 12px; width: 100%; padding: 16px; font-weight: bold; cursor: pointer; }
+        input { width: 100%; padding: 12px; margin: 8px 0; background: #0f172a; border: 1px solid #475569; border-radius: 8px; color: white; box-sizing: border-box; }
+        .voucher { background: white; color: black; padding: 20px; font-family: monospace; border-radius: 5px; }
+        .footer-cart { position: fixed; bottom: 0; max-width: 500px; width: 100%; background: #1e293b; padding: 20px; box-sizing: border-box; border-top: 1px solid #475569; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <header>
-        <div style="font-size:22px; color:var(--gold); font-weight:bold;">MYINTHAR BBQ PREMIUM</div>
-        <div id="shop-badge" style="font-size:12px; margin-top:5px; color:#10b981;">● ဆိုင်ဖွင့်ထားသည်</div>
-    </header>
-
+    <header><b style="font-size: 20px; color: var(--gold);">MYINTHAR BBQ PREMIUM</b></header>
+    
     <div class="nav-tabs">
         <button id="t-shop" class="active" onclick="showTab('shop')">Menu</button>
         <button id="t-orders" onclick="showTab('orders')">History</button>
@@ -42,62 +37,43 @@
     </div>
 
     <div id="sec-shop" class="content">
-        <div id="closed-screen" class="hidden" style="text-align:center; padding: 50px 0;"><h2>❌ ဆိုင်ခေတ္တပိတ်ထားပါသည်</h2></div>
-        <div id="shop-main">
-            <div class="card"><input type="text" id="c_name" placeholder="👤 ဝယ်သူအမည်"><input type="tel" id="c_phone" placeholder="📞 ဖုန်းနံပါတ်"></div>
-            <div id="menu-list"></div>
-        </div>
+        <div class="card"><input type="text" id="c_name" placeholder="👤 ဝယ်သူအမည်"><input type="tel" id="c_phone" placeholder="📞 ဖုန်းနံပါတ်"></div>
+        <div id="menu-list"></div>
     </div>
 
     <div id="sec-checkout" class="content hidden">
         <div class="voucher" id="voucher-ui">
-            <h3 style="text-align:center; margin:0;">MYINTHAR BBQ</h3>
-            <p id="v-time" style="font-size:11px; text-align:center; margin-bottom:15px;"></p>
-            <div id="v-items"></div>
-            <hr><div style="text-align:right; font-weight:bold;">Total: <span id="v-total"></span> K</div>
+            <h3 style="text-align:center;">MYINTHAR BBQ</h3>
+            <p id="v-date" style="font-size: 11px; text-align: center;"></p><hr>
+            <div id="v-items"></div><hr>
+            <div style="text-align:right;"><b>Total: <span id="v-total"></span> K</b></div>
         </div>
-        <div class="card" style="margin-top:15px; text-align:center; background:#fff9f0; color:#000;">
-            <p><b>KPay/AYA: 09767287345</b></p>
-            <a href="tel:09767287345" style="color:green; font-weight:bold; text-decoration:none;">📞 ဖုန်းဆက်၍ ငွေလွှဲအတည်ပြုပါ</a>
-        </div>
-        <button class="btn-premium" onclick="submitOrder()">အော်ဒါတင်မည်</button>
+        <button class="btn-main" style="margin-top:20px;" onclick="submitOrder()">အော်ဒါတင်မည်</button>
     </div>
 
     <div id="sec-orders" class="content hidden">
-        <input type="tel" id="track-phone" placeholder="ဖုန်းနံပါတ်ဖြင့် အော်ဒါပြန်ရှာရန်" oninput="fetchHistory()">
+        <input type="tel" id="track-phone" placeholder="ဖုန်းနံပါတ်ဖြင့် အော်ဒါရှာရန်" oninput="fetchHistory()">
         <div id="history-display"></div>
     </div>
 
     <div id="sec-admin" class="content hidden">
-        <div id="admin-auth"><input type="password" id="admin-pass" placeholder="Password"><button class="btn-premium" onclick="loginAdmin()">Login</button></div>
-        <div id="admin-panel" class="hidden">
+        <div id="admin-auth"><input type="password" id="admin-pass" placeholder="Password"><button class="btn-main" onclick="loginAdmin()">Login</button></div>
+        <div id="admin-dash" class="hidden">
+            <div class="card" style="text-align:center;">
+                <small>ယနေ့ရောင်းရငွေ</small><h2 id="adm-sales" style="color:var(--gold);">0 K</h2>
+            </div>
             <div style="display:flex; gap:10px; margin-bottom:15px;">
-                <button onclick="showAdminSub('orders')" class="btn-premium" style="flex:1; padding:10px;">Orders</button>
-                <button onclick="showAdminSub('edit')" class="btn-premium" style="flex:1; padding:10px;">Menu Edit</button>
+                <button onclick="switchAdminSub('orders')" class="btn-main" style="padding:10px;">Orders</button>
+                <button onclick="switchAdminSub('edit')" class="btn-main" style="padding:10px;">Edit Items</button>
             </div>
-            
-            <div id="adm-orders-view">
-                <div class="card" style="display:flex; justify-content:space-between; align-items:center;">
-                    <span>ဆိုင် ဖွင့်/ပိတ်</span>
-                    <button id="shop-switch" onclick="toggleShop()" class="badge" style="background:var(--gold); border:none; cursor:pointer; color:black;">OPEN</button>
-                </div>
-                <div class="card" style="text-align:center;">
-                    <small>ယနေ့ရောင်းရငွေ (Confirmed)</small>
-                    <h2 id="adm-sales" style="color:var(--gold); margin:5px;">0 K</h2>
-                </div>
-                <div id="adm-order-list"></div>
-            </div>
-
-            <div id="adm-edit-view" class="hidden">
-                <h4>Price & Stock Management</h4>
-                <div id="adm-product-list"></div>
-            </div>
+            <div id="adm-orders-list"></div>
+            <div id="adm-edit-list" class="hidden"></div>
         </div>
     </div>
 
-    <div id="footer-cart" class="footer-fixed">
+    <div id="footer-cart" class="footer-cart">
         <div style="display:flex; justify-content:space-between; margin-bottom:15px;"><b>Total:</b> <span id="total-val" style="color:var(--gold); font-size:20px;">0 K</span></div>
-        <button class="btn-premium" onclick="goToCheckout()">CHECKOUT</button>
+        <button class="btn-main" onclick="goToCheckout()">CHECKOUT</button>
     </div>
 </div>
 
@@ -109,13 +85,11 @@
     const TG_CHAT_ID = "8116152317";
     const alarm = new Audio('https://actions.google.com/sounds/v1/alarms/beep_short.ogg');
 
-    let products = [];
-    let cart = {}; let isShopOpen = true; let lastOrderCount = 0;
+    let products = []; let cart = {};
 
-    async function loadProducts() {
+    async function loadData() {
         const { data } = await _supabase.from('products').select('*').order('id');
-        products = data;
-        renderShop();
+        products = data; renderShop();
     }
 
     function showTab(t) {
@@ -126,21 +100,12 @@
         document.getElementById('footer-cart').classList.toggle('hidden', t !== 'shop');
     }
 
-    function toggleShop() {
-        isShopOpen = !isShopOpen;
-        document.getElementById('shop-badge').innerText = isShopOpen ? "● ဆိုင်ဖွင့်ထားသည်" : "○ ဆိုင်ပိတ်ထားသည်";
-        document.getElementById('shop-badge').style.color = isShopOpen ? "#10b981" : "var(--danger)";
-        document.getElementById('shop-main').classList.toggle('hidden', !isShopOpen);
-        document.getElementById('closed-screen').classList.toggle('hidden', isShopOpen);
-        document.getElementById('shop-switch').innerText = isShopOpen ? "OPEN" : "CLOSED";
-    }
-
     function renderShop() {
         document.getElementById('menu-list').innerHTML = products.map(p => `
             <div class="item-row">
-                <div><b>${p.name}</b><br><small style="color:var(--gold)">${p.price} K (Stock: ${p.stock})</small></div>
-                <div style="display:flex; align-items:center; gap:12px;">
-                    <button class="btn-qty" onclick="updateQty('${p.name}', -1)">−</button>
+                <div><b>${p.name}</b><br><small style="color:var(--gold)">${p.price} K</small></div>
+                <div style="display:flex; gap:12px; align-items:center;">
+                    <button class="btn-qty" onclick="updateQty('${p.name}', -1)">-</button>
                     <b id="q-${p.name}">0</b>
                     <button class="btn-qty" onclick="updateQty('${p.name}', 1)">+</button>
                 </div>
@@ -151,69 +116,63 @@
     function updateQty(name, val) {
         cart[name] = (cart[name] || 0) + val; if(cart[name] < 0) cart[name] = 0;
         document.getElementById('q-'+name).innerText = cart[name];
-        let total = 0; for(let k in cart) {
-            let p = products.find(i => i.name === k);
-            if(p) total += (cart[k] * p.price);
-        }
+        let total = 0; products.forEach(p => { total += (cart[p.name] || 0) * p.price; });
         document.getElementById('total-val').innerText = total.toLocaleString() + " K";
     }
 
     function goToCheckout() {
         if(!document.getElementById('c_name').value || document.getElementById('total-val').innerText == "0 K") return alert("အမည်နှင့် ပစ္စည်းရွေးပါ။");
-        let html = ""; for(let k in cart) if(cart[k] > 0) html += `<div style="display:flex; justify-content:space-between; padding:5px 0;"><span>${k} x ${cart[k]}</span><span>${(cart[k]*products.find(p=>p.name===k).price).toLocaleString()}</span></div>`;
-        document.getElementById('v-time').innerText = new Date().toLocaleString();
+        let html = ""; for(let k in cart) if(cart[k] > 0) html += `<div style="display:flex; justify-content:space-between;"><span>${k} x ${cart[k]}</span><span>${(cart[k]*products.find(p=>p.name===k).price).toLocaleString()}</span></div>`;
+        document.getElementById('v-date').innerText = new Date().toLocaleString();
         document.getElementById('v-items').innerHTML = html;
         document.getElementById('v-total').innerText = document.getElementById('total-val').innerText;
-        showTab('checkout'); document.getElementById('footer-cart').classList.add('hidden');
+        showTab('checkout');
     }
 
     async function submitOrder() {
         const order = { customer_name: document.getElementById('c_name').value, phone: document.getElementById('c_phone').value, items: Object.keys(cart).filter(k=>cart[k]>0).map(k=>`${k}(${cart[k]})`).join(", "), total: parseInt(document.getElementById('total-val').innerText.replace(/,/g,'')) };
         const { data, error } = await _supabase.from('orders').insert([order]).select();
         if(!error) {
-            fetch(`https://api.telegram.org/bot${TG_TOKEN}/sendMessage?chat_id=${TG_CHAT_ID}&text=🔔 *Order New*%0AID: #${data[0].id}%0A👤 Customer: ${order.customer_name}%0A📦 Items: ${order.items}%0A💰 Total: ${order.total} K&parse_mode=Markdown`);
-            alert("အော်ဒါတင်ပြီးပါပြီ။"); location.reload();
+            fetch(`https://api.telegram.org/bot${TG_TOKEN}/sendMessage?chat_id=${TG_CHAT_ID}&text=🔔 *ORDER NEW*%0AID: #${data[0].id}%0A👤 Customer: ${order.customer_name}%0A📦 Items: ${order.items}%0A💰 Total: ${order.total} K&parse_mode=Markdown`);
+            alert("Order Success!"); location.reload();
         }
     }
 
-    async function loginAdmin() {
+    function loginAdmin() {
         if(document.getElementById('admin-pass').value === "2012@Yewin") {
             document.getElementById('admin-auth').classList.add('hidden');
-            document.getElementById('admin-panel').classList.remove('hidden');
+            document.getElementById('admin-dash').classList.remove('hidden');
             refreshAdmin(); renderAdminEdit(); setInterval(refreshAdmin, 10000);
         }
     }
 
     async function refreshAdmin() {
         const { data } = await _supabase.from('orders').select('*').order('id', {descending:true});
-        if(data.length > lastOrderCount && lastOrderCount !== 0) alarm.play();
-        lastOrderCount = data.length;
         document.getElementById('adm-sales').innerText = data.filter(o=>o.status==='အတည်ပြုပြီး').reduce((a,b)=>a+b.total, 0).toLocaleString() + " K";
-        document.getElementById('adm-order-list').innerHTML = data.map(o => `
+        document.getElementById('adm-orders-list').innerHTML = data.map(o => `
             <div class="card" style="font-size:12px;">
-                <span class="badge" style="float:right; background:${o.status==='အတည်ပြုပြီး'?'#10b981':'#f59e0b'}">${o.status}</span>
-                <b>#${o.id} - ${o.customer_name}</b><br>
+                <b>#${o.id} - ${o.customer_name}</b> (${o.phone})<br>
                 <small style="color:var(--gold)">${o.items}</small><br>
-                <b>${o.total.toLocaleString()} K</b> | ${new Date(o.created_at).toLocaleTimeString()}<br>
-                <button onclick="approveOrder(${o.id})" class="btn-premium" style="padding:8px; width:100%; margin-top:8px; font-size:11px;">Confirm Order</button>
+                <b>${o.total.toLocaleString()} K</b><br>
+                <button onclick="approveOrder(${o.id})" class="btn-main" style="padding:5px; margin-top:8px;">Confirm Order</button>
             </div>
         `).join('');
     }
 
-    async function approveOrder(id) { await _supabase.from('orders').update({ status: 'အတည်ပြုပြီး' }).eq('id', id); refreshAdmin(); }
+    async function approveOrder(id) { await _supabase.from('orders').update({status:'အတည်ပြုပြီး'}).eq('id', id); refreshAdmin(); }
 
-    function showAdminSub(v) {
-        document.getElementById('adm-orders-view').classList.toggle('hidden', v !== 'orders');
-        document.getElementById('adm-edit-view').classList.toggle('hidden', v !== 'edit');
+    function switchAdminSub(v) {
+        document.getElementById('adm-orders-list').classList.toggle('hidden', v !== 'orders');
+        document.getElementById('adm-edit-list').classList.toggle('hidden', v !== 'edit');
     }
 
     function renderAdminEdit() {
-        document.getElementById('adm-product-list').innerHTML = products.map(p => `
+        document.getElementById('adm-edit-list').innerHTML = products.map(p => `
             <div class="card" style="font-size:13px;">
                 <b>${p.name}</b><br>
-                Price: <input type="number" id="ep-${p.id}" value="${p.price}" style="width:100px;"> 
-                Stock: <input type="number" id="es-${p.id}" value="${p.stock}" style="width:100px;">
-                <button onclick="updateProduct(${p.id})" style="padding:5px 10px; background:var(--gold); border:none; border-radius:5px; cursor:pointer;">Save</button>
+                Price: <input type="number" id="ep-${p.id}" value="${p.price}" style="width:80px;">
+                Stock: <input type="number" id="es-${p.id}" value="${p.stock}" style="width:80px;">
+                <button onclick="updateProduct(${p.id})" style="background:var(--gold); border:none; padding:5px; cursor:pointer;">Save</button>
             </div>
         `).join('');
     }
@@ -221,8 +180,8 @@
     async function updateProduct(id) {
         const p = document.getElementById('ep-'+id).value;
         const s = document.getElementById('es-'+id).value;
-        await _supabase.from('products').update({ price: p, stock: s }).eq('id', id);
-        alert("Updated!"); loadProducts();
+        await _supabase.from('products').update({price:p, stock:s}).eq('id', id);
+        alert("Updated!"); loadData();
     }
 
     async function fetchHistory() {
@@ -231,7 +190,7 @@
         document.getElementById('history-display').innerHTML = data.map(o => `<div class="card"><b>ID: #${o.id}</b> [${o.status}]<br><small>${o.items}</small><br><b>${o.total.toLocaleString()} K</b></div>`).join('');
     }
 
-    window.onload = loadProducts;
+    window.onload = loadData;
 </script>
 </body>
 </html>
