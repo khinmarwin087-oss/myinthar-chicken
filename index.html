@@ -3,108 +3,116 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🍗 မြင်သာကြက်ကင် POS - Smart Store</title>
+    <title>🍗 မြင်သာကြက်ကင် POS - Professional Version</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Pyidaungsu:wght@400;700&display=swap" rel="stylesheet">
     <style>
-        :root { --amazon-orange: #febd69; --amazon-gold: #f0c14b; --dark: #131921; --bg: #eaeded; }
+        :root { --amazon-orange: #ff9900; --amazon-dark: #232f3e; --bg: #f3f3f3; --price-red: #B12704; }
         body { font-family: 'Pyidaungsu', sans-serif; background: var(--bg); margin: 0; padding: 0; color: #111; }
-        .container { max-width: 500px; margin: auto; background: white; min-height: 100vh; }
+        .container { max-width: 500px; margin: auto; background: white; min-height: 100vh; position: relative; }
         
-        /* Amazon Header */
-        header { background: var(--dark); color: white; padding: 12px; display: flex; align-items: center; justify-content: space-between; }
-        .nav-tabs { display: flex; background: #232f3e; overflow-x: auto; }
-        .nav-tabs button { flex: 1; padding: 12px; border: none; background: none; color: white; cursor: pointer; font-family: 'Pyidaungsu'; font-size: 13px; opacity: 0.8; }
-        .nav-tabs button.active { opacity: 1; border-bottom: 3px solid var(--amazon-orange); font-weight: bold; }
+        /* Header & Nav */
+        header { background: var(--amazon-dark); color: white; padding: 15px; text-align: center; font-weight: bold; font-size: 20px; }
+        .nav-tabs { display: flex; background: #37475a; position: sticky; top: 0; z-index: 100; }
+        .nav-tabs button { flex: 1; padding: 12px; border: none; background: none; color: #ccc; cursor: pointer; font-family: 'Pyidaungsu'; }
+        .nav-tabs button.active { color: white; border-bottom: 4px solid var(--amazon-orange); font-weight: bold; }
 
-        .content { padding: 15px; }
+        .content { padding: 15px; padding-bottom: 150px; }
         .hidden { display: none !important; }
-        
-        /* Item Style */
-        .item-card { display: flex; justify-content: space-between; align-items: center; padding: 15px 0; border-bottom: 1px solid #ddd; }
-        .price { color: #B12704; font-weight: bold; font-size: 16px; }
-        .qty-btn { background: #e7e9ec; border: 1px solid #adb1b8; border-radius: 3px; width: 35px; height: 35px; cursor: pointer; }
+        .card { background: white; border: 1px solid #ddd; border-radius: 8px; padding: 15px; margin-bottom: 12px; }
 
-        /* Checkout Card */
-        .payment-box { background: #fcf5ee; border: 1px solid #fbd8b4; border-radius: 8px; padding: 15px; margin: 15px 0; }
-        .pay-info { background: white; border: 1px solid #ddd; padding: 10px; border-radius: 5px; margin-bottom: 10px; text-align: center; }
-        
-        /* Admin Order List */
-        .order-card { background: white; border: 1px solid #ddd; padding: 15px; border-radius: 8px; margin-bottom: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
-        .detail-line { display: flex; justify-content: space-between; font-size: 13px; margin: 3px 0; }
+        /* Shop Items */
+        .item-row { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid #eee; }
+        .price { color: var(--price-red); font-weight: bold; }
+        .qty-box { display: flex; align-items: center; gap: 10px; }
+        .btn-qty { width: 32px; height: 32px; border: 1px solid #bbb; background: #e7e9ec; border-radius: 4px; cursor: pointer; font-weight: bold; }
 
-        /* Amazon Style Buttons */
-        .btn-amazon { background: linear-gradient(to bottom, #f7dfa5, #f0c14b); border: 1px solid #a88734; border-radius: 3px; width: 100%; padding: 12px; font-weight: bold; cursor: pointer; }
-        .footer-cart { position: fixed; bottom: 0; max-width: 500px; width: 100%; background: white; border-top: 1px solid #ddd; padding: 15px; box-sizing: border-box; z-index: 100; }
+        /* Voucher Style */
+        .voucher-area { border: 2px dashed #ddd; padding: 20px; background: #fff; margin-bottom: 15px; }
+        .status-badge { padding: 4px 10px; border-radius: 5px; font-size: 12px; float: right; font-weight: bold; }
+        .pending { background: #fff3cd; color: #856404; }
+        .confirmed { background: #d4edda; color: #155724; }
+
+        /* Payment Box */
+        .pay-box { background: #fff9f0; border: 1px solid #ffcc66; padding: 15px; border-radius: 8px; text-align: center; margin: 15px 0; }
+        .pay-number { font-size: 22px; color: var(--price-red); font-weight: bold; display: block; margin: 5px 0; letter-spacing: 1px; }
+
+        /* Buttons */
+        .btn-main { background: #ffd814; border: 1px solid #fcd200; border-radius: 20px; width: 100%; padding: 14px; font-weight: bold; cursor: pointer; font-size: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        .btn-download { background: #f0f2f2; border: 1px solid #d5d9d9; border-radius: 20px; width: 100%; padding: 10px; margin-top: 10px; cursor: pointer; }
         
-        input { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #888; border-radius: 3px; box-sizing: border-box; }
+        .footer-cart { position: fixed; bottom: 0; max-width: 500px; width: 100%; background: white; border-top: 1px solid #ddd; padding: 15px; box-sizing: border-box; }
+        input { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #bbb; border-radius: 4px; box-sizing: border-box; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <header>
-        <span style="font-weight:bold; font-size:18px;">Myinthar Chicken</span>
-        <span id="header-time" style="font-size:12px;"></span>
-    </header>
+    <header>MYINTHAR BBQ POS</header>
 
     <div class="nav-tabs">
-        <button id="tab-shop" class="active" onclick="showTab('shop')">SHOP</button>
-        <button id="tab-myorders" onclick="showTab('myorders')">ORDERS</button>
-        <button id="tab-admin" onclick="showTab('admin')">ADMIN</button>
+        <button id="t-shop" class="active" onclick="showTab('shop')">ဝယ်ယူရန်</button>
+        <button id="t-orders" onclick="showTab('orders')">အော်ဒါစစ်ရန်</button>
+        <button id="t-admin" onclick="showTab('admin')">ADMIN</button>
     </div>
 
     <div id="sec-shop" class="content">
-        <div style="background:#f3f3f3; padding:10px; border-radius:5px; margin-bottom:15px;">
-            <input type="text" id="cust_name" placeholder="ဝယ်ယူသူအမည်">
-            <input type="tel" id="cust_phone" placeholder="ဖုန်းနံပါတ်">
+        <div class="card">
+            <input type="text" id="c_name" placeholder="👤 ဝယ်ယူသူအမည်">
+            <input type="tel" id="c_phone" placeholder="📞 ဖုန်းနံပါတ်">
         </div>
-        <div id="item-list"></div>
+        <div id="menu-list"></div>
     </div>
 
-    <div id="sec-pay" class="content hidden">
-        <h3 style="margin-top:0;">Finalize Your Order</h3>
-        <div id="voucher-summary" class="order-card" style="background:#fff9f0;"></div>
-        
-        <div class="payment-box">
-            <p style="font-weight:bold; margin-top:0;">💰 ငွေပေးချေရန် (KPay / AYA Pay)</p>
-            <div class="pay-info">
-                <span style="font-size:18px; color:#B12704; font-weight:bold;">09767287345</span><br>
+    <div id="sec-checkout" class="content hidden">
+        <div id="voucher-capture" class="voucher-area">
+            <h3 style="text-align:center; color:var(--amazon-orange); margin-top:0;">အော်ဒါဘောက်ချာ</h3>
+            <div id="voucher-details" style="font-size:14px; line-height:1.6;"></div>
+            <div class="pay-box">
+                <small>KPay / AYA Pay</small>
+                <span class="pay-number">09767287345</span>
                 <small>(U Ye Win)</small>
             </div>
-            <p style="font-size:12px; color:#555;">အပေါ်ကနံပါတ်ကို ငွေလွှဲပြီးလျှင် Screenshot တင်ပေးပါ။</p>
-            <input type="file" id="pay_file" accept="image/*">
-            <input type="text" id="pay_txid" placeholder="Transaction ID (နောက်ဆုံး ၆ လုံး)">
         </div>
-        <button class="btn-amazon" onclick="submitFinalOrder()">မှာယူမှုကို အတည်ပြုမည်</button>
-        <button onclick="showTab('shop')" style="width:100%; background:none; border:none; color:#0066c0; margin-top:10px;">Back to Menu</button>
+        <p style="font-size:13px; color:#555;">၁။ အပေါ်ကနံပါတ်သို့ ငွေလွှဲပြီး ဖြတ်ပိုင်းတင်ပါ။</p>
+        <input type="file" id="p_file" accept="image/*">
+        <input type="text" id="p_txid" placeholder="Transaction ID (နောက်ဆုံး ၆ လုံး)">
+        <button class="btn-main" onclick="submitOrder()">အော်ဒါတင်မည်</button>
+        <button class="btn-download" onclick="downloadVoucher()">⬇️ Voucher ကို ပုံအဖြစ်သိမ်းမည်</button>
+        <button onclick="showTab('shop')" style="width:100%; background:none; border:none; margin-top:15px; color:blue;">ပြန်ထွက်မည်</button>
+    </div>
+
+    <div id="sec-orders" class="content hidden">
+        <input type="tel" id="track-phone" placeholder="ဖုန်းနံပါတ်ရိုက်၍ အော်ဒါပြန်ရှာပါ" oninput="fetchHistory()">
+        <div id="history-display"></div>
     </div>
 
     <div id="sec-admin" class="content hidden">
         <div id="admin-auth">
-            <input type="password" id="adm-pass" placeholder="Admin Password">
-            <button class="btn-amazon" onclick="adminLogin()">Login</button>
+            <input type="password" id="admin-pass" placeholder="Admin Password">
+            <button class="btn-main" onclick="loginAdmin()">Login</button>
         </div>
-        <div id="admin-panel" class="hidden">
-            <div style="display:flex; gap:10px; margin-bottom:20px;">
-                <div style="flex:1; background:var(--dark); color:white; padding:10px; border-radius:5px; text-align:center;">
-                    <small>Today Sales</small><br><b id="adm-total">0</b> K
+        <div id="admin-dashboard" class="hidden">
+            <div style="display:flex; justify-content:space-between; margin-bottom:15px;">
+                <div class="card" style="flex:1; text-align:center; margin-right:5px; background:var(--amazon-dark); color:white;">
+                    <small>ရောင်းရငွေ</small><br><b id="sales-sum" style="color:var(--amazon-orange)">0</b> K
                 </div>
-                <div style="flex:1; background:var(--amazon-gold); padding:10px; border-radius:5px; text-align:center;">
-                    <small>Orders</small><br><b id="adm-count">0</b>
+                <div class="card" style="flex:1; text-align:center;">
+                    <small>အော်ဒါပေါင်း</small><br><b id="sales-count">0</b>
                 </div>
             </div>
-            <h4>အော်ဒါစာရင်း အသေးစိတ်</h4>
-            <div id="adm-order-list"></div>
+            <h4>အော်ဒါစာရင်းအသေးစိတ်</h4>
+            <div id="admin-order-list"></div>
         </div>
     </div>
 
-    <div id="cart-footer" class="footer-cart">
-        <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
-            <span style="font-weight:bold;">Subtotal:</span>
-            <span class="price"><span id="total-val">0</span> MMK</span>
+    <div id="footer-cart" class="footer-cart">
+        <div style="display:flex; justify-content:space-between; margin-bottom:12px;">
+            <span style="font-weight:bold;">စုစုပေါင်း:</span>
+            <span class="price" id="total-val" style="font-size:18px;">0 MMK</span>
         </div>
-        <button class="btn-amazon" onclick="goToPay()">မှာယူရန် ဆက်သွားမည်</button>
+        <button class="btn-main" onclick="goToCheckout()">အော်ဒါတင်ရန် ဆက်သွားမည်</button>
     </div>
 </div>
 
@@ -112,117 +120,157 @@
     const SB_URL = "https://ltusknkpwbyriikeyday.supabase.co";
     const SB_KEY = "sb_publishable_u9Y8SIpzqsT4WkyONV4J2w__Xwc09Fv";
     const _supabase = window.supabase.createClient(SB_URL, SB_KEY);
-
     const TG_TOKEN = "8215695761:AAF1qDjAJn7gjiHyzf8t7W6c8e51cim98sU";
     const TG_CHAT_ID = "8116152317";
 
     const menu = [
-        {id:1, name:'ကြက်ပေါင်', price:4000}, {id:2, name:'ကြက်ရင်အုံ', price:4000}, {id:3, name:'ဆိတ်သားကင်', price:1500},
-        {id:4, name:'အသားချောင်း(ကြက်)', price:800}, {id:5, name:'အရေခွံ', price:500}, {id:6, name:'အတောင်ပျံ', price:500},
-        {id:7, name:'အတောင်ပျံ(CP)', price:1000}, {id:8, name:'အူ', price:500}, {id:9, name:'ခေါင်း', price:300},
-        {id:10, name:'လည်ချောင်း', price:300}, {id:11, name:'အသည်းမြစ်', price:500}, {id:12, name:'ခြေထောက်', price:300},
-        {id:13, name:'ခြေထောက်(CP)', price:700}, {id:14, name:'လက်မောင်းလုံး', price:1000}, {id:15, name:'အဆီပူး', price:800},
-        {id:16, name:'အသားတု', price:400}, {id:17, name:'ရုံးပတေသီး', price:300}, {id:18, name:'အပ်မှို', price:1000}, {id:19, name:'ငုံးဥ', price:1000}
+        {name:'ကြက်ပေါင်', price:4000}, {name:'ကြက်ရင်အုံ', price:4000}, {name:'ဆိတ်သားကင်', price:1500},
+        {name:'အသားချောင်း', price:800}, {name:'အရေခွံ', price:500}, {name:'အတောင်ပျံ', price:500},
+        {name:'အတောင်ပျံ(CP)', price:1000}, {name:'အူ', price:500}, {name:'ခေါင်း', price:300},
+        {name:'လည်ချောင်း', price:300}, {name:'အသည်းမြစ်', price:500}, {name:'ခြေထောက်', price:300},
+        {name:'ခြေထောက်(CP)', price:700}, {name:'လက်မောင်းလုံး', price:1000}, {name:'အဆီပူး', price:800},
+        {name:'အသားတု', price:400}, {name:'ရုံးပတေသီး', price:300}, {name:'အပ်မှို', price:1000}, {name:'ငုံးဥ', price:1000}
     ];
 
     let cart = {};
 
-    function showTab(tab) {
+    function showTab(t) {
         document.querySelectorAll('.content').forEach(c => c.classList.add('hidden'));
         document.querySelectorAll('.nav-tabs button').forEach(b => b.classList.remove('active'));
-        document.getElementById('sec-' + tab).classList.remove('hidden');
-        document.getElementById('tab-' + tab)?.classList.add('active');
-        document.getElementById('cart-footer').classList.toggle('hidden', tab !== 'shop');
+        document.getElementById('sec-'+t).classList.remove('hidden');
+        document.getElementById('t-'+t).classList.add('active');
+        document.getElementById('footer-cart').classList.toggle('hidden', t !== 'shop');
     }
 
     function renderShop() {
-        document.getElementById('item-list').innerHTML = menu.map(item => `
-            <div class="item-card">
-                <div><b>${item.name}</b><br><span class="price">${item.price} K</span></div>
-                <div style="display:flex; align-items:center; gap:10px;">
-                    <button class="qty-btn" onclick="updateQty('${item.name}', -1)">-</button>
-                    <b id="q-${item.name}">0</b>
-                    <button class="qty-btn" onclick="updateQty('${item.name}', 1)">+</button>
+        document.getElementById('menu-list').innerHTML = menu.map(i => `
+            <div class="item-row">
+                <div><b>${i.name}</b><br><span class="price">${i.price} K</span></div>
+                <div class="qty-box">
+                    <button class="btn-qty" onclick="updateQty('${i.name}', -1)">-</button>
+                    <b id="q-${i.name}">0</b>
+                    <button class="btn-qty" onclick="updateQty('${i.name}', 1)">+</button>
                 </div>
             </div>
         `).join('');
     }
 
-    function updateQty(name, change) {
-        cart[name] = (cart[name] || 0) + change;
-        if(cart[name] < 0) cart[name] = 0;
-        document.getElementById('q-'+name).innerText = cart[name];
+    function updateQty(n, c) {
+        cart[n] = (cart[n] || 0) + c;
+        if(cart[n] < 0) cart[n] = 0;
+        document.getElementById('q-'+n).innerText = cart[n];
         let total = 0;
         for(let k in cart) total += (cart[k] * menu.find(m => m.name === k).price);
-        document.getElementById('total-val').innerText = total.toLocaleString();
+        document.getElementById('total-val').innerText = total.toLocaleString() + " MMK";
     }
 
-    function goToPay() {
-        if(!document.getElementById('cust_name').value || document.getElementById('total-val').innerText == "0") {
-            return alert("အမည်နှင့် ပစ္စည်းများ ရွေးချယ်ပေးပါ။");
-        }
-        let itemsHtml = "<b>Items:</b><br>";
-        for(let k in cart) if(cart[k] > 0) itemsHtml += `- ${k} (${cart[k]} ခု)<br>`;
-        document.getElementById('voucher-summary').innerHTML = `
-            <div style="text-align:center; font-weight:bold; border-bottom:1px solid #ddd; padding-bottom:5px; margin-bottom:10px;">Order Summary</div>
-            <div class="detail-line"><span>Customer:</span> <b>${document.getElementById('cust_name').value}</b></div>
-            <div style="font-size:13px; margin:10px 0;">${itemsHtml}</div>
-            <div class="detail-line" style="font-size:16px; border-top:1px solid #ddd; padding-top:5px;"><span>Total:</span> <b class="price">${document.getElementById('total-val').innerText} K</b></div>
+    function goToCheckout() {
+        const name = document.getElementById('c_name').value;
+        const total = document.getElementById('total-val').innerText;
+        if(!name || total === "0 MMK") return alert("အမည်နှင့် ပစ္စည်းများ ရွေးချယ်ပေးပါ။");
+
+        let itemsHtml = "<ul>";
+        for(let k in cart) if(cart[k] > 0) itemsHtml += `<li>${k} x ${cart[k]}</li>`;
+        itemsHtml += "</ul>";
+
+        document.getElementById('voucher-details').innerHTML = `
+            <p><b>ဝယ်သူအမည်:</b> ${name}</p>
+            <p><b>မှာယူသည့်စာရင်း:</b></p>${itemsHtml}
+            <p style="font-size:16px; border-top:1px solid #eee; padding-top:10px;"><b>စုစုပေါင်း:</b> <span class="price">${total}</span></p>
         `;
-        showTab('pay');
-        document.getElementById('cart-footer').classList.add('hidden');
+        showTab('checkout');
+        document.getElementById('footer-cart').classList.add('hidden');
     }
 
-    async function submitFinalOrder() {
-        const btn = document.querySelector('.btn-amazon');
+    async function submitOrder() {
+        const btn = document.querySelector('.btn-main');
         btn.disabled = true; btn.innerText = "Submitting...";
 
-        const file = document.getElementById('pay_file').files[0];
-        let imgUrl = "";
+        const file = document.getElementById('p_file').files[0];
+        let img = "";
         if(file) {
             const fName = Date.now() + "_" + file.name;
             const { data } = await _supabase.storage.from('payment-proofs').upload(fName, file);
-            if(data) imgUrl = SB_URL + "/storage/v1/object/public/payment-proofs/" + fName;
+            if(data) img = SB_URL + "/storage/v1/object/public/payment-proofs/" + fName;
         }
 
-        const orderObj = {
-            customer_name: document.getElementById('cust_name').value,
-            phone: document.getElementById('cust_phone').value,
+        const orderData = {
+            customer_name: document.getElementById('c_name').value,
+            phone: document.getElementById('c_phone').value,
             items: Object.keys(cart).filter(k => cart[k] > 0).map(k => `${k}(${cart[k]})`).join(", "),
             total: parseInt(document.getElementById('total-val').innerText.replace(/,/g, '')),
-            transaction_id: document.getElementById('pay_txid').value,
-            payment_image: imgUrl
+            transaction_id: document.getElementById('p_txid').value,
+            payment_image: img
         };
 
-        const { data: res, error } = await _supabase.from('orders').insert([orderObj]).select();
+        const { data: res, error } = await _supabase.from('orders').insert([orderData]).select();
 
         if(!error) {
-            const msg = `🔔 *အော်ဒါအသစ်*%0A------------------%0AID: #${res[0].id}%0A👤 ဝယ်သူ: ${orderObj.customer_name}%0A📞 ဖုန်း: ${orderObj.phone}%0A📦 *မှာယူသည့်စာရင်း:*%0A${orderObj.items}%0A💰 စုစုပေါင်း: ${orderObj.total} K%0A🔑 TXID: ${orderObj.transaction_id}`;
+            const msg = `🔔 *အော်ဒါအသစ်ဝင်သည်*%0A------------------%0AID: #${res[0].id}%0A👤 ဝယ်သူ: ${orderData.customer_name}%0A📞 ဖုန်း: ${orderData.phone}%0A📦 *မှာယူသည့်စာရင်း:*%0A${orderData.items}%0A💰 စုစုပေါင်း: ${orderData.total} K%0A🔑 TXID: ${orderData.transaction_id}`;
             fetch(`https://api.telegram.org/bot${TG_TOKEN}/sendMessage?chat_id=${TG_CHAT_ID}&text=${msg}&parse_mode=Markdown`);
-            alert("Order Success! Telegram ဆီသို့ အချက်အလက်များ ပို့ထားပါသည်။");
+            alert("အော်ဒါတင်ခြင်း အောင်မြင်ပါသည်။");
             location.reload();
+        } else {
+            alert("Error occurred. Please try again.");
+            btn.disabled = false; btn.innerText = "အော်ဒါတင်မည်";
         }
     }
 
-    async function adminLogin() {
-        if(document.getElementById('adm-pass').value === "2012@Yewin") {
+    async function fetchHistory() {
+        const p = document.getElementById('track-phone').value;
+        if(p.length < 7) return;
+        const { data } = await _supabase.from('orders').select('*').eq('phone', p).order('id', {descending:true});
+        document.getElementById('history-display').innerHTML = data.map(o => `
+            <div class="card">
+                <span class="status-badge ${o.status === 'အတည်ပြုပြီး' ? 'confirmed' : 'pending'}">${o.status}</span>
+                <b>အော်ဒါ ID: #${o.id}</b><br>
+                <small style="color:#555">${o.items}</small><br>
+                <b>စုစုပေါင်း: <span class="price">${o.total} K</span></b>
+            </div>
+        `).join('');
+    }
+
+    function downloadVoucher() {
+        html2canvas(document.getElementById("voucher-capture")).then(canvas => {
+            let link = document.createElement('a');
+            link.download = 'Myinthar-Voucher.png';
+            link.href = canvas.toDataURL();
+            link.click();
+        });
+    }
+
+    async function loginAdmin() {
+        if(document.getElementById('admin-pass').value === "2012@Yewin") {
             document.getElementById('admin-auth').classList.add('hidden');
-            document.getElementById('admin-panel').classList.remove('hidden');
-            const { data: ords } = await _supabase.from('orders').select('*').order('id', {descending:true});
-            document.getElementById('adm-total').innerText = ords.reduce((a,b)=> a+b.total, 0).toLocaleString();
-            document.getElementById('adm-count').innerText = ords.length;
-            document.getElementById('adm-order-list').innerHTML = ords.map(o => `
-                <div class="order-card">
-                    <div class="detail-line"><b>#${o.id} - ${o.customer_name}</b> <span>${new Date(o.created_at).toLocaleTimeString()}</span></div>
-                    <div style="color:#B12704; font-size:13px; margin:5px 0;">${o.items}</div>
-                    <div class="detail-line"><span>Phone: ${o.phone}</span> <b>${o.total} K</b></div>
-                    <div class="detail-line"><small>TXID: ${o.transaction_id || 'N/A'}</small> ${o.payment_image ? `<a href="${o.payment_image}" target="_blank">View Photo</a>` : ''}</div>
+            document.getElementById('admin-dashboard').classList.remove('hidden');
+            const { data } = await _supabase.from('orders').select('*').order('id', {descending:true});
+            document.getElementById('sales-sum').innerText = data.reduce((a,b)=> a+b.total, 0).toLocaleString();
+            document.getElementById('sales-count').innerText = data.length;
+            document.getElementById('admin-order-list').innerHTML = data.map(o => `
+                <div class="card" style="font-size:13px;">
+                    <div style="display:flex; justify-content:space-between;">
+                        <b>#${o.id} - ${o.customer_name}</b>
+                        <span>${o.status}</span>
+                    </div>
+                    <p style="color:var(--price-red); margin:5px 0;">${o.items}</p>
+                    <b>${o.total} K</b> | ဖုန်း: ${o.phone}<br>
+                    TXID: ${o.transaction_id || 'N/A'}<br>
+                    <div style="margin-top:8px;">
+                        <button onclick="approveOrder(${o.id})" style="background:#2ecc71; color:white; border:none; padding:5px 10px; border-radius:4px;">အတည်ပြုမည်</button>
+                        ${o.payment_image ? `<a href="${o.payment_image}" target="_blank" style="margin-left:10px;">ပုံကြည့်ရန်</a>` : ''}
+                    </div>
                 </div>
             `).join('');
-        }
+        } else { alert("စကားဝှက်မှားယွင်းနေပါသည်။"); }
+    }
+
+    async function approveOrder(id) {
+        const { error } = await _supabase.from('orders').update({ status: 'အတည်ပြုပြီး' }).eq('id', id);
+        if(!error) { alert("အော်ဒါကို အတည်ပြုပြီးပါပြီ။"); loginAdmin(); }
     }
 
     renderShop();
 </script>
 </body>
 </html>
+
