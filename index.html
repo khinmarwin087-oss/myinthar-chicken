@@ -101,6 +101,76 @@
 
     window.onload = loadMenu;
 </script>
+    <div id="chat-container" style="position: fixed; bottom: 80px; right: 20px; z-index: 1000;">
+    <button onclick="toggleChat()" style="background: #7360f2; color: white; border: none; width: 60px; height: 60px; border-radius: 50%; box-shadow: 0 4px 15px rgba(0,0,0,0.3); font-size: 24px; cursor: pointer;">💬</button>
+    
+    <div id="chat-window" style="display: none; position: absolute; bottom: 70px; right: 0; width: 300px; height: 400px; background: white; border-radius: 15px; box-shadow: 0 5px 25px rgba(0,0,0,0.2); flex-direction: column; overflow: hidden; border: 1px solid #eee;">
+        <div style="background: #7360f2; color: white; padding: 15px; font-weight: bold; display: flex; justify-content: space-between;">
+            <span>ဆိုင်ရှင်နှင့် စကားပြောရန်</span>
+            <span onclick="toggleChat()" style="cursor:pointer;">✖</span>
+        </div>
+        <div id="chat-messages" style="flex: 1; padding: 15px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; font-size: 14px;">
+            </div>
+        <div style="padding: 10px; border-top: 1px solid #eee; display: flex;">
+            <input type="text" id="chat-input" placeholder="စာရေးရန်..." style="flex: 1; border: 1px solid #ddd; padding: 8px; border-radius: 5px; outline: none;">
+            <button onclick="sendMessage()" style="background: #7360f2; color: white; border: none; padding: 8px 12px; margin-left: 5px; border-radius: 5px;">Send</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Chat logic
+    function toggleChat() {
+        const win = document.getElementById('chat-window');
+        win.style.display = (win.style.display === 'none' || win.style.display === '') ? 'flex' : 'none';
+        if(win.style.display === 'flex') loadMessages();
+    }
+
+    async function sendMessage() {
+        const input = document.getElementById('chat-input');
+        const msg = input.value;
+        if (!msg) return;
+
+        // User Login ရှိမရှိ စစ်ခြင်း
+        const { data: { user } } = await _supabase.auth.getUser();
+        if (!user) return alert("စာပို့ရန် Login အရင်ဝင်ပေးပါ။");
+
+        await _supabase.from('chat_messages').insert([{
+            user_id: user.id,
+            user_name: user.user_metadata.full_name || "Customer",
+            message: msg
+        }]);
+
+        input.value = '';
+        loadMessages();
+    }
+
+    async function loadMessages() {
+        const { data: { user } } = await _supabase.auth.getUser();
+        if (!user) return;
+
+        const { data } = await _supabase.from('chat_messages')
+            .select('*')
+            .eq('user_id', user.id)
+            .order('created_at', { ascending: true });
+
+        const box = document.getElementById('chat-messages');
+        box.innerHTML = data.map(m => `
+            <div style="align-self: ${m.is_admin_reply ? 'flex-start' : 'flex-end'}; 
+                        background: ${m.is_admin_reply ? '#f1f5f9' : '#7360f2'}; 
+                        color: ${m.is_admin_reply ? '#1e293b' : 'white'}; 
+                        padding: 8px 12px; border-radius: 12px; max-width: 80%;">
+                ${m.message}
+            </div>
+        `).join('');
+        box.scrollTop = box.scrollHeight;
+    }
+
+    // Real-time Chat (စာပို့တိုင်း ချက်ချင်းပေါ်စေရန်)
+    _supabase.channel('chat_messages').on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'chat_messages' }, payload => {
+        loadMessages();
+    }).subscribe();
+</script>
 </body>
 </html>
 
