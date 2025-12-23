@@ -2,64 +2,154 @@
 <html lang="my">
 <head>
     <meta charset="UTF-8">
-    <title>Admin Panel - မြင်သာကြက်ကင်</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>K.M.W Admin Center</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        body { font-family: sans-serif; background: #f4f7f6; padding: 20px; }
-        .item-row { background: white; padding: 15px; margin-bottom: 10px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-        input { padding: 8px; border: 1px solid #ddd; border-radius: 4px; }
-        .btn-update { background: #27ae60; color: white; border: none; padding: 10px; cursor: pointer; border-radius: 5px; }
-        .btn-out { background: #e74c3c; color: white; border: none; padding: 10px; cursor: pointer; border-radius: 5px; }
-        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        :root { --primary: #FF4747; --dark: #191919; --bg: #f4f7f6; }
+        body { font-family: sans-serif; background: var(--bg); margin: 0; padding: 20px; }
+        
+        /* Login Overlay */
+        #login-screen { position: fixed; inset: 0; background: var(--dark); z-index: 9999; display: flex; align-items: center; justify-content: center; color: white; }
+        .login-box { background: #222; padding: 40px; border-radius: 20px; text-align: center; width: 300px; }
+        
+        .container { max-width: 900px; margin: auto; display: none; }
+        .card { background: white; padding: 25px; border-radius: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); margin-bottom: 20px; }
+        
+        input, select, textarea { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ddd; border-radius: 10px; box-sizing: border-box; }
+        .btn { padding: 12px 20px; border: none; border-radius: 10px; cursor: pointer; font-weight: bold; width: 100%; }
+        .btn-add { background: var(--primary); color: white; }
+        .btn-update { background: #27ae60; color: white; width: auto; }
+        
+        .tab-btn { padding: 10px 20px; cursor: pointer; border: none; background: #eee; border-radius: 8px; margin-right: 5px; font-weight: bold; }
+        .tab-btn.active { background: var(--dark); color: white; }
+        .hidden { display: none; }
     </style>
 </head>
 <body>
 
-<div class="header">
-    <h2>🛠 Admin Dashboard (ပစ္စည်းစီမံရန်)</h2>
-    <button onclick="location.reload()">Refresh Data</button>
+<div id="login-screen">
+    <div class="login-box">
+        <h2>K.M.W Admin</h2>
+        <input type="password" id="admin-pass" placeholder="Password ရိုက်ထည့်ပါ" style="text-align: center;">
+        <button class="btn btn-add" onclick="checkLogin()">Login</button>
+    </div>
 </div>
 
-<div id="admin-list">မီနူးများ ဆွဲယူနေသည်...</div>
+<div class="container" id="main-content">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+        <h2>🛠 Admin Dashboard</h2>
+        <button onclick="location.reload()">Refresh</button>
+    </div>
+
+    <div style="margin-bottom: 20px;">
+        <button class="tab-btn active" onclick="showTab('tab-orders', this)">Orders</button>
+        <button class="tab-btn" onclick="showTab('tab-add', this)">+ ပစ္စည်းအသစ်တင်ရန်</button>
+        <button class="tab-btn" onclick="showTab('tab-items', this)">ပစ္စည်းများစီမံရန်</button>
+    </div>
+
+    <div id="tab-orders" class="tab-content card">
+        <h3>📝 မှာယူမှုစာရင်း</h3>
+        <div id="order-list">Loading...</div>
+    </div>
+
+    <div id="tab-add" class="tab-content card hidden">
+        <h3>💍 ပစ္စည်းအသစ်ထည့်သွင်းခြင်း</h3>
+        <label>ပစ္စည်းအမည်</label>
+        <input type="text" id="new-name" placeholder="ဥပမာ - ရွှေလက်စွပ်">
+        <label>စျေးနှုန်း (MMK)</label>
+        <input type="number" id="new-price" placeholder="ဥပမာ - 15000">
+        <label>ပုံ Link (Image URL)</label>
+        <input type="text" id="new-img" placeholder="https://example.com/photo.jpg">
+        <label>ရရှိနိုင်သော Size များ (ကော်မာခြားပါ)</label>
+        <input type="text" id="new-sizes" placeholder="S, M, L, XL">
+        <button class="btn btn-add" style="margin-top:10px;" onclick="addNewProduct()">တင်မည် (Upload)</button>
+    </div>
+
+    <div id="tab-items" class="tab-content card hidden">
+        <h3>📦 လက်ရှိပစ္စည်းများ</h3>
+        <div id="item-list">Loading...</div>
+    </div>
+</div>
 
 <script>
-    // သင်၏ Supabase URL နှင့် Key ကို ဒီမှာ ပြန်ထည့်ပါ
-    const SB_URL = "https://deabtvqzxpkepgcdutzd.supabase.co";
-    const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRlYWJ0dnF6eHBrZXBnY2R1dHpkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYyNzQzNDMsImV4cCI6MjA4MTg1MDM0M30.BbxmM65uoTDcf_nTP6w5siSF6Y5_eM4peqYJCAxR90I";
+    const SB_URL = "https://ltusknkpwbyriikeyday.supabase.co";
+    const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx0dXNrbmtwd2J5cmlpa2V5ZGF5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYyMTYxNDksImV4cCI6MjA4MTc5MjE0OX0.7TXAvr2tHl03m_gYZNYq8xyy0yYHTx0sYMN4tS6GDnA";
     const _supabase = window.supabase.createClient(SB_URL, SB_KEY);
 
-    async function loadAdminMenu() {
-        const { data } = await _supabase.from('menu_items').select('*').order('id');
-        const container = document.getElementById('admin-list');
-        container.innerHTML = data.map(item => `
-            <div class="item-row">
-                <div>
-                    <b>${item.name}</b><br>
-                    လက်ကျန်: <input type="number" id="stock-${item.id}" value="${item.stock_qty}" style="width:60px;">
-                </div>
-                <div>
-                    စျေးနှုန်း: <input type="number" id="price-${item.id}" value="${item.price}" style="width:80px;"> K
-                </div>
-                <div>
-                    <button class="btn-update" onclick="updateItem(${item.id})">Update</button>
-                </div>
+    // ၁။ Password စစ်ဆေးခြင်း
+    function checkLogin() {
+        const pass = document.getElementById('admin-pass').value;
+        if(pass === "kmw123") { // ဒီမှာ Password ပြင်နိုင်ပါတယ်
+            document.getElementById('login-screen').style.display = 'none';
+            document.getElementById('main-content').style.display = 'block';
+            loadAllData();
+        } else {
+            alert("Password မှားယွင်းနေပါသည်။");
+        }
+    }
+
+    async function loadAllData() {
+        // Orders
+        const { data: orders } = await _supabase.from('orders').select('*').order('created_at', {ascending: false});
+        document.getElementById('order-list').innerHTML = orders.map(o => `
+            <div style="border-bottom:1px solid #eee; padding:15px 0;">
+                <b>#${o.id.toString().slice(-5)} - ${o.customer_name}</b> (${o.status})<br>
+                <small>${o.phone} | ${o.address}</small><br>
+                <b style="color:var(--primary);">${o.total_price.toLocaleString()} K</b>
+                <button onclick="updateStatus(${o.id}, 'Shipped')" style="float:right;">Shipped ပို့ပြီး</button>
+            </div>
+        `).join('');
+
+        // Items
+        const { data: items } = await _supabase.from('menu_items').select('*').order('created_at', {ascending: false});
+        document.getElementById('item-list').innerHTML = items.map(i => `
+            <div style="display:flex; gap:10px; margin-bottom:10px; align-items:center; background:#f9f9f9; padding:10px; border-radius:10px;">
+                <img src="${i.image_url}" width="50" height="50" style="border-radius:5px; object-fit:cover;">
+                <div style="flex:1;"><b>${i.name}</b><br>${i.price} K</div>
+                <button onclick="deleteProduct(${i.id})" style="color:red; background:none; border:none; cursor:pointer;">ဖျက်မည်</button>
             </div>
         `).join('');
     }
 
-    async function updateItem(id) {
-        const newStock = document.getElementById(`stock-${id}`).value;
-        const newPrice = document.getElementById(`price-${id}`).value;
-        
-        const { error } = await _supabase.from('menu_items')
-            .update({ stock_qty: newStock, price: newPrice })
-            .eq('id', id);
+    // ၂။ ပစ္စည်းအသစ်တင်ခြင်း
+    async function addNewProduct() {
+        const name = document.getElementById('new-name').value;
+        const price = document.getElementById('new-price').value;
+        const img = document.getElementById('new-img').value;
+        const sizes = document.getElementById('new-sizes').value;
 
-        if (!error) alert("ပြင်ဆင်ပြီးပါပြီ။");
-        else alert("အမှားအယွင်းရှိနေပါသည်။");
+        if(!name || !price || !img) return alert("အချက်အလက် အပြည့်အစုံဖြည့်ပါ!");
+
+        const { error } = await _supabase.from('menu_items').insert([{
+            name: name, price: parseInt(price), image_url: img, sizes: sizes
+        }]);
+
+        if(!error) {
+            alert("ပစ္စည်းအသစ် တင်ပြီးပါပြီ!");
+            location.reload();
+        }
     }
 
-    window.onload = loadAdminMenu;
+    async function deleteProduct(id) {
+        if(confirm("ဒီပစ္စည်းကို ဖျက်မှာ သေချာသလား?")) {
+            await _supabase.from('menu_items').delete().eq('id', id);
+            loadAllData();
+        }
+    }
+
+    async function updateStatus(id, status) {
+        await _supabase.from('orders').update({ status: status }).eq('id', id);
+        loadAllData();
+    }
+
+    function showTab(tabId, btn) {
+        document.querySelectorAll('.tab-content').forEach(t => t.classList.add('hidden'));
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.getElementById(tabId).classList.remove('hidden');
+        btn.classList.add('active');
+    }
 </script>
 </body>
 </html>
+
