@@ -3,26 +3,39 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>K.M.W Admin Center</title>
+    <title>K.M.W Global Admin</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
-        :root { --primary: #FF4747; --dark: #191919; --bg: #f4f7f6; }
-        body { font-family: sans-serif; background: var(--bg); margin: 0; padding: 20px; }
+        :root { --primary: #FF4747; --dark: #1e1e2d; --accent: #007bff; --bg: #f5f7fb; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: var(--bg); margin: 0; display: flex; }
         
+        /* Sidebar Design */
+        .sidebar { width: 240px; background: var(--dark); height: 100vh; position: fixed; color: white; padding-top: 20px; }
+        .sidebar-brand { text-align: center; font-size: 24px; font-weight: 800; color: var(--primary); margin-bottom: 30px; }
+        .nav-item { padding: 15px 25px; cursor: pointer; display: flex; align-items: center; gap: 12px; transition: 0.3s; color: #a2a3b7; }
+        .nav-item:hover, .nav-item.active { background: #2b2b40; color: white; border-left: 4px solid var(--primary); }
+
+        /* Main Content */
+        .main { margin-left: 240px; width: calc(100% - 240px); padding: 30px; }
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
+        .card { background: white; border-radius: 15px; padding: 25px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); margin-bottom: 20px; }
+
+        /* Forms & Inputs */
+        input, select, textarea { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ebedf3; border-radius: 8px; background: #f9f9f9; }
+        .btn { padding: 12px 25px; border-radius: 8px; border: none; font-weight: 600; cursor: pointer; transition: 0.3s; }
+        .btn-primary { background: var(--primary); color: white; }
+        
+        /* Table Style */
+        table { width: 100%; border-collapse: collapse; }
+        th { text-align: left; padding: 15px; background: #f9f9f9; color: #b5b5c3; font-size: 12px; text-transform: uppercase; }
+        td { padding: 15px; border-bottom: 1px solid #f3f3f3; }
+        .img-preview { width: 50px; height: 50px; border-radius: 8px; object-fit: cover; }
+
         /* Login Overlay */
-        #login-screen { position: fixed; inset: 0; background: var(--dark); z-index: 9999; display: flex; align-items: center; justify-content: center; color: white; }
-        .login-box { background: #222; padding: 40px; border-radius: 20px; text-align: center; width: 300px; }
-        
-        .container { max-width: 900px; margin: auto; display: none; }
-        .card { background: white; padding: 25px; border-radius: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); margin-bottom: 20px; }
-        
-        input, select, textarea { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ddd; border-radius: 10px; box-sizing: border-box; }
-        .btn { padding: 12px 20px; border: none; border-radius: 10px; cursor: pointer; font-weight: bold; width: 100%; }
-        .btn-add { background: var(--primary); color: white; }
-        .btn-update { background: #27ae60; color: white; width: auto; }
-        
-        .tab-btn { padding: 10px 20px; cursor: pointer; border: none; background: #eee; border-radius: 8px; margin-right: 5px; font-weight: bold; }
-        .tab-btn.active { background: var(--dark); color: white; }
+        #login-screen { position: fixed; inset: 0; background: var(--dark); z-index: 10000; display: flex; align-items: center; justify-content: center; }
+        .login-box { background: white; padding: 40px; border-radius: 20px; width: 350px; text-align: center; }
+
         .hidden { display: none; }
     </style>
 </head>
@@ -30,45 +43,67 @@
 
 <div id="login-screen">
     <div class="login-box">
-        <h2>K.M.W Admin</h2>
-        <input type="password" id="admin-pass" placeholder="Password ရိုက်ထည့်ပါ" style="text-align: center;">
-        <button class="btn btn-add" onclick="checkLogin()">Login</button>
+        <h2 style="color:var(--dark)">Welcome Back</h2>
+        <p style="color:#888">K.M.W Jewelry Admin Panel</p>
+        <input type="password" id="admin-pass" placeholder="Enter Password">
+        <button class="btn btn-primary" onclick="checkLogin()" style="width:100%">Sign In</button>
     </div>
 </div>
 
-<div class="container" id="main-content">
-    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
-        <h2>🛠 Admin Dashboard</h2>
-        <button onclick="location.reload()">Refresh</button>
+<div class="sidebar">
+    <div class="sidebar-brand">K.M.W PRO</div>
+    <div class="nav-item active" onclick="showSection('orders', this)"><i class="fas fa-shopping-cart"></i> Orders</div>
+    <div class="nav-item" onclick="showSection('inventory', this)"><i class="fas fa-box"></i> Inventory</div>
+    <div class="nav-item" onclick="showSection('add-product', this)"><i class="fas fa-plus-circle"></i> Add Product</div>
+</div>
+
+<div class="main">
+    <div class="header">
+        <h2 id="page-title">Dashboard Overview</h2>
+        <button class="btn btn-primary" onclick="loadData()"><i class="fas fa-sync"></i> Refresh</button>
     </div>
 
-    <div style="margin-bottom: 20px;">
-        <button class="tab-btn active" onclick="showTab('tab-orders', this)">Orders</button>
-        <button class="tab-btn" onclick="showTab('tab-add', this)">+ ပစ္စည်းအသစ်တင်ရန်</button>
-        <button class="tab-btn" onclick="showTab('tab-items', this)">ပစ္စည်းများစီမံရန်</button>
+    <div id="section-orders" class="content-section">
+        <div class="card">
+            <h3>Recent Orders</h3>
+            <div id="order-container">Loading...</div>
+        </div>
     </div>
 
-    <div id="tab-orders" class="tab-content card">
-        <h3>📝 မှာယူမှုစာရင်း</h3>
-        <div id="order-list">Loading...</div>
+    <div id="section-inventory" class="content-section hidden">
+        <div class="card">
+            <h3>Manage Products</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Product</th>
+                        <th>Price</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody id="product-container"></tbody>
+            </table>
+        </div>
     </div>
 
-    <div id="tab-add" class="tab-content card hidden">
-        <h3>💍 ပစ္စည်းအသစ်ထည့်သွင်းခြင်း</h3>
-        <label>ပစ္စည်းအမည်</label>
-        <input type="text" id="new-name" placeholder="ဥပမာ - ရွှေလက်စွပ်">
-        <label>စျေးနှုန်း (MMK)</label>
-        <input type="number" id="new-price" placeholder="ဥပမာ - 15000">
-        <label>ပုံ Link (Image URL)</label>
-        <input type="text" id="new-img" placeholder="https://example.com/photo.jpg">
-        <label>ရရှိနိုင်သော Size များ (ကော်မာခြားပါ)</label>
-        <input type="text" id="new-sizes" placeholder="S, M, L, XL">
-        <button class="btn btn-add" style="margin-top:10px;" onclick="addNewProduct()">တင်မည် (Upload)</button>
-    </div>
-
-    <div id="tab-items" class="tab-content card hidden">
-        <h3>📦 လက်ရှိပစ္စည်းများ</h3>
-        <div id="item-list">Loading...</div>
+    <div id="section-add-product" class="content-section hidden">
+        <div class="card" style="max-width: 600px;">
+            <h3>Product Information</h3>
+            <label>Product Name</label>
+            <input type="text" id="p-name" placeholder="Item Name">
+            <label>Price (MMK)</label>
+            <input type="number" id="p-price" placeholder="Price">
+            <label>Sizes (e.g. S, M, L)</label>
+            <input type="text" id="p-sizes" placeholder="S, M, L">
+            
+            <label>Product Image (ဖုန်းထဲမှပုံရွေးပါ)</label>
+            <input type="file" id="p-file" accept="image/*" style="background:white; border:2px dashed #ddd;">
+            
+            <button class="btn btn-primary" onclick="handleUpload()" id="upload-btn" style="width:100%; margin-top:20px;">
+                Save Product ➔
+            </button>
+        </div>
     </div>
 </div>
 
@@ -77,77 +112,100 @@
     const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx0dXNrbmtwd2J5cmlpa2V5ZGF5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYyMTYxNDksImV4cCI6MjA4MTc5MjE0OX0.7TXAvr2tHl03m_gYZNYq8xyy0yYHTx0sYMN4tS6GDnA";
     const _supabase = window.supabase.createClient(SB_URL, SB_KEY);
 
-    // ၁။ Password စစ်ဆေးခြင်း
     function checkLogin() {
-        const pass = document.getElementById('admin-pass').value;
-        if(pass === "kmw123") { // ဒီမှာ Password ပြင်နိုင်ပါတယ်
-            document.getElementById('login-screen').style.display = 'none';
-            document.getElementById('main-content').style.display = 'block';
-            loadAllData();
-        } else {
-            alert("Password မှားယွင်းနေပါသည်။");
-        }
+        if(document.getElementById('admin-pass').value === "kmw123") {
+            document.getElementById('login-screen').classList.add('hidden');
+            loadData();
+        } else { alert("Wrong Password!"); }
     }
 
-    async function loadAllData() {
-        // Orders
+    function showSection(name, el) {
+        document.querySelectorAll('.content-section').forEach(s => s.classList.add('hidden'));
+        document.getElementById('section-' + name).classList.remove('hidden');
+        document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+        el.classList.add('active');
+        document.getElementById('page-title').innerText = name.toUpperCase();
+    }
+
+    async function loadData() {
+        // Load Orders
         const { data: orders } = await _supabase.from('orders').select('*').order('created_at', {ascending: false});
-        document.getElementById('order-list').innerHTML = orders.map(o => `
-            <div style="border-bottom:1px solid #eee; padding:15px 0;">
-                <b>#${o.id.toString().slice(-5)} - ${o.customer_name}</b> (${o.status})<br>
-                <small>${o.phone} | ${o.address}</small><br>
-                <b style="color:var(--primary);">${o.total_price.toLocaleString()} K</b>
-                <button onclick="updateStatus(${o.id}, 'Shipped')" style="float:right;">Shipped ပို့ပြီး</button>
+        document.getElementById('order-container').innerHTML = orders.map(o => `
+            <div style="border: 1px solid #eee; padding: 20px; border-radius: 12px; margin-bottom: 15px; display:flex; justify-content:space-between;">
+                <div>
+                    <b>#${o.id.toString().slice(-5)} - ${o.customer_name}</b><br>
+                    <small>${o.phone} | ${o.address}</small>
+                    <div style="margin-top:10px; color:var(--primary); font-weight:bold;">${o.total_price.toLocaleString()} K</div>
+                </div>
+                <div style="text-align:right;">
+                    <span style="background:#fff4e5; color:#ff9800; padding:5px 10px; border-radius:5px; font-size:12px;">${o.status}</span><br>
+                    <button class="btn btn-primary" onclick="updateOrder(${o.id})" style="margin-top:10px; padding:5px 10px;">Shipped</button>
+                </div>
             </div>
         `).join('');
 
-        // Items
+        // Load Products
         const { data: items } = await _supabase.from('menu_items').select('*').order('created_at', {ascending: false});
-        document.getElementById('item-list').innerHTML = items.map(i => `
-            <div style="display:flex; gap:10px; margin-bottom:10px; align-items:center; background:#f9f9f9; padding:10px; border-radius:10px;">
-                <img src="${i.image_url}" width="50" height="50" style="border-radius:5px; object-fit:cover;">
-                <div style="flex:1;"><b>${i.name}</b><br>${i.price} K</div>
-                <button onclick="deleteProduct(${i.id})" style="color:red; background:none; border:none; cursor:pointer;">ဖျက်မည်</button>
-            </div>
+        document.getElementById('product-container').innerHTML = items.map(i => `
+            <tr>
+                <td><div style="display:flex; align-items:center; gap:10px;"><img src="${i.image_url}" class="img-preview"> <b>${i.name}</b></div></td>
+                <td><input type="number" value="${i.price}" onchange="updatePrice(${i.id}, this.value)" style="width:80px;"> K</td>
+                <td>Active</td>
+                <td><button onclick="deleteProduct(${i.id})" style="color:red; border:none; background:none;">Delete</button></td>
+            </tr>
         `).join('');
     }
 
-    // ၂။ ပစ္စည်းအသစ်တင်ခြင်း
-    async function addNewProduct() {
-        const name = document.getElementById('new-name').value;
-        const price = document.getElementById('new-price').value;
-        const img = document.getElementById('new-img').value;
-        const sizes = document.getElementById('new-sizes').value;
+    // 🔥 ဖုန်းထဲကပုံကို Upload တင်တဲ့ Logic
+    async function handleUpload() {
+        const file = document.getElementById('p-file').files[0];
+        const name = document.getElementById('p-name').value;
+        const price = document.getElementById('p-price').value;
+        const sizes = document.getElementById('p-sizes').value;
 
-        if(!name || !price || !img) return alert("အချက်အလက် အပြည့်အစုံဖြည့်ပါ!");
+        if(!file || !name || !price) return alert("Please fill all fields and select a photo!");
 
-        const { error } = await _supabase.from('menu_items').insert([{
-            name: name, price: parseInt(price), image_url: img, sizes: sizes
+        const btn = document.getElementById('upload-btn');
+        btn.innerText = "Uploading... Please wait";
+        btn.disabled = true;
+
+        // 1. Upload to Supabase Storage
+        const fileName = Date.now() + "_" + file.name;
+        const { data: uploadData, error: uploadError } = await _supabase.storage
+            .from('jewelry-images') // *သင်၏ Supabase မှာ 'jewelry-images' ဆိုတဲ့ Bucket ဆောက်ထားဖို့လိုပါတယ်*
+            .upload(fileName, file);
+
+        if(uploadError) { 
+            alert("Upload Error! (Bucket မရှိသေးတာ ဖြစ်နိုင်ပါတယ်)"); 
+            btn.innerText = "Save Product ➔"; btn.disabled = false;
+            return;
+        }
+
+        const imgUrl = SB_URL + "/storage/v1/object/public/jewelry-images/" + fileName;
+
+        // 2. Save to Database
+        await _supabase.from('menu_items').insert([{
+            name: name, price: parseInt(price), image_url: imgUrl, sizes: sizes
         }]);
 
-        if(!error) {
-            alert("ပစ္စည်းအသစ် တင်ပြီးပါပြီ!");
-            location.reload();
-        }
+        alert("Product Added Successfully!");
+        location.reload();
+    }
+
+    async function updatePrice(id, newPrice) {
+        await _supabase.from('menu_items').update({ price: newPrice }).eq('id', id);
     }
 
     async function deleteProduct(id) {
-        if(confirm("ဒီပစ္စည်းကို ဖျက်မှာ သေချာသလား?")) {
+        if(confirm("Delete this item?")) {
             await _supabase.from('menu_items').delete().eq('id', id);
-            loadAllData();
+            loadData();
         }
     }
 
-    async function updateStatus(id, status) {
-        await _supabase.from('orders').update({ status: status }).eq('id', id);
-        loadAllData();
-    }
-
-    function showTab(tabId, btn) {
-        document.querySelectorAll('.tab-content').forEach(t => t.classList.add('hidden'));
-        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-        document.getElementById(tabId).classList.remove('hidden');
-        btn.classList.add('active');
+    async function updateOrder(id) {
+        await _supabase.from('orders').update({ status: 'Shipped' }).eq('id', id);
+        loadData();
     }
 </script>
 </body>
