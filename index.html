@@ -3,74 +3,62 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>💎 Admin - မြင်သာ</title>
+    <title>🍗 မြင်သာကြက်ကင် - Home</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link href="https://fonts.googleapis.com/css2?family=Pyidaungsu:wght@400;700&display=swap" rel="stylesheet">
     <style>
-        :root { --gold: #d4af37; --dark: #0f172a; --card: #1e293b; --green: #22c55e; }
-        body { font-family: 'Pyidaungsu', sans-serif; background: var(--dark); color: white; margin: 0; padding-bottom: 50px; }
-        #login-screen { position: fixed; inset: 0; background: var(--dark); display: flex; align-items: center; justify-content: center; z-index: 1000; }
-        .nav { background: var(--card); padding: 15px; display: flex; justify-content: space-between; border-bottom: 1px solid #334155; position: sticky; top: 0; z-index: 100; }
-        .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; padding: 15px; }
-        .stat-card { background: var(--card); padding: 20px; border-radius: 15px; border-left: 5px solid var(--gold); }
-        .section-title { padding: 15px 15px 5px 15px; color: var(--gold); font-weight: bold; font-size: 18px; }
-        .order-card { background: var(--card); margin: 0 15px 15px 15px; padding: 15px; border-radius: 15px; border: 1px solid #334155; }
-        .btn { padding: 8px 15px; border-radius: 8px; border: none; cursor: pointer; font-weight: bold; font-family: 'Pyidaungsu'; }
-        .btn-gold { background: var(--gold); color: black; }
-        .btn-done { background: var(--green); color: white; width: 100%; margin-top: 10px; }
-        .item-list { font-size: 13px; color: #94a3b8; margin: 5px 0; }
-        input { padding: 12px; border-radius: 8px; border: 1px solid #334155; background: #0f172a; color: white; width: 100%; box-sizing: border-box; margin-bottom: 10px; }
+        :root { --primary: #e67e22; --secondary: #d35400; --bg: #fdfdfd; }
+        body { font-family: 'Pyidaungsu', sans-serif; background: var(--bg); margin: 0; }
+        
+        /* Home Header */
+        .hero { background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('https://images.unsplash.com/photo-1598515214211-89d3c73ae83b?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80'); 
+                height: 200px; background-size: cover; background-position: center;
+                display: flex; flex-direction: column; justify-content: center; align-items: center; color: white; border-radius: 0 0 30px 30px; }
+        
+        .container { max-width: 600px; margin: auto; padding: 20px; }
+        
+        /* Category Chips */
+        .category-scroll { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 15px; }
+        .chip { background: #eee; padding: 8px 15px; border-radius: 20px; font-size: 14px; white-space: nowrap; cursor: pointer; }
+        .chip.active { background: var(--primary); color: white; }
+
+        /* Menu Card */
+        .menu-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; }
+        .card { background: white; border-radius: 15px; overflow: hidden; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
+        .card img { width: 100%; height: 120px; object-fit: cover; }
+        .card-info { padding: 10px; }
+        .price { color: var(--secondary); font-weight: bold; }
+        
+        .qty-ctrl { display: flex; justify-content: space-between; align-items: center; margin-top: 10px; }
+        .btn-q { width: 25px; height: 25px; border: none; border-radius: 5px; background: #eee; }
+
+        .footer { position: fixed; bottom: 0; width: 100%; max-width: 600px; background: white; padding: 15px; 
+                  display: flex; justify-content: space-between; box-shadow: 0 -5px 15px rgba(0,0,0,0.1); }
+        .btn-main { background: var(--secondary); color: white; border: none; padding: 10px 20px; border-radius: 10px; font-weight: bold; }
     </style>
 </head>
 <body>
 
-<div id="login-screen">
-    <div style="background:var(--card); padding:30px; border-radius:20px; width:300px; text-align:center; border: 1px solid var(--gold);">
-        <h2 style="color:var(--gold)">Admin Access</h2>
-        <input type="password" id="pass" placeholder="Password ရိုက်ပါ">
-        <button class="btn btn-gold" style="width:100%" onclick="login()">LOGIN</button>
-    </div>
+<div class="hero">
+    <h1 style="margin:0;">🍗 မြင်သာကြက်ကင်</h1>
+    <p>မြိန်ယှက်လတ်ဆတ်သော အကင်များ</p>
 </div>
 
-<div id="admin-main" style="display:none">
-    <div class="nav">
-        <button class="btn" onclick="location.href='index.html'">⬅ Back</button>
-        <span style="color:var(--gold); font-weight:bold;">မြင်သာ - စီမံခန့်ခွဲမှု</span>
-        <button class="btn" style="background:#ef4444; color:white;" onclick="location.reload()">Logout</button>
+<div class="container">
+    <div class="category-scroll">
+        <div class="chip active">အားလုံး</div>
+        <div class="chip">အကင်</div>
+        <div class="chip">အသီးအရွက်</div>
+        <div class="chip">အချိုရည်</div>
     </div>
 
-    <div style="padding:15px">
-        <div style="background:var(--card); padding:15px; border-radius:15px; display:flex; justify-content:space-between; align-items:center;">
-            <span>🏪 ဆိုင် အဖွင့်/အပိတ်</span>
-            <button id="shop-btn" class="btn" onclick="toggleShop()">...</button>
+    <div id="menu-display" class="menu-grid">
         </div>
-    </div>
+</div>
 
-    <div class="stat-grid">
-        <div class="stat-card">
-            <small>ယနေ့ အရောင်း</small><br>
-            <b style="font-size:20px; color:var(--gold)" id="sale-val">0 K</b>
-        </div>
-        <div class="stat-card">
-            <small>ယနေ့ အမြတ်</small><br>
-            <b style="font-size:20px; color:var(--green);" id="profit-val">0 K</b>
-        </div>
-    </div>
-
-    <div class="section-title">📝 အော်ဒါအသစ်များ (Pending)</div>
-    <div id="order-list">အော်ဒါများ ဆွဲယူနေသည်...</div>
-
-    <div class="section-title">🥘 Menu စီမံခြင်း</div>
-    <div style="padding:0 15px">
-        <div style="background:var(--card); padding:15px; border-radius:15px;">
-            <input type="text" id="m-name" placeholder="အမည် (ဥပမာ- ကြက်ပေါင်)">
-            <input type="number" id="m-price" placeholder="ရောင်းစျေး">
-            <input type="number" id="m-cost" placeholder="အရင်းစျေး">
-            <input type="number" id="m-stock" placeholder="Stock">
-            <button class="btn btn-gold" style="width:100%" onclick="saveMenu()">Menu အသစ်ထည့်မည်</button>
-        </div>
-        <div id="menu-list" style="margin-top:20px"></div>
-    </div>
+<div class="footer" id="cart-footer">
+    <div>စုစုပေါင်း: <b id="total-price">0</b> K</div>
+    <button class="btn-main" onclick="alert('Order Feature is coming next step!')">မှာယူမည် ➔</button>
 </div>
 
 <script>
@@ -78,107 +66,40 @@
     const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRlYWJ0dnF6eHBrZXBnY2R1dHpkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYyNzQzNDMsImV4cCI6MjA4MTg1MDM0M30.BbxmM65uoTDcf_nTP6w5siSF6Y5_eM4peqYJCAxR90I";
     const _supabase = window.supabase.createClient(SB_URL, SB_KEY);
 
-    function login() {
-        if(document.getElementById('pass').value === "2012@Yewin") {
-            document.getElementById('login-screen').style.display = 'none';
-            document.getElementById('admin-main').style.display = 'block';
-            loadAdminData();
-            // Real-time Update အတွက် ၅ စက္ကန့်တစ်ခါ ပြန်ခေါ်မည်
-            setInterval(loadAdminData, 5000);
-        } else { alert("Password မှားယွင်းနေပါသည်။"); }
+    let cart = {};
+
+    async function loadMenu() {
+        const { data } = await _supabase.from('menu_items').select('*');
+        const display = document.getElementById('menu-display');
+        display.innerHTML = data.map(item => `
+            <div class="card">
+                <img src="${item.image_url}" alt="${item.name}">
+                <div class="card-info">
+                    <div style="font-weight:bold; font-size:14px;">${item.name}</div>
+                    <div class="price">${item.price} K</div>
+                    <div class="qty-ctrl">
+                        <button class="btn-q" onclick="updateQty('${item.name}', -1, ${item.price})">-</button>
+                        <span id="q-${item.name}">0</span>
+                        <button class="btn-q" onclick="updateQty('${item.name}', 1, ${item.price})">+</button>
+                    </div>
+                </div>
+            </div>
+        `).join('');
     }
 
-    async function loadAdminData() {
-        fetchShop();
-        fetchStats();
-        fetchOrders();
-        fetchMenus();
-    }
-
-    async function fetchShop() {
-        const { data } = await _supabase.from('shop_settings').select('*').single();
-        const btn = document.getElementById('shop-btn');
-        btn.innerText = data.is_open ? "OPEN (ဖွင့်ထားသည်)" : "CLOSED (ပိတ်ထားသည်)";
-        btn.style.background = data.is_open ? "#22c55e" : "#ef4444";
-    }
-
-    async function toggleShop() {
-        const cur = document.getElementById('shop-btn').innerText.includes("OPEN");
-        await _supabase.from('shop_settings').update({ is_open: !cur }).eq('id', 1);
-        fetchShop();
-    }
-
-    async function fetchStats() {
-        const today = new Date().toISOString().split('T')[0];
-        const { data: orders } = await _supabase.from('orders').select('*').gte('created_at', today).eq('order_status', 'completed');
+    function updateQty(name, change, price) {
+        cart[name] = (cart[name] || 0) + change;
+        if (cart[name] < 0) cart[name] = 0;
+        document.getElementById(`q-${name}`).innerText = cart[name];
         
-        let sales = 0;
-        let profit = 0;
-        orders.forEach(o => {
-            sales += o.total;
-            // ယာယီအားဖြင့် အရောင်းရဲ့ ၂၅% ကို အမြတ်တွက်ပြထားခြင်း
-            profit += o.total * 0.25; 
+        let total = 0;
+        // Calculate total simplified for now
+        document.querySelectorAll('.qty-ctrl span').forEach((span, index) => {
+            // (Just a visual total for now)
         });
-        document.getElementById('sale-val').innerText = sales.toLocaleString() + " K";
-        document.getElementById('profit-val').innerText = profit.toLocaleString() + " K";
     }
 
-    async function fetchOrders() {
-        const { data } = await _supabase.from('orders').select('*').eq('order_status', 'pending').order('created_at', { ascending: false });
-        const list = document.getElementById('order-list');
-        if (data.length === 0) { list.innerHTML = "<p style='text-align:center; color:#64748b;'>အော်ဒါအသစ်မရှိသေးပါ။</p>"; return; }
-        
-        list.innerHTML = data.map(o => `
-            <div class="order-card">
-                <div style="display:flex; justify-content:space-between">
-                    <b>👤 ${o.customer_name}</b>
-                    <small style="color:var(--gold)">#${o.id}</small>
-                </div>
-                <div style="font-size:13px; margin:5px 0;">📞 ${o.phone} | 🕒 ${o.pickup_time}</div>
-                <div class="item-list">📦 ${o.items}</div>
-                <div style="text-align:right; font-weight:bold; color:var(--gold)">${o.total.toLocaleString()} K</div>
-                <button class="btn btn-done" onclick="completeOrder(${o.id})">✅ ပြီးပြီ (Completed)</button>
-            </div>
-        `).join('');
-    }
-
-    async function completeOrder(id) {
-        await _supabase.from('orders').update({ order_status: 'completed' }).eq('id', id);
-        loadAdminData();
-    }
-
-    async function fetchMenus() {
-        const { data } = await _supabase.from('menu_items').select('*').order('name');
-        document.getElementById('menu-list').innerHTML = data.map(m => `
-            <div style="background:var(--card); padding:12px; border-radius:12px; margin-bottom:10px; display:flex; justify-content:space-between; align-items:center; border: 1px solid #334155;">
-                <div>
-                    <b>${m.name}</b><br>
-                    <small>${m.price} K | Stock: ${m.stock_qty}</small>
-                </div>
-                <button onclick="delMenu(${m.id})" style="background:#ef4444; color:white; border:none; padding:8px; border-radius:8px; cursor:pointer;">ဖျက်</button>
-            </div>
-        `).join('');
-    }
-
-    async function saveMenu() {
-        const n = document.getElementById('m-name').value;
-        const p = document.getElementById('m-price').value;
-        const c = document.getElementById('m-cost').value;
-        const s = document.getElementById('m-stock').value;
-        if(!n || !p) return alert("အမည်နှင့် စျေးနှုန်းထည့်ပါ။");
-        await _supabase.from('menu_items').insert([{ name: n, price: p, cost_price: c, stock_qty: s }]);
-        loadAdminData();
-        // Clear inputs
-        document.getElementById('m-name').value = '';
-        document.getElementById('m-price').value = '';
-    }
-
-    async function delMenu(id) {
-        if(confirm("ဤ Menu ကို ဖျက်မှာ သေချာပါသလား?")) {
-            await _supabase.from('menu_items').delete().eq('id', id);
-            fetchMenus();
-        }
-    }
+    window.onload = loadMenu;
 </script>
 </body>
 </html>
