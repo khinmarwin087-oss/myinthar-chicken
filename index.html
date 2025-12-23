@@ -3,39 +3,271 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🍗 မြင်သာကြက်ကင် - Home</title>
+    <title>🍗 မြင်သာကြက်ကင် - Modern POS</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Pyidaungsu:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&family=Pyidaungsu:wght@400;700&display=swap" rel="stylesheet">
     <style>
-        :root { --primary: #e67e22; --secondary: #d35400; --bg: #fdfdfd; }
-        body { font-family: 'Pyidaungsu', sans-serif; background: var(--bg); margin: 0; padding-bottom: 80px; }
-        .hero { background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('https://images.unsplash.com/photo-1598515214211-89d3c73ae83b?auto=format&fit=crop&w=800&q=80'); 
-                height: 180px; background-size: cover; background-position: center;
-                display: flex; flex-direction: column; justify-content: center; align-items: center; color: white; border-radius: 0 0 30px 30px; }
-        .container { max-width: 600px; margin: auto; padding: 15px; }
-        .category-scroll { display: flex; gap: 10px; overflow-x: auto; padding: 10px 0; scrollbar-width: none; }
-        .chip { background: #eee; padding: 8px 18px; border-radius: 20px; font-size: 14px; white-space: nowrap; cursor: pointer; transition: 0.3s; }
-        .chip.active { background: var(--primary); color: white; }
-        .menu-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; }
-        .card { background: white; border-radius: 15px; overflow: hidden; box-shadow: 0 4px 10px rgba(0,0,0,0.05); display: flex; flex-direction: column; }
-        .card img { width: 100%; height: 110px; object-fit: cover; }
-        .card-info { padding: 10px; flex-grow: 1; }
-        .price { color: var(--secondary); font-weight: bold; font-size: 15px; }
-        .qty-ctrl { display: flex; justify-content: space-between; align-items: center; margin-top: 10px; background: #f8f9fa; padding: 5px; border-radius: 8px; }
-        .btn-q { width: 28px; height: 28px; border: none; border-radius: 5px; background: white; cursor: pointer; font-weight: bold; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-        .footer { position: fixed; bottom: 0; width: 100%; max-width: 600px; left: 50%; transform: translateX(-50%); background: white; padding: 15px; 
-                  display: flex; justify-content: space-between; align-items: center; box-shadow: 0 -5px 15px rgba(0,0,0,0.1); z-index: 999; }
-        .btn-main { background: var(--secondary); color: white; border: none; padding: 12px 25px; border-radius: 12px; font-weight: bold; cursor: pointer; }
-        #user-profile { padding: 10px 15px; display: flex; align-items: center; gap: 10px; background: #fff; border-bottom: 1px solid #eee; font-size: 14px; }
+        :root {
+            --primary: #FF6B00;
+            --primary-soft: #FF6B0015;
+            --accent: #FFD93D;
+            --bg: #F8F9FB;
+            --card-bg: #FFFFFF;
+            --text-main: #2D3436;
+            --text-soft: #636E72;
+            --chat-gradient: linear-gradient(135deg, #6C5CE7, #A29BFE);
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', 'Pyidaungsu', sans-serif;
+            background: var(--bg);
+            margin: 0;
+            color: var(--text-main);
+            padding-bottom: 100px;
+        }
+
+        /* Header Update */
+        .hero {
+            background: linear-gradient(180deg, rgba(0,0,0,0.2) 0%, rgba(0,0,0,0.7) 100%), 
+                        url('https://images.unsplash.com/photo-1598515214211-89d3c73ae83b?auto=format&fit=crop&w=800');
+            height: 220px;
+            background-size: cover;
+            background-position: center;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            padding: 30px 20px;
+            color: white;
+            border-radius: 0 0 40px 40px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        .hero h1 { margin: 0; font-size: 28px; font-weight: 700; letter-spacing: -0.5px; }
+        .hero p { margin: 5px 0 0 0; font-size: 14px; opacity: 0.9; }
+
+        /* User Profile bar */
+        #user-profile {
+            padding: 12px 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: rgba(255,255,255,0.8);
+            backdrop-filter: blur(10px);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+        }
+
+        /* Category Update */
+        .category-scroll {
+            display: flex;
+            gap: 12px;
+            overflow-x: auto;
+            padding: 20px;
+            scrollbar-width: none;
+        }
+
+        .chip {
+            background: white;
+            padding: 10px 22px;
+            border-radius: 50px;
+            font-size: 14px;
+            font-weight: 600;
+            white-space: nowrap;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+            transition: all 0.3s ease;
+            border: 1px solid transparent;
+        }
+
+        .chip.active {
+            background: var(--primary);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(255, 107, 0, 0.3);
+        }
+
+        /* Menu Grid Update */
+        .menu-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 18px;
+            padding: 0 20px;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border-radius: 24px;
+            overflow: hidden;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.03);
+            transition: transform 0.2s;
+            border: 1px solid rgba(0,0,0,0.02);
+        }
+
+        .card:active { transform: scale(0.96); }
+
+        .card img { width: 100%; height: 130px; object-fit: cover; }
+
+        .card-info { padding: 15px; }
+
+        .card-info .name { font-weight: 700; font-size: 15px; margin-bottom: 4px; display: block; }
+
+        .price { color: var(--primary); font-weight: 800; font-size: 16px; }
+
+        .qty-ctrl {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 12px;
+            background: var(--bg);
+            padding: 6px;
+            border-radius: 14px;
+        }
+
+        .btn-q {
+            width: 32px;
+            height: 32px;
+            border: none;
+            border-radius: 10px;
+            background: white;
+            cursor: pointer;
+            font-weight: bold;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+            color: var(--primary);
+            font-size: 18px;
+        }
+
+        /* Floating Footer Update */
+        .footer {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 90%;
+            max-width: 500px;
+            background: #2D3436;
+            padding: 18px 25px;
+            border-radius: 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+            color: white;
+            z-index: 1000;
+        }
+
+        .btn-main {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 15px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        /* ✨ MODERN CHAT BOX DESIGN ✨ */
+        #chat-container { position: fixed; bottom: 110px; right: 20px; z-index: 1000; }
+
+        .chat-btn {
+            background: var(--chat-gradient);
+            color: white;
+            border: none;
+            width: 60px;
+            height: 60px;
+            border-radius: 20px;
+            box-shadow: 0 10px 25px rgba(108, 92, 231, 0.4);
+            font-size: 26px;
+            cursor: pointer;
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .chat-btn:hover { transform: scale(1.1) rotate(10deg); }
+
+        #chat-window {
+            display: none;
+            position: absolute;
+            bottom: 80px;
+            right: 0;
+            width: 320px;
+            height: 450px;
+            background: white;
+            border-radius: 28px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.15);
+            flex-direction: column;
+            overflow: hidden;
+            animation: slideIn 0.4s ease-out;
+        }
+
+        @keyframes slideIn { from { opacity: 0; transform: translateY(30px) scale(0.9); } to { opacity: 1; transform: translateY(0) scale(1); } }
+
+        .chat-header {
+            background: var(--chat-gradient);
+            color: white;
+            padding: 20px;
+            font-weight: 700;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        #chat-messages {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            background: #F1F2F6;
+        }
+
+        .msg {
+            padding: 10px 16px;
+            border-radius: 18px;
+            font-size: 14px;
+            max-width: 80%;
+            line-height: 1.4;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+
+        .msg.user { align-self: flex-end; background: var(--chat-gradient); color: white; border-bottom-right-radius: 4px; }
+        .msg.admin { align-self: flex-start; background: white; color: var(--text-main); border-bottom-left-radius: 4px; }
+
+        .chat-input-area {
+            padding: 15px;
+            background: white;
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .chat-input-area input {
+            flex: 1;
+            border: 1px solid #EEE;
+            padding: 12px 18px;
+            border-radius: 15px;
+            outline: none;
+            background: #F8F9FB;
+            transition: 0.3s;
+        }
+        .chat-input-area input:focus { border-color: #A29BFE; }
+
+        /* Sound Effects - Invisible */
+        audio { display: none; }
     </style>
 </head>
 <body>
 
+<audio id="sound-pop" src="https://assets.mixkit.co/active_storage/sfx/2571/2571-preview.mp3"></audio>
+<audio id="sound-order" src="https://assets.mixkit.co/active_storage/sfx/2019/2019-preview.mp3"></audio>
+
 <div id="user-profile">စစ်ဆေးနေသည်...</div>
 
 <div class="hero">
-    <h1 style="margin:0;">🍗 မြင်သာကြက်ကင်</h1>
-    <p style="margin:5px 0 0 0; opacity: 0.9;">ရသာစုံလင် အကင်စုံ</p>
+    <h1>🍗 မြင်သာကြက်ကင်</h1>
+    <p>မြိန်ယှက်လတ်ဆတ်သော အကင်များ</p>
 </div>
 
 <div class="container">
@@ -50,57 +282,57 @@
 </div>
 
 <div class="footer">
-    <div>စုစုပေါင်း: <b style="font-size: 1.2rem; color: var(--secondary);"><span id="total-price">0</span> K</b></div>
-    <button class="btn-main" onclick="goToCheckout()">မှာယူမည် ➔</button>
+    <div>
+        <div style="font-size: 12px; opacity: 0.7;">စုစုပေါင်းကျသင့်ငွေ</div>
+        <b style="font-size: 20px; color: var(--accent);"><span id="total-price">0</span> K</b>
+    </div>
+    <button class="btn-main" onclick="goToCheckout()">အော်ဒါတင်မည် ➔</button>
 </div>
 
-<div id="chat-container" style="position: fixed; bottom: 90px; right: 20px; z-index: 1000;">
-    <button onclick="toggleChat()" style="background: #7360f2; color: white; border: none; width: 55px; height: 55px; border-radius: 50%; box-shadow: 0 4px 15px rgba(0,0,0,0.3); font-size: 24px; cursor: pointer;">💬</button>
-    <div id="chat-window" style="display: none; position: absolute; bottom: 65px; right: 0; width: 280px; height: 380px; background: white; border-radius: 15px; box-shadow: 0 5px 25px rgba(0,0,0,0.2); flex-direction: column; overflow: hidden; border: 1px solid #eee;">
-        <div style="background: #7360f2; color: white; padding: 12px; font-weight: bold; display: flex; justify-content: space-between;">
-            <span>Customer Chat</span>
-            <span onclick="toggleChat()" style="cursor:pointer;">✖</span>
+<div id="chat-container">
+    <button class="chat-btn" onclick="toggleChat()">💬</button>
+    <div id="chat-window">
+        <div class="chat-header">
+            <span>ဆိုင်ရှင်နှင့် စကားပြောရန်</span>
+            <span onclick="toggleChat()" style="cursor:pointer; font-size: 20px;">×</span>
         </div>
-        <div id="chat-messages" style="flex: 1; padding: 12px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; font-size: 13px; background: #f9f9f9;"></div>
-        <div style="padding: 8px; border-top: 1px solid #eee; display: flex; background: white;">
-            <input type="text" id="chat-input" placeholder="စာရေးရန်..." style="flex: 1; border: 1px solid #ddd; padding: 8px; border-radius: 5px; outline: none;">
-            <button onclick="sendMessage()" style="background: #7360f2; color: white; border: none; padding: 8px 12px; margin-left: 5px; border-radius: 5px; cursor: pointer;">Send</button>
+        <div id="chat-messages"></div>
+        <div class="chat-input-area">
+            <input type="text" id="chat-input" placeholder="တစ်ခုခုမေးမြန်းပါ...">
+            <button onclick="sendMessage()" style="background:var(--chat-gradient); border:none; color:white; width:40px; height:40px; border-radius:12px; cursor:pointer;">➔</button>
         </div>
     </div>
 </div>
 
 <script>
+    // Supabase Configuration
     const SB_URL = "https://ltusknkpwbyriikeyday.supabase.co";
-const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx0dXNrbmtwd2J5cmlpa2V5ZGF5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYyMTYxNDksImV4cCI6MjA4MTc5MjE0OX0.7TXAvr2tHl03m_gYZNYq8xyy0yYHTx0sYMN4tS6GDnA";
-const _supabase = window.supabase.createClient(SB_URL, SB_KEY);
-
+    const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx0dXNrbmtwd2J5cmlpa2V5ZGF5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYyMTYxNDksImV4cCI6MjA4MTc5MjE0OX0.7TXAvr2tHl03m_gYZNYq8xyy0yYHTx0sYMN4tS6GDnA";
+    const _supabase = window.supabase.createClient(SB_URL, SB_KEY);
 
     let allMenuItems = [];
     let cart = {};
 
-    // ၁။ User Profile စစ်ဆေးခြင်း
+    function playSound(id) { document.getElementById(id).play(); }
+
     async function checkUser() {
         const { data: { user } } = await _supabase.auth.getUser();
         const profileDiv = document.getElementById('user-profile');
         if (user) {
             profileDiv.innerHTML = `
-                <img src="${user.user_metadata.avatar_url || 'https://via.placeholder.com/35'}" style="width:30px; height:30px; border-radius:50%; object-fit:cover;">
-                <span><b>${user.user_metadata.full_name || user.email}</b></span>
-                <button onclick="logout()" style="margin-left:auto; border:none; background:none; color:#e74c3c; cursor:pointer;">ထွက်ရန်</button>`;
+                <img src="${user.user_metadata.avatar_url || 'https://api.dicebear.com/7.x/avataaars/svg?seed=Lucky'}" style="width:35px; height:35px; border-radius:12px;">
+                <span style="font-weight:700; font-size:14px;">${user.user_metadata.full_name || user.email}</span>
+                <button onclick="logout()" style="margin-left:auto; border:none; background:var(--primary-soft); color:var(--primary); padding:6px 12px; border-radius:10px; font-weight:700; cursor:pointer;">Logout</button>`;
         } else {
-            profileDiv.innerHTML = `ဧည့်သည်အဖြစ် ကြည့်ရှုနေသည် <a href="auth.html" style="margin-left:auto; color:var(--primary); font-weight:bold; text-decoration:none;">Login ဝင်ရန်</a>`;
+            profileDiv.innerHTML = `ဧည့်သည် <a href="auth.html" style="margin-left:auto; color:var(--primary); font-weight:bold; text-decoration:none;">Login ဝင်ရန်</a>`;
         }
     }
 
-    async function logout() {
-        await _supabase.auth.signOut();
-        location.reload();
-    }
+    async function logout() { await _supabase.auth.signOut(); location.reload(); }
 
-    // ၂။ မီနူးများ ဆွဲယူခြင်း
     async function loadMenu() {
         const { data, error } = await _supabase.from('menu_items').select('*').order('id');
-        if (error) return console.error(error);
+        if (error) return;
         allMenuItems = data;
         renderMenu(allMenuItems);
     }
@@ -111,31 +343,30 @@ const _supabase = window.supabase.createClient(SB_URL, SB_KEY);
             <div class="card">
                 <img src="${item.image_url}" alt="${item.name}">
                 <div class="card-info">
-                    <div style="font-weight:bold; font-size:14px;">${item.name}</div>
+                    <span class="name">${item.name}</span>
                     <div class="price">${item.price.toLocaleString()} K</div>
                     <div class="qty-ctrl">
-                        <button class="btn-q" onclick="updateQty('${item.name}', -1, ${item.price})">-</button>
-                        <span id="q-${item.name}" style="font-weight:bold;">${cart[item.name] || 0}</span>
+                        <button class="btn-q" onclick="updateQty('${item.name}', -1, ${item.price})">−</button>
+                        <span id="q-${item.name}" style="font-weight:700;">${cart[item.name] || 0}</span>
                         <button class="btn-q" onclick="updateQty('${item.name}', 1, ${item.price})">+</button>
                     </div>
                 </div>
             </div>`).join('');
     }
 
-    // ၃။ Category ခွဲခြင်း
     function filterMenu(cat, el) {
+        playSound('sound-pop');
         document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
         el.classList.add('active');
         if (cat === 'အားလုံး') renderMenu(allMenuItems);
         else renderMenu(allMenuItems.filter(i => i.category === cat));
     }
 
-    // ၄။ အရေအတွက်နှင့် စုစုပေါင်းတွက်ခြင်း
     function updateQty(name, change, price) {
+        playSound('sound-pop');
         if (!cart[name]) cart[name] = 0;
         cart[name] += change;
         if (cart[name] < 0) cart[name] = 0;
-        
         document.getElementById(`q-${name}`).innerText = cart[name];
         calculateTotal();
     }
@@ -149,11 +380,29 @@ const _supabase = window.supabase.createClient(SB_URL, SB_KEY);
         document.getElementById('total-price').innerText = total.toLocaleString();
     }
 
-    // ၅။ Chat Logic
+    async function goToCheckout() {
+        const total = document.getElementById('total-price').innerText;
+        if (total === "0") return alert("ပစ္စည်း အရင်ရွေးချယ်ပါ။");
+        playSound('sound-order');
+        
+        const { data: { user } } = await _supabase.auth.getUser();
+        const { error } = await _supabase.from('orders').insert([{
+            customer_name: user ? user.user_metadata.full_name : "ဧည့်သည်",
+            items: cart,
+            total_price: parseInt(total.replace(/,/g, '')),
+            status: 'pending'
+        }]);
+
+        if (!error) {
+            alert("မှာယူမှု အောင်မြင်ပါသည်။ ဆိုင်မှ ဆက်သွယ်ပေးပါမည်။");
+            cart = {}; location.reload();
+        }
+    }
+
     function toggleChat() {
         const win = document.getElementById('chat-window');
         win.style.display = (win.style.display === 'none' || win.style.display === '') ? 'flex' : 'none';
-        if(win.style.display === 'flex') loadMessages();
+        if(win.style.display === 'flex') { playSound('sound-pop'); loadMessages(); }
     }
 
     async function sendMessage() {
@@ -177,21 +426,13 @@ const _supabase = window.supabase.createClient(SB_URL, SB_KEY);
         const { data } = await _supabase.from('chat_messages').select('*').eq('user_id', user.id).order('created_at', { ascending: true });
         const box = document.getElementById('chat-messages');
         box.innerHTML = data.map(m => `
-            <div style="align-self: ${m.is_admin_reply ? 'flex-start' : 'flex-end'}; 
-                        background: ${m.is_admin_reply ? '#eee' : '#7360f2'}; 
-                        color: ${m.is_admin_reply ? '#333' : 'white'}; 
-                        padding: 8px 12px; border-radius: 12px; max-width: 85%;">
+            <div class="msg ${m.is_admin_reply ? 'admin' : 'user'}">
                 ${m.message}
             </div>`).join('');
         box.scrollTop = box.scrollHeight;
     }
 
-    function goToCheckout() {
-        if (document.getElementById('total-price').innerText === "0") return alert("ပစ္စည်း အရင်ရွေးချယ်ပါ။");
-        alert("မှာယူမှု အောင်မြင်ပါသည်။ (Checkout Page သို့ ဆက်သွားရန် ချိတ်ဆက်နိုင်သည်)");
-    }
-
-    window.onload = () => { checkUser(); loadMenu(); };
+    window.onload = async () => { await checkUser(); await loadMenu(); };
 </script>
 </body>
 </html>
