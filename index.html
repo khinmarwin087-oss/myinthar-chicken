@@ -171,6 +171,26 @@
         loadMessages();
     }).subscribe();
 </script>
+    <div id="user-profile" style="padding: 10px; display: flex; align-items: center; gap: 10px; background: #fff; border-bottom: 1px solid #eee;">
+    </div>
+
+<script>
+    async function checkUser() {
+        const { data: { user } } = await _supabase.auth.getUser();
+        const profileDiv = document.getElementById('user-profile');
+        
+        if (user) {
+            profileDiv.innerHTML = `
+                <img src="${user.user_metadata.avatar_url}" style="width:35px; border-radius:50%;">
+                <span>မင်္ဂလာပါ <b>${user.user_metadata.full_name}</b></span>
+                <button onclick="await _supabase.auth.signOut(); location.reload();" style="margin-left:auto; border:none; background:none; color:red;">ထွက်ရန်</button>
+            `;
+        } else {
+            profileDiv.innerHTML = `<a href="auth.html" style="color:var(--secondary); text-decoration:none; font-weight:bold;">Login ဝင်ရန်</a>`;
+        }
+    }
+    window.onload = () => { fetchMenu(); checkUser(); };
+</script>
 </body>
 </html>
 
