@@ -3,176 +3,169 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>K.M.W Jewelry Wholesale</title>
+    <title>K.M.W Jewelry - Professional Wholesale</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&family=Pyidaungsu:wght@400;700&display=swap" rel="stylesheet">
     <style>
         :root { --primary: #FF4747; --dark: #191919; --bg: #F0F2F5; }
-        body { font-family: 'Plus Jakarta Sans', 'Pyidaungsu', sans-serif; background: var(--bg); margin: 0; padding-bottom: 120px; }
+        body { font-family: 'Plus Jakarta Sans', 'Pyidaungsu', sans-serif; background: var(--bg); margin: 0; }
         
-        /* Navigation & Login */
-        .top-nav { background: white; padding: 10px 20px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 2000; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
-        .logo { font-weight: 800; font-size: 22px; color: var(--primary); text-decoration: none; }
-        #user-profile { font-size: 13px; display: flex; align-items: center; gap: 8px; }
-        .login-btn { background: var(--primary); color: white; padding: 6px 15px; border-radius: 20px; text-decoration: none; font-weight: bold; font-size: 12px; }
+        /* Header & Cart Badge */
+        .top-nav { background: white; padding: 12px 20px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 2000; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+        .cart-icon { position: relative; cursor: pointer; font-size: 24px; }
+        .cart-badge { position: absolute; top: -5px; right: -8px; background: var(--primary); color: white; font-size: 10px; padding: 2px 6px; border-radius: 50%; font-weight: 800; }
 
-        /* Professional Promotion Slider */
-        .promo-slider { margin: 15px; height: 180px; background: linear-gradient(135deg, #FF4747 0%, #FF8E05 100%); border-radius: 20px; position: relative; overflow: hidden; color: white; display: flex; align-items: center; padding: 25px; box-sizing: border-box; }
-        .promo-slider h2 { margin: 0; font-size: 24px; font-weight: 800; }
-        .promo-slider p { margin: 5px 0; font-size: 14px; opacity: 0.9; }
-        .promo-tag { background: white; color: var(--primary); padding: 4px 10px; border-radius: 10px; font-size: 12px; font-weight: bold; }
-        .promo-img { position: absolute; right: -20px; bottom: -20px; width: 150px; opacity: 0.8; transform: rotate(-15px); }
-
-        .section-title { padding: 0 20px; font-size: 18px; font-weight: 800; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; }
-        
-        /* Products Grid */
-        .container { max-width: 600px; margin: auto; }
-        .menu-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; padding: 0 15px; }
-        .card { background: white; border-radius: 16px; overflow: hidden; border: 1px solid rgba(0,0,0,0.03); box-shadow: 0 4px 15px rgba(0,0,0,0.04); transition: 0.3s; }
+        /* Main Display */
+        .promo-banner { margin: 15px; height: 140px; background: linear-gradient(135deg, #FF4747, #FF8E05); border-radius: 20px; color: white; display: flex; align-items: center; padding: 20px; }
+        .menu-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; padding: 15px; }
+        .card { background: white; border-radius: 16px; overflow: hidden; cursor: pointer; transition: 0.3s; }
+        .card:hover { transform: translateY(-5px); }
         .card img { width: 100%; height: 160px; object-fit: cover; }
-        .card-info { padding: 12px; }
-        .price { color: var(--primary); font-weight: 800; font-size: 18px; margin: 5px 0; }
-        
-        /* Size Buttons */
-        .size-box { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 10px; }
-        .size-btn { border: 1px solid #eee; background: #f9f9f9; padding: 6px 10px; border-radius: 8px; font-size: 11px; cursor: pointer; font-weight: 600; }
-        .size-btn:active { background: var(--primary); color: white; }
 
-        /* Floating Checkout Bar */
-        .footer { position: fixed; bottom: 0; width: 100%; max-width: 600px; left: 50%; transform: translateX(-50%); background: white; padding: 20px; box-shadow: 0 -10px 30px rgba(0,0,0,0.1); display: flex; justify-content: space-between; align-items: center; border-radius: 25px 25px 0 0; z-index: 1000; }
-        .btn-main { background: linear-gradient(90deg, #FF8E05, #FF4747); color: white; border: none; padding: 14px 30px; border-radius: 20px; font-weight: 800; cursor: pointer; }
+        /* Product Detail Modal (Pop-up) */
+        #product-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 3000; align-items: flex-end; }
+        .modal-content { background: white; width: 100%; max-width: 500px; margin: auto; border-radius: 30px 30px 0 0; padding: 25px; position: relative; animation: slideUp 0.3s ease-out; }
+        @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
         
-        #toast { position: fixed; top: 80px; left: 50%; transform: translateX(-50%); background: var(--dark); color: white; padding: 10px 20px; border-radius: 30px; font-size: 12px; display: none; z-index: 3000; }
+        .modal-img { width: 100%; height: 250px; object-fit: cover; border-radius: 20px; }
+        .qty-input { display: flex; align-items: center; gap: 15px; margin: 15px 0; }
+        .btn-qty { width: 35px; height: 35px; border-radius: 50%; border: 1px solid #ddd; background: white; font-size: 20px; cursor: pointer; }
+
+        /* Cart Drawer (Side Menu) */
+        #cart-drawer { position: fixed; right: -100%; top: 0; width: 85%; max-width: 400px; height: 100%; background: white; z-index: 4000; transition: 0.4s; padding: 25px; box-sizing: border-box; box-shadow: -10px 0 30px rgba(0,0,0,0.1); }
+        #cart-drawer.open { right: 0; }
+        .cart-item { display: flex; gap: 10px; padding: 10px 0; border-bottom: 1px solid #eee; }
+
+        .btn-add-cart { background: var(--dark); color: white; width: 100%; padding: 15px; border-radius: 15px; font-weight: 800; border: none; cursor: pointer; margin-top: 10px; }
+        .btn-checkout { background: var(--primary); color: white; width: 100%; padding: 15px; border-radius: 15px; font-weight: 800; border: none; cursor: pointer; margin-top: 20px; }
     </style>
 </head>
 <body>
 
-<div id="toast">Cart ထဲသို့ ထည့်ပြီးပါပြီ ✨</div>
-
 <div class="top-nav">
-    <a href="index.html" class="logo">K.M.W</a>
-    <div id="user-profile">စစ်ဆေးနေသည်...</div>
+    <div style="font-weight:800; color:var(--primary); font-size:22px;">K.M.W</div>
+    <div class="cart-icon" onclick="toggleCart()">
+        🛒 <span class="cart-badge" id="cart-count">0</span>
+    </div>
 </div>
 
-<div class="promo-slider">
-    <div>
-        <span class="promo-tag">Promotion</span>
-        <h2>New Arrivals</h2>
-        <p>Stainless Steel Rings<br>လက်ကားဈေး ၅၀% အထူးလျှော့ဈေး</p>
-    </div>
-    <img src="https://via.placeholder.com/150" class="promo-img" alt="Jewelry">
+<div class="promo-banner">
+    <h2>Jewelry New Arrivals</h2>
 </div>
 
-<div class="container">
-    <div class="section-title">
-        <span>Products 🔥</span>
-        <span style="font-size: 12px; color: var(--primary);">အားလုံးကြည့်ရန်</span>
-    </div>
-    <div id="menu-display" class="menu-grid">Loading products...</div>
+<div id="menu-display" class="menu-grid">Loading...</div>
+
+<div id="product-modal">
+    <div class="modal-content" id="modal-data">
+        </div>
 </div>
 
-<div class="footer">
-    <div>
-        <div style="font-size: 12px; color: #666;">Total Amount</div>
-        <b style="font-size: 22px; color: var(--primary);"><span id="total-price">0</span> K</b>
+<div id="cart-drawer">
+    <div style="display:flex; justify-content:space-between; align-items:center;">
+        <h2 style="margin:0;">Shopping Cart</h2>
+        <span onclick="toggleCart()" style="cursor:pointer; font-size:24px;">×</span>
     </div>
-    <button class="btn-main" onclick="goToCheckout()">Check Out ➔</button>
+    <div id="cart-list" style="margin-top:20px; height:70%; overflow-y:auto;"></div>
+    <div style="border-top:2px solid #eee; padding-top:15px;">
+        <div style="display:flex; justify-content:space-between;">
+            <b>Total:</b>
+            <b id="cart-total" style="color:var(--primary); font-size:20px;">0 K</b>
+        </div>
+        <button class="btn-checkout" onclick="checkout()">Check Out ➔</button>
+    </div>
 </div>
 
 <script>
     const SB_URL = "https://ltusknkpwbyriikeyday.supabase.co";
-    const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx0dXNrbmtwd2J5cmlpa2V5ZGF5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYyMTYxNDksImV4cCI6MjA4MTc5MjE0OX0.7TXAvr2tHl03m_gYZNYq8xyy0yYHTx0sYMN4tS6GDnA";
+    const SB_KEY = "YOUR_SUPABASE_KEY";
     const _supabase = window.supabase.createClient(SB_URL, SB_KEY);
 
     let allItems = [];
-    let cart = {};
+    let cart = [];
+    let selectedItem = null;
 
-    // ၁။ Login System Check
-    async function checkUser() {
-        const { data: { user } } = await _supabase.auth.getUser();
-        const profileDiv = document.getElementById('user-profile');
-        if (user) {
-            profileDiv.innerHTML = `
-                <img src="${user.user_metadata.avatar_url || 'https://api.dicebear.com/7.x/avataaars/svg?seed=Jewelry'}" style="width:30px; height:30px; border-radius:50%;">
-                <span style="font-weight:bold;">${user.user_metadata.full_name || 'User'}</span>
-                <button onclick="logout()" style="border:none; background:none; color:red; cursor:pointer; font-size:11px;">(ထွက်ရန်)</button>`;
-        } else {
-            profileDiv.innerHTML = `<a href="auth.html" class="login-btn">Login / Register</a>`;
-        }
-    }
-
-    async function logout() { await _supabase.auth.signOut(); location.reload(); }
-
-    // ၂။ Load Products
     async function loadMenu() {
-        const { data, error } = await _supabase.from('menu_items').select('*').order('id');
-        if (error) return;
+        const { data } = await _supabase.from('menu_items').select('*');
         allItems = data;
         renderMenu(data);
     }
 
     function renderMenu(items) {
-        const display = document.getElementById('menu-display');
-        display.innerHTML = items.map(item => {
-            const sizeList = item.sizes ? item.sizes.split(',') : [];
-            return `
-            <div class="card">
-                <img src="${item.image_url || 'https://via.placeholder.com/150'}" alt="">
-                <div class="card-info">
-                    <div style="font-weight:700; font-size:14px; color:var(--dark);">${item.name}</div>
-                    <div class="price">${item.price.toLocaleString()} K</div>
-                    <div style="font-size:10px; color:#999;">Select Size:</div>
-                    <div class="size-box">
-                        ${sizeList.map(s => `<button class="size-btn" onclick="addToCart('${item.name}', '${s.trim()}', ${item.price})">${s.trim()}</button>`).join('')}
-                        ${sizeList.length === 0 ? `<button class="size-btn" onclick="addToCart('${item.name}', 'Free', ${item.price})">Free Size</button>` : ''}
-                    </div>
+        document.getElementById('menu-display').innerHTML = items.map(item => `
+            <div class="card" onclick="openProduct('${item.name}')">
+                <img src="${item.image_url}">
+                <div style="padding:10px;">
+                    <div style="font-weight:700; font-size:14px;">${item.name}</div>
+                    <div style="color:var(--primary); font-weight:800;">${item.price.toLocaleString()} K</div>
                 </div>
-            </div>`;
-        }).join('');
+            </div>
+        `).join('');
     }
 
-    function addToCart(name, size, price) {
-        const cartKey = `${name} (Size: ${size})`;
-        cart[cartKey] = (cart[cartKey] || 0) + 1;
+    function openProduct(name) {
+        selectedItem = allItems.find(i => i.name === name);
+        const sizes = selectedItem.sizes ? selectedItem.sizes.split(',') : [];
         
-        const toast = document.getElementById('toast');
-        toast.style.display = 'block';
-        setTimeout(() => toast.style.display = 'none', 1000);
+        document.getElementById('modal-data').innerHTML = `
+            <span onclick="closeModal()" style="position:absolute; right:20px; top:10px; font-size:28px; cursor:pointer;">×</span>
+            <img src="${selectedItem.image_url}" class="modal-img">
+            <h2 style="margin:15px 0 5px 0;">${selectedItem.name}</h2>
+            <div style="color:var(--primary); font-size:24px; font-weight:800;">${selectedItem.price.toLocaleString()} K</div>
+            
+            <p style="color:#666; font-size:12px;">Premium Stainless Steel, High Quality Finish.</p>
+            
+            <div style="margin-top:15px;"><b>Select Size:</b></div>
+            <div style="display:flex; gap:10px; margin-top:8px;">
+                ${sizes.map(s => `<button class="size-btn-modal" onclick="selectSize(this, '${s}')" style="padding:10px 15px; border:1px solid #ddd; border-radius:10px; background:white; cursor:pointer;">${s}</button>`).join('')}
+            </div>
 
-        calculateTotal();
+            <button class="btn-add-cart" onclick="addToCartFinal()">Add to Cart</button>
+            
+            <div style="margin-top:20px; font-weight:bold;">Related Products</div>
+            <div style="display:flex; overflow-x:auto; gap:10px; margin-top:10px;">
+                ${allItems.slice(0,4).map(ri => `<img src="${ri.image_url}" style="width:80px; height:80px; border-radius:10px; flex-shrink:0;">`).join('')}
+            </div>
+        `;
+        document.getElementById('product-modal').style.display = 'flex';
     }
 
-    function calculateTotal() {
-        let total = 0;
-        for (let key in cart) {
-            const itemName = key.split(' (Size:')[0];
-            const item = allItems.find(i => i.name === itemName);
-            if (item) total += cart[key] * item.price;
-        }
-        document.getElementById('total-price').innerText = total.toLocaleString();
+    let tempSize = null;
+    function selectSize(btn, size) {
+        document.querySelectorAll('.size-btn-modal').forEach(b => b.style.borderColor = '#ddd');
+        btn.style.borderColor = 'var(--primary)';
+        tempSize = size;
     }
 
-    async function goToCheckout() {
-        const total = document.getElementById('total-price').innerText;
-        if (total === "0") return alert("ပစ္စည်း အရင်ရွေးချယ်ပါ။");
-
-        const { data: { user } } = await _supabase.auth.getUser();
-        if(!user) return alert("အော်ဒါတင်ရန် Login အရင်ဝင်ပေးပါ။");
-
-        const { error } = await _supabase.from('orders').insert([{
-            customer_name: user.user_metadata.full_name || user.email,
-            items: cart,
-            total_price: parseInt(total.replace(/,/g, '')),
-            status: 'pending'
-        }]);
-
-        if (!error) {
-            alert("မှာယူမှု အောင်မြင်ပါသည်။");
-            cart = {}; location.reload();
-        }
+    function addToCartFinal() {
+        if(!tempSize && selectedItem.sizes) return alert("Please select a size!");
+        cart.push({ ...selectedItem, size: tempSize || 'Free' });
+        updateCartUI();
+        closeModal();
     }
 
-    window.onload = async () => { await checkUser(); await loadMenu(); };
+    function updateCartUI() {
+        document.getElementById('cart-count').innerText = cart.length;
+        document.getElementById('cart-list').innerHTML = cart.map((item, index) => `
+            <div class="cart-item">
+                <img src="${item.image_url}" style="width:50px; height:50px; border-radius:8px;">
+                <div style="flex:1;">
+                    <div style="font-size:13px; font-weight:bold;">${item.name}</div>
+                    <div style="font-size:11px; color:#666;">Size: ${item.size}</div>
+                </div>
+                <div style="font-weight:bold;">${item.price.toLocaleString()} K</div>
+                <span onclick="removeItem(${index})" style="color:red; cursor:pointer;">×</span>
+            </div>
+        `).join('');
+        
+        const total = cart.reduce((sum, item) => sum + item.price, 0);
+        document.getElementById('cart-total').innerText = total.toLocaleString() + " K";
+    }
+
+    function removeItem(index) { cart.splice(index, 1); updateCartUI(); }
+    function toggleCart() { document.getElementById('cart-drawer').classList.toggle('open'); }
+    function closeModal() { document.getElementById('product-modal').style.display = 'none'; tempSize = null; }
+    
+    window.onload = loadMenu;
 </script>
 </body>
 </html>
