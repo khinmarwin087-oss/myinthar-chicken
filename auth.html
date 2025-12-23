@@ -60,5 +60,21 @@
         }
     }
 </script>
+    <button onclick="loginWithGoogle()" style="width:100%; padding:12px; background:white; border:1px solid #ddd; border-radius:10px; cursor:pointer; font-weight:bold; display:flex; align-items:center; justify-content:center; gap:10px;">
+    <img src="https://www.google.com/favicon.ico" width="20"> Google ဖြင့် အကောင့်ဝင်ရန်
+</button>
+
+<script>
+async function loginWithGoogle() {
+    const { error } = await _supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+            redirectTo: window.location.origin + '/index.html'
+        }
+    });
+    if (error) alert("အမှားရှိနေပါသည်: " + error.message);
+}
+</script>
+    
 </body>
 </html>
