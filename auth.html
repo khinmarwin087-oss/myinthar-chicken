@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="my">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - မြင်သာကြက်ကင်</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        body { font-family: sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; background: #f8fafc; }
+        .auth-card { background: white; padding: 30px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); width: 90%; max-width: 400px; }
+        input { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ddd; border-radius: 10px; box-sizing: border-box; }
+        .btn { width: 100%; padding: 12px; background: #d35400; color: white; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; margin-top: 10px; }
+        .toggle { text-align: center; margin-top: 15px; font-size: 14px; color: #64748b; cursor: pointer; }
+    </style>
+</head>
+<body>
+
+<div class="auth-card">
+    <h2 id="auth-title" style="text-align:center; color:#d35400;">ဝင်ရောက်ရန်</h2>
+    <div id="register-fields" style="display:none;">
+        <input type="text" id="full_name" placeholder="နာမည်အပြည့်အစုံ">
+    </div>
+    <input type="email" id="email" placeholder="အီးမေးလ် (ဥပမာ- user@gmail.com)">
+    <input type="password" id="password" placeholder="လျှို့ဝှက်နံပါတ်">
+    
+    <button class="btn" onclick="handleAuth()" id="auth-btn">Log In</button>
+    <div class="toggle" onclick="toggleAuth()" id="toggle-text">အကောင့်မရှိသေးပါက အသစ်ဖွင့်ရန်</div>
+</div>
+
+<script>
+    const SB_URL = "https://deabtvqzxpkepgcdutzd.supabase.co";
+    const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRlYWJ0dnF6eHBrZXBnY2R1dHpkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYyNzQzNDMsImV4cCI6MjA4MTg1MDM0M30.BbxmM65uoTDcf_nTP6w5siSF6Y5_eM4peqYJCAxR90I";
+    const _supabase = window.supabase.createClient(SB_URL, SB_KEY);
+
+    let isRegister = false;
+
+    function toggleAuth() {
+        isRegister = !isRegister;
+        document.getElementById('auth-title').innerText = isRegister ? "အကောင့်အသစ်ဖွင့်ရန်" : "ဝင်ရောက်ရန်";
+        document.getElementById('auth-btn').innerText = isRegister ? "Register" : "Log In";
+        document.getElementById('register-fields').style.display = isRegister ? "block" : "none";
+        document.getElementById('toggle-text').innerText = isRegister ? "အကောင့်ရှိပြီးသားဆိုလျှင် ပြန်ဝင်ရန်" : "အကောင့်မရှိသေးပါက အသစ်ဖွင့်ရန်";
+    }
+
+    async function handleAuth() {
+        const email = document.getElementById('email').value;
+        const password = document.getElementById('password').value;
+        const full_name = document.getElementById('full_name').value;
+
+        if (isRegister) {
+            const { error } = await _supabase.auth.signUp({ 
+                email, password, options: { data: { full_name: full_name } } 
+            });
+            if (error) alert(error.message);
+            else { alert("Register အောင်မြင်ပါသည်။"); location.href = "index.html"; }
+        } else {
+            const { error } = await _supabase.auth.signInWithPassword({ email, password });
+            if (error) alert(error.message);
+            else { alert("Login အောင်မြင်ပါသည်။"); location.href = "index.html"; }
+        }
+    }
+</script>
+</body>
+</html>
