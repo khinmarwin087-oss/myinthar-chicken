@@ -3,128 +3,267 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>K.M.W Admin Dashboard</title>
+    <title>K.M.W Jewelry - Wholesale & Retail</title>
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
-        :root { --primary: #FF4747; --dark: #1e1e2d; --bg: #f5f7fb; }
-        body { font-family: sans-serif; background: var(--bg); margin: 0; display: flex; flex-direction: column; }
-        #login-screen { position: fixed; inset: 0; background: var(--dark); z-index: 10000; display: flex; align-items: center; justify-content: center; }
-        .login-box { background: white; padding: 40px; border-radius: 24px; width: 300px; text-align: center; }
-        input { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ddd; border-radius: 10px; box-sizing: border-box; }
-        .btn { padding: 12px; border: none; border-radius: 10px; cursor: pointer; font-weight: bold; width: 100%; transition: 0.3s; }
-        .btn-primary { background: var(--primary); color: white; }
-        .sidebar { width: 240px; background: var(--dark); height: 100vh; position: fixed; color: white; }
-        .nav-item { padding: 15px 25px; cursor: pointer; display: flex; align-items: center; gap: 10px; color: #a2a3b7; }
-        .nav-item.active { background: #2b2b40; color: white; border-left: 4px solid var(--primary); }
-        .main { margin-left: 240px; padding: 30px; width: calc(100% - 240px); box-sizing: border-box; }
-        .card { background: white; padding: 20px; border-radius: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.05); margin-bottom: 20px; }
-        .hidden { display: none !important; }
-        @media (max-width: 768px) { .sidebar { width: 60px; } .main { margin-left: 60px; width: calc(100% - 60px); } .nav-item span { display: none; } }
+        :root { --primary: #FF4747; --secondary: #fdf2f2; --dark: #1e1e2d; --bg: #f5f7fb; --card-bg: #fff; --accent: #FFD700; }
+        body { margin:0; font-family: 'Segoe UI', 'Pyidaungsu', sans-serif; background:var(--bg); color: var(--dark); padding-bottom: 80px;}
+        
+        /* Layout */
+        header { 
+            background: var(--primary); color: white; padding: 10px 15px; 
+            display:flex; align-items:center; justify-content:space-between; 
+            position:sticky; top:0; z-index:1000; box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        header input { padding:10px; border:none; border-radius:8px; width:45%; outline: none; font-size: 14px;}
+        .login-btn { background:white; color:var(--primary); border:none; padding:8px 12px; border-radius:8px; cursor:pointer; font-weight: bold;}
+        
+        .main { padding:15px; max-width: 1200px; margin: auto; }
+        .tabs { display:flex; gap:10px; margin-bottom:20px; overflow-x: auto; padding: 5px 0; scrollbar-width: none;}
+        .tab { padding:8px 20px; background:white; border-radius:20px; cursor:pointer; white-space: nowrap; box-shadow:0 2px 5px rgba(0,0,0,0.05);}
+        .tab.active { background: var(--primary); color:white;}
+        
+        /* Products */
+        .products { display:grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap:15px; }
+        .product-card { background:var(--card-bg); border-radius:15px; padding:12px; text-align:center; box-shadow:0 4px 12px rgba(0,0,0,0.05); transition: 0.3s;}
+        .product-card img { width:100%; aspect-ratio: 1/1; object-fit: cover; border-radius:10px; }
+        .price-tag { font-size: 0.8rem; margin: 4px 0; color: #666; }
+        .wholesale { color: var(--primary); font-weight: bold; font-size: 1rem; }
+        .add-btn { background: var(--primary); color: white; border: none; padding: 10px; border-radius: 8px; width: 100%; cursor: pointer; font-weight: bold; margin-top: 5px;}
+
+        /* Admin & Modals */
+        .modal { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.7); z-index:2000; backdrop-filter: blur(5px); }
+        .modal-content { background:white; width:90%; max-width:450px; margin:30px auto; padding:20px; border-radius:20px; max-height: 85vh; overflow-y: auto;}
+        
+        .admin-panel { display:none; background: #fff; padding: 20px; margin: 15px 0; border-radius: 15px; border: 2px solid var(--primary); }
+        .admin-nav { display: flex; gap: 5px; overflow-x: auto; margin-bottom: 15px; padding-bottom: 5px; }
+        .admin-nav button { padding: 8px 12px; border-radius: 5px; border: 1px solid #ddd; background: #f9f9f9; cursor: pointer; white-space: nowrap;}
+        .admin-nav button.active { background: var(--primary); color: white; border-color: var(--primary); }
+        
+        /* Invoice */
+        #invoice-card { background: white; padding: 20px; border: 1px dashed #ccc; border-radius: 10px; color: #333; }
+        .invoice-header { text-align: center; border-bottom: 2px solid var(--primary); padding-bottom: 10px; margin-bottom: 15px; }
+        .invoice-row { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 14px; }
+        
+        .cart-btn { 
+            position:fixed; bottom:20px; right:20px; background:var(--primary); color:white; 
+            border:none; border-radius:50%; width:60px; height:60px; font-size:24px; cursor:pointer;
+            box-shadow: 0 4px 15px rgba(255, 71, 71, 0.4); z-index: 999;
+        }
+        .cart-count { position:absolute; top:0; right:0; background:var(--accent); color:var(--dark); font-size:12px; padding:3px 7px; border-radius:50%; border: 2px solid var(--primary);}
+        
+        .order-row { background: #f9f9f9; padding: 10px; border-radius: 8px; margin-bottom: 10px; border-left: 4px solid var(--primary); font-size: 13px;}
     </style>
 </head>
 <body>
 
-<div id="login-screen">
-    <div class="login-box">
-        <h2 style="margin:0;">Admin Login</h2>
-        <p style="color:#888; font-size:12px;">K.M.W Jewelry Dashboard</p>
-        <input type="password" id="admin-pass" placeholder="Password: kmw123">
-        <button class="btn btn-primary" onclick="checkLogin()">Sign In</button>
+<header>
+    <div style="display:flex; align-items:center; gap:10px;">
+        <img src="https://via.placeholder.com/35" class="profile-img" id="user-avatar" onclick="toggleHistory()" style="border-radius:50%; width:35px; cursor:pointer;">
+        <button id="auth-btn" class="login-btn" onclick="handleAuth()">Login</button>
+    </div>
+    <input type="text" id="search-input" placeholder="ပစ္စည်းရှာရန်...">
+    <button class="login-btn" onclick="toggleAdmin()" id="admin-toggle-btn" style="display:none; background: var(--accent); color: #000;">Admin</button>
+</header>
+
+<div class="main">
+    <div class="tabs" id="category-tabs">
+        <div class="tab active" onclick="filterCategory('all', this)">All Items</div>
+        <div class="tab" onclick="filterCategory('Ring', this)">Rings</div>
+        <div class="tab" onclick="filterCategory('Chain', this)">Chains</div>
+        <div class="tab" onclick="filterCategory('Earring', this)">Earrings</div>
+    </div>
+
+    <div id="admin-section" class="admin-panel">
+        <div class="admin-nav">
+            <button class="active" onclick="switchAdminTab('products', this)">Products</button>
+            <button onclick="switchAdminTab('vouchers', this)">Vouchers</button>
+            <button onclick="switchAdminTab('orders', this)">Orders</button>
+        </div>
+
+        <div id="admin-products-ui">
+            <h4>Add Product</h4>
+            <input type="text" id="p-name" placeholder="Name" style="width:90%; padding:8px; margin-bottom:5px;">
+            <input type="number" id="p-retail" placeholder="Retail Price" style="width:42%; padding:8px;">
+            <input type="number" id="p-wholesale" placeholder="WS Price" style="width:42%; padding:8px;">
+            <input type="text" id="p-img" placeholder="Image URL" style="width:90%; padding:8px; margin: 5px 0;">
+            <button class="add-btn" onclick="adminAddProduct()">Save Product</button>
+        </div>
+
+        <div id="admin-vouchers-ui" style="display:none;">
+            <h4>Add Voucher</h4>
+            <input type="text" id="v-code" placeholder="Code (eg. SAVE10)" style="width:45%; padding:8px;">
+            <input type="number" id="v-perc" placeholder="Discount %" style="width:40%; padding:8px;">
+            <button class="add-btn" onclick="adminAddVoucher()">Add Voucher</button>
+        </div>
+
+        <div id="admin-orders-ui" style="display:none;">
+            <h4>Recent Orders</h4>
+            <div id="admin-orders-list"></div>
+        </div>
+    </div>
+
+    <h2 style="font-size: 1.1rem;">New Arrivals ✨</h2>
+    <div class="products" id="product-list"></div>
+</div>
+
+<div id="cart-modal" class="modal">
+    <div class="modal-content">
+        <h3>Your Cart</h3>
+        <div id="cart-items-list"></div>
+        <hr>
+        <div style="display:flex; gap:5px; margin: 10px 0;">
+            <input type="text" id="voucher-input" placeholder="Voucher Code" style="flex:1; padding:8px;">
+            <button onclick="applyVoucher()" style="padding:8px; background:var(--dark); color:white; border-radius:5px;">Apply</button>
+        </div>
+        <div class="invoice-row"><span>Total:</span> <span id="cart-total">0</span> K</div>
+        <button class="add-btn" onclick="checkout()">Place Order</button>
+        <button class="add-btn" style="background:#ddd; color:#333;" onclick="closeModal('cart-modal')">Close</button>
     </div>
 </div>
 
-<div id="admin-panel" class="hidden">
-    <div class="sidebar">
-        <div style="padding:20px; font-weight:800; color:var(--primary); text-align:center;">K.M.W PRO</div>
-        <div class="nav-item active" onclick="showSection('orders', this)"><i class="fas fa-shopping-cart"></i> <span>Orders</span></div>
-        <div class="nav-item" onclick="showSection('add', this)"><i class="fas fa-plus"></i> <span>Add Product</span></div>
-        <div class="nav-item" onclick="location.reload()"><i class="fas fa-sync"></i> <span>Refresh</span></div>
-    </div>
-
-    <div class="main">
-        <div id="section-orders" class="content-section">
-            <h2>📦 Orders</h2>
-            <div id="order-list">Loading...</div>
+<div id="invoice-modal" class="modal">
+    <div class="modal-content">
+        <div id="invoice-card">
+            <div class="invoice-header"><h2>K.M.W Jewelry</h2><p>Invoice</p></div>
+            <div id="inv-items"></div>
+            <hr>
+            <div class="invoice-row"><strong>Total:</strong> <strong id="inv-total"></strong></div>
         </div>
-
-        <div id="section-add" class="content-section hidden">
-            <h2>💍 Add New Product</h2>
-            <div class="card" style="max-width:500px;">
-                <input type="text" id="p-name" placeholder="Product Name">
-                <input type="number" id="p-price" placeholder="Price (MMK)">
-                <input type="text" id="p-sizes" placeholder="Sizes (S, M, L)">
-                <label style="font-size:12px;">Select Photo:</label>
-                <input type="file" id="p-file" accept="image/*">
-                <button class="btn btn-primary" id="upload-btn" onclick="handleUpload()">Upload Product</button>
-            </div>
-        </div>
+        <button class="add-btn" onclick="downloadInvoice()">Save Voucher Image</button>
+        <button class="add-btn" style="background:#ddd; color:#333;" onclick="location.reload()">Done</button>
     </div>
 </div>
+
+<button class="cart-btn" onclick="openCart()">
+    <i class="fas fa-shopping-cart"></i>
+    <span class="cart-count" id="cart-count">0</span>
+</button>
 
 <script>
-    // ** သင့်ရဲ့ လက်ရှိ Jewelry ဆိုင် Key တွေကို ဒီမှာ ပြန်ထည့်ထားပါတယ် **
     const SB_URL = "https://ltusknkpwbyriikeyday.supabase.co";
     const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx0dXNrbmtwd2J5cmlpa2V5ZGF5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYyMTYxNDksImV4cCI6MjA4MTc5MjE0OX0.7TXAvr2tHl03m_gYZNYq8xyy0yYHTx0sYMN4tS6GDnA";
-    const _supabase = window.supabase.createClient(SB_URL, SB_KEY);
+    const _supabase = supabase.createClient(SB_URL, SB_KEY);
 
-    function checkLogin() {
-        const pass = document.getElementById('admin-pass').value;
-        if(pass === "kmw123") {
-            document.getElementById('login-screen').classList.add('hidden');
-            document.getElementById('admin-panel').classList.remove('hidden');
-            loadOrders();
-        } else {
-            alert("Password မှားယွင်းနေပါသည်။");
+    let currentUser = null, productsData = [], cart = [], discount = 0;
+
+    async function checkUser() {
+        const { data: { user } } = await _supabase.auth.getUser();
+        if (user) {
+            currentUser = user;
+            document.getElementById('user-avatar').src = user.user_metadata.avatar_url || 'https://via.placeholder.com/35';
+            document.getElementById('auth-btn').innerText = "Logout";
+            if(user.email.includes("admin") || user.email === "your-email@gmail.com") 
+                document.getElementById('admin-toggle-btn').style.display = 'block';
+            loadCart();
         }
     }
 
-    function showSection(name, el) {
-        document.querySelectorAll('.content-section').forEach(s => s.classList.add('hidden'));
-        document.getElementById('section-' + name).classList.remove('hidden');
-        document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
-        el.classList.add('active');
+    async function handleAuth() {
+        if (currentUser) { await _supabase.auth.signOut(); location.reload(); }
+        else { await _supabase.auth.signInWithOAuth({ provider: 'google' }); }
     }
 
-    async function loadOrders() {
-        const { data, error } = await _supabase.from('orders').select('*').order('created_at', {ascending: false});
-        const container = document.getElementById('order-list');
-        if(data) {
-            container.innerHTML = data.map(o => `
-                <div class="card">
-                    <b>#${o.id.toString().slice(-5)} - ${o.customer_name}</b> (${o.status})<br>
-                    <small>${o.phone} | ${o.address}</small><br>
-                    <b style="color:red;">${o.total_price.toLocaleString()} K</b>
-                </div>
-            `).join('');
-        } else { container.innerHTML = "မှာယူမှု မရှိသေးပါ။"; }
+    // --- Core Logic ---
+    async function loadProducts() {
+        const { data } = await _supabase.from('products').select('*').order('created_at', {ascending: false});
+        productsData = data || [];
+        renderProducts(productsData);
     }
 
-    async function handleUpload() {
-        const file = document.getElementById('p-file').files[0];
-        const name = document.getElementById('p-name').value;
-        const price = document.getElementById('p-price').value;
-        const btn = document.getElementById('upload-btn');
+    function renderProducts(items) {
+        document.getElementById('product-list').innerHTML = items.map(p => `
+            <div class="product-card">
+                <img src="${p.image_url}">
+                <h4>${p.name}</h4>
+                <div class="price-tag">Retail: ${p.retail_price.toLocaleString()}</div>
+                <div class="price-tag wholesale">WS: ${p.wholesale_price.toLocaleString()} K</div>
+                <button class="add-btn" onclick="addToCart(${p.id})">Add to Cart</button>
+            </div>
+        `).join('');
+    }
 
-        if(!file || !name || !price) return alert("အချက်အလက် ပြည့်စုံအောင် ဖြည့်ပါ။");
+    async function loadCart() {
+        const { data } = await _supabase.from('cart_items').select('*, products(*)').eq('user_id', currentUser.id);
+        cart = data || [];
+        document.getElementById('cart-count').innerText = cart.length;
+    }
 
-        btn.innerText = "Uploading..."; btn.disabled = true;
+    async function addToCart(pid) {
+        if(!currentUser) return alert("Please Login First");
+        const exist = cart.find(c => c.product_id === pid);
+        if(exist) await _supabase.from('cart_items').update({quantity: exist.quantity + 1}).eq('id', exist.id);
+        else await _supabase.from('cart_items').insert({user_id: currentUser.id, product_id: pid});
+        loadCart();
+    }
 
-        const fileName = Date.now() + "_" + file.name;
-        const { data, error } = await _supabase.storage.from('jewelry-images').upload(fileName, file);
+    async function openCart() {
+        if(!currentUser) return;
+        document.getElementById('cart-modal').style.display = 'block';
+        let total = 0;
+        document.getElementById('cart-items-list').innerHTML = cart.map(i => {
+            total += i.products.wholesale_price * i.quantity;
+            return `<div class="invoice-row"><span>${i.products.name} x${i.quantity}</span><span>${(i.products.wholesale_price * i.quantity).toLocaleString()}</span></div>`;
+        }).join('');
+        document.getElementById('cart-total').innerText = (total - (total * discount/100)).toLocaleString();
+    }
 
-        if(error) {
-            alert("Error: Supabase Storage မှာ 'jewelry-images' ဆိုတဲ့ Bucket ကို Public ဆောက်ပေးဖို့ လိုပါတယ်။");
-            btn.innerText = "Upload Product"; btn.disabled = false;
-            return;
+    async function checkout() {
+        const total = document.getElementById('cart-total').innerText.replace(/,/g, '');
+        const { data: order } = await _supabase.from('orders').insert({user_id: currentUser.id, total_price: parseInt(total)}).select().single();
+        if(order) {
+            showInvoice(total);
+            await _supabase.from('cart_items').delete().eq('user_id', currentUser.id);
         }
-
-        const url = SB_URL + "/storage/v1/object/public/jewelry-images/" + fileName;
-        await _supabase.from('menu_items').insert([{ name, price: parseInt(price), image_url: url, sizes: document.getElementById('p-sizes').value }]);
-
-        alert("အောင်မြင်စွာ တင်ပြီးပါပြီ!");
-        location.reload();
     }
+
+    function showInvoice(total) {
+        document.getElementById('cart-modal').style.display = 'none';
+        document.getElementById('invoice-modal').style.display = 'block';
+        document.getElementById('inv-total').innerText = total + " K";
+        document.getElementById('inv-items').innerHTML = cart.map(i => `<div class="invoice-row"><span>${i.products.name}</span><span>${i.quantity}</span></div>`).join('');
+    }
+
+    // --- Admin Functions ---
+    function toggleAdmin() {
+        const panel = document.getElementById('admin-section');
+        panel.style.display = panel.style.display === 'block' ? 'none' : 'block';
+        loadAdminOrders();
+    }
+
+    function switchAdminTab(tab, btn) {
+        document.querySelectorAll('.admin-nav button').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        ['products', 'vouchers', 'orders'].forEach(t => document.getElementById(`admin-${t}-ui`).style.display = t === tab ? 'block' : 'none');
+    }
+
+    async function adminAddProduct() {
+        const p = { name: document.getElementById('p-name').value, retail_price: document.getElementById('p-retail').value, wholesale_price: document.getElementById('p-wholesale').value, image_url: document.getElementById('p-img').value };
+        await _supabase.from('products').insert(p);
+        alert("Added!"); loadProducts();
+    }
+
+    async function loadAdminOrders() {
+        const { data } = await _supabase.from('orders').select('*, profiles(full_name)').order('created_at', {ascending: false});
+        document.getElementById('admin-orders-list').innerHTML = data.map(o => `
+            <div class="order-row">
+                <b>Order #${o.id.slice(0,5)}</b> - ${o.total_price.toLocaleString()} K<br>
+                Status: ${o.status} | Date: ${new Date(o.created_at).toLocaleDateString()}
+            </div>
+        `).join('');
+    }
+
+    function downloadInvoice() {
+        html2canvas(document.getElementById('invoice-card')).then(canvas => {
+            const a = document.createElement('a'); a.download = 'invoice.png'; a.href = canvas.toDataURL(); a.click();
+        });
+    }
+
+    function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+    
+    checkUser(); loadProducts();
 </script>
 </body>
 </html>
