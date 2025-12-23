@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="my">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin Panel - မြင်သာကြက်ကင်</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        body { font-family: sans-serif; background: #f4f7f6; padding: 20px; }
+        .item-row { background: white; padding: 15px; margin-bottom: 10px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        input { padding: 8px; border: 1px solid #ddd; border-radius: 4px; }
+        .btn-update { background: #27ae60; color: white; border: none; padding: 10px; cursor: pointer; border-radius: 5px; }
+        .btn-out { background: #e74c3c; color: white; border: none; padding: 10px; cursor: pointer; border-radius: 5px; }
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+    </style>
+</head>
+<body>
+
+<div class="header">
+    <h2>🛠 Admin Dashboard (ပစ္စည်းစီမံရန်)</h2>
+    <button onclick="location.reload()">Refresh Data</button>
+</div>
+
+<div id="admin-list">မီနူးများ ဆွဲယူနေသည်...</div>
+
+<script>
+    // သင်၏ Supabase URL နှင့် Key ကို ဒီမှာ ပြန်ထည့်ပါ
+    const SB_URL = "https://deabtvqzxpkepgcdutzd.supabase.co";
+    const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRlYWJ0dnF6eHBrZXBnY2R1dHpkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYyNzQzNDMsImV4cCI6MjA4MTg1MDM0M30.BbxmM65uoTDcf_nTP6w5siSF6Y5_eM4peqYJCAxR90I";
+    const _supabase = window.supabase.createClient(SB_URL, SB_KEY);
+
+    async function loadAdminMenu() {
+        const { data } = await _supabase.from('menu_items').select('*').order('id');
+        const container = document.getElementById('admin-list');
+        container.innerHTML = data.map(item => `
+            <div class="item-row">
+                <div>
+                    <b>${item.name}</b><br>
+                    လက်ကျန်: <input type="number" id="stock-${item.id}" value="${item.stock_qty}" style="width:60px;">
+                </div>
+                <div>
+                    စျေးနှုန်း: <input type="number" id="price-${item.id}" value="${item.price}" style="width:80px;"> K
+                </div>
+                <div>
+                    <button class="btn-update" onclick="updateItem(${item.id})">Update</button>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    async function updateItem(id) {
+        const newStock = document.getElementById(`stock-${id}`).value;
+        const newPrice = document.getElementById(`price-${id}`).value;
+        
+        const { error } = await _supabase.from('menu_items')
+            .update({ stock_qty: newStock, price: newPrice })
+            .eq('id', id);
+
+        if (!error) alert("ပြင်ဆင်ပြီးပါပြီ။");
+        else alert("အမှားအယွင်းရှိနေပါသည်။");
+    }
+
+    window.onload = loadAdminMenu;
+</script>
+</body>
+</html>
