@@ -1,151 +1,234 @@
 <!DOCTYPE html>
 <html lang="my">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>K.M.W Pro Wholesale</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>K.M.W Jewelry - Wholesale & Retail</title>
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #FF4747;
+            --secondary: #FF9C9C;
+            --dark: #1e1e2d;
+            --bg: #f5f7fb;
+            --card-bg: #fff;
+            --accent: #FFD700;
+        }
+        body { margin:0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background:var(--bg); color: var(--dark);}
+        
+        header { 
+            background: var(--primary); 
+            color: white; 
+            padding: 10px 15px; 
+            display:flex; 
+            align-items:center; 
+            justify-content:space-between; 
+            position:sticky; 
+            top:0; 
+            z-index:1000;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        header input { padding:10px; border:none; border-radius:8px; width:50%; outline: none;}
+        
+        .header-btns { display: flex; align-items: center; gap: 10px; }
+        .login-btn { background:white; color:var(--primary); border:none; padding:8px 15px; border-radius:8px; cursor:pointer; font-weight: bold;}
+        
+        .main { padding:15px; max-width: 1200px; margin: auto; }
+        
+        .tabs { display:flex; gap:10px; margin-bottom:20px; overflow-x: auto; padding-bottom: 5px; }
+        .tab { 
+            padding:8px 20px; 
+            background:white; 
+            border-radius:20px; 
+            cursor:pointer; 
+            box-shadow:0 2px 5px rgba(0,0,0,0.05);
+            white-space: nowrap;
+        }
+        .tab.active { background: var(--primary); color:white;}
+        
+        .products { 
+            display:grid; 
+            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); 
+            gap:15px;
+        }
+        
+        .product-card { 
+            background:var(--card-bg); 
+            border-radius:15px; 
+            padding:12px; 
+            text-align:center; 
+            box-shadow:0 4px 12px rgba(0,0,0,0.05);
+            transition: transform 0.2s;
+        }
+        .product-card:hover { transform: translateY(-5px); }
+        .product-card img { width:100%; aspect-ratio: 1/1; object-fit: cover; border-radius:10px; margin-bottom: 10px;}
+        .product-card h3 { font-size: 1rem; margin: 10px 0; color: #333; }
+        .price-tag { font-size: 0.9rem; margin: 4px 0; }
+        .retail { color: #555; }
+        .wholesale { color: var(--primary); font-weight: bold; }
+        
+        .add-btn { 
+            background: var(--primary); color: white; border: none; 
+            padding: 8px 15px; border-radius: 8px; width: 100%; margin-top: 10px;
+        }
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+        .cart-btn { 
+            position:fixed; bottom:20px; right:20px; 
+            background:var(--primary); color:white; border:none; 
+            border-radius:50%; width:60px; height:60px; font-size:24px;
+            box-shadow: 0 4px 15px rgba(255, 71, 71, 0.4);
+            z-index: 999;
+        }
 
-<style>
-body{margin:0;font-family:sans-serif;background:#f5f7f9}
-.top{background:#fff;padding:15px;font-weight:800;color:#ff4747;
-display:flex;justify-content:space-between;position:sticky;top:0}
-.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:12px}
-.card{background:#fff;border-radius:14px;overflow:hidden;box-shadow:0 4px 10px #0001}
-.card img{width:100%;height:150px;object-fit:cover}
-.card div{padding:10px}
-.drawer{position:fixed;bottom:-100%;left:0;width:100%;background:#fff;
-border-radius:25px 25px 0 0;transition:.4s;max-height:90vh;overflow:auto;padding:20px}
-.drawer.active{bottom:0}
-.overlay{position:fixed;inset:0;background:#0007;display:none}
-.btn{width:100%;padding:14px;border:none;border-radius:14px;
-background:#ff4747;color:#fff;font-weight:800;margin-top:10px}
-.qty{display:flex;align-items:center;gap:10px;margin:10px 0}
-.qty button{padding:6px 12px}
-.bottom{position:fixed;bottom:0;width:100%;background:#fff;
-display:flex;justify-content:space-around;padding:10px}
-</style>
+        .profile { display:flex; align-items:center; gap:8px;}
+        .profile img { width:35px; height:35px; border-radius:50%; border: 2px solid white;}
+        #profile-name { font-size: 0.9rem; font-weight: bold; }
+    </style>
 </head>
-
 <body>
 
-<div class="overlay" id="overlay" onclick="closeAll()"></div>
+<header>
+    <div class="profile" id="user-profile">
+        <img src="https://via.placeholder.com/35" id="profile-avatar"/>
+        <span id="profile-name">Guest</span>
+    </div>
+    <input type="text" id="search-input" placeholder="ပစ္စည်းရှာရန်...">
+    <div class="header-btns">
+        <button id="auth-btn" class="login-btn" onclick="handleAuth()">Login</button>
+    </div>
+</header>
 
-<div class="top">
-  <div>K.M.W Wholesale</div>
-  <div onclick="openCart()">🛒 <span id="cartCount">0</span></div>
+<div class="main">
+    <div class="tabs" id="category-tabs">
+        <div class="tab active" onclick="filterCategory('all', this)">All</div>
+        <div class="tab" onclick="filterCategory('ring', this)">Rings</div>
+        <div class="tab" onclick="filterCategory('chain', this)">Chains</div>
+        <div class="tab" onclick="filterCategory('earring', this)">Earrings</div>
+    </div>
+
+    <h2>New Arrivals</h2>
+    <div class="products" id="product-list">
+        <p>Loading products...</p>
+    </div>
 </div>
 
-<div id="products" class="grid">Loading…</div>
-
-<!-- PRODUCT -->
-<div class="drawer" id="productDrawer">
-  <div id="productDetail"></div>
-</div>
-
-<!-- CART -->
-<div class="drawer" id="cartDrawer">
-  <h3>🛒 Bulk Order</h3>
-  <div id="cartList"></div>
-  <b id="cartTotal">0 K</b>
-  <button class="btn" onclick="submitOrder()">အော်ဒါတင်မည်</button>
-</div>
-
-<div class="bottom">
-  <div onclick="closeAll()">🏠 Home</div>
-  <div onclick="openCart()">🛒 Cart</div>
-</div>
+<button class="cart-btn" onclick="openCart()">
+    <i class="fas fa-shopping-cart"></i>
+</button>
 
 <script>
-const SB_URL = "https://ltusknkpwbyriikeyday.supabase.co";
+    // Supabase Configuration
+    const SB_URL = "https://ltusknkpwbyriikeyday.supabase.co";
     const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx0dXNrbmtwd2J5cmlpa2V5ZGF5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYyMTYxNDksImV4cCI6MjA4MTc5MjE0OX0.7TXAvr2tHl03m_gYZNYq8xyy0yYHTx0sYMN4tS6GDnA";
-    const _supabase = window.supabase.createClient(SB_URL, SB_KEY);
+    const _supabase = supabase.createClient(SB_URL, SB_KEY);
 
-let products=[], cart=[], current=null, qty=10;
+    let currentUser = null;
+    let productsData = [];
 
-async function load(){
-  const {data}=await sb.from("menu_items").select("*");
-  products=data||[];
-  render();
-}
-load();
+    // Check Auth State
+    async function checkUser() {
+        const { data: { user } } = await _supabase.auth.getUser();
+        if (user) {
+            currentUser = user;
+            document.getElementById('profile-name').innerText = user.user_metadata.full_name || user.email;
+            document.getElementById('profile-avatar').src = user.user_metadata.avatar_url || 'https://via.placeholder.com/35';
+            document.getElementById('auth-btn').innerText = "Logout";
+        }
+    }
 
-function render(){
-  document.getElementById("products").innerHTML =
-  products.map(p=>`
-    <div class="card" onclick="openProduct(${p.id})">
-      <img src="${p.image_url}">
-      <div>
-        <b>${p.name}</b><br>
-        <span>${p.price} K</span>
-      </div>
-    </div>`).join("");
-}
+    // Login/Logout Handler
+    async function handleAuth() {
+        if (currentUser) {
+            await _supabase.auth.signOut();
+            location.reload();
+        } else {
+            await _supabase.auth.signInWithOAuth({ provider: 'google' });
+        }
+    }
 
-function openProduct(id){
-  current=products.find(p=>p.id===id);
-  qty=current.moq||10;
-  showDrawer("productDrawer");
-  updateProduct();
-}
+    // Load products from Supabase
+    async function loadProducts() {
+        const { data, error } = await _supabase.from('products').select('*').order('created_at', { ascending: false });
+        if (error) {
+            console.error("Error loading products:", error);
+            document.getElementById('product-list').innerHTML = "<p>ပစ္စည်းများ တင်နေစဉ် အမှားအယွင်း ဖြစ်သွားပါသည်။</p>";
+            return;
+        }
+        productsData = data || [];
+        renderProducts(productsData);
+    }
 
-function priceByQty(){
-  if(qty>=50 && current.wholesale_50) return current.wholesale_50;
-  if(qty>=10 && current.wholesale_10) return current.wholesale_10;
-  return current.price;
-}
+    function renderProducts(products) {
+        const container = document.getElementById('product-list');
+        if (products.length === 0) {
+            container.innerHTML = "<p>ပစ္စည်းမရှိသေးပါ။</p>";
+            return;
+        }
+        container.innerHTML = products.map(p => `
+            <div class="product-card">
+                <img src="${p.image_url || 'https://via.placeholder.com/150'}" onerror="this.src='https://via.placeholder.com/150'" />
+                <h3>${p.name}</h3>
+                <p class="price-tag retail">Retail: ${Number(p.retail_price).toLocaleString()} K</p>
+                <p class="price-tag wholesale">Wholesale: ${Number(p.wholesale_price).toLocaleString()} K</p>
+                <button class="add-btn" onclick="addToCart(${p.id})">ခြင်းထဲထည့်မည်</button>
+            </div>
+        `).join('');
+    }
 
-function updateProduct(){
-  document.getElementById("productDetail").innerHTML=`
-  <h2>${current.name}</h2>
-  <b>${priceByQty()} K</b>
-  <p>MOQ: ${current.moq||10}</p>
+    // Category filter
+    function filterCategory(cat, element) {
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        element.classList.add('active');
+        
+        if (cat === 'all') {
+            renderProducts(productsData);
+        } else {
+            renderProducts(productsData.filter(p => p.category === cat));
+        }
+    }
 
-  <div class="qty">
-    <button onclick="qty--;updateProduct()">-</button>
-    <b>${qty}</b>
-    <button onclick="qty++;updateProduct()">+</button>
-  </div>
+    // Search filter
+    document.getElementById('search-input').addEventListener('input', e => {
+        const keyword = e.target.value.toLowerCase();
+        const filtered = productsData.filter(p => p.name.toLowerCase().includes(keyword));
+        renderProducts(filtered);
+    });
 
-  <button class="btn" onclick="addCart()">Add Bulk</button>`;
-}
+    // Cart System
+    async function addToCart(productId) {
+        if (!currentUser) {
+            alert("ကျေးဇူးပြု၍ အရင် Login ဝင်ပေးပါ။");
+            return;
+        }
+        
+        const { error } = await _supabase.from('cart_items').upsert({ 
+            user_id: currentUser.id, 
+            product_id: productId, 
+            quantity: 1 
+        });
 
-function addCart(){
-  if(qty < (current.moq||10)) return alert("MOQ မပြည့်ပါ");
-  cart.push({name:current.name, qty, price:priceByQty()});
-  document.getElementById("cartCount").innerText=cart.length;
-  closeAll();
-}
+        if (error) {
+            alert("Error: " + error.message);
+        } else {
+            playSound('add');
+            alert("ခြင်းထဲသို့ ထည့်ပြီးပါပြီ။");
+        }
+    }
 
-function openCart(){
-  if(!cart.length) return alert("Cart empty");
-  showDrawer("cartDrawer");
-  document.getElementById("cartList").innerHTML=
-  cart.map(i=>`<div>${i.name} x ${i.qty} = ${i.price*i.qty} K</div>`).join("");
-  document.getElementById("cartTotal").innerText =
-  cart.reduce((s,i)=>s+i.price*i.qty,0)+" K";
-}
+    function openCart() { alert("Cart System မကြာမီ လာပါမည်..."); }
 
-async function submitOrder(){
-  await sb.from("orders").insert([{
-    items:cart,
-    total_price:cart.reduce((s,i)=>s+i.price*i.qty,0),
-    status:"pending"
-  }]);
-  alert("Order success");
-  location.reload();
-}
+    function playSound(type) {
+        const audio = new Audio(type === 'add' ? 'https://www.myinstants.com/media/sounds/cart.mp3' : '');
+        audio.play().catch(e => console.log("Audio play failed"));
+    }
 
-function showDrawer(id){
-  document.getElementById("overlay").style.display="block";
-  document.getElementById(id).classList.add("active");
-}
-function closeAll(){
-  document.getElementById("overlay").style.display="none";
-  document.querySelectorAll(".drawer").forEach(d=>d.classList.remove("active"));
-}
+    // Initial Load
+    checkUser();
+    loadProducts();
 </script>
 
 </body>
 </html>
+
