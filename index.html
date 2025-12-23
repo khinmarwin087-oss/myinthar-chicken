@@ -3,40 +3,80 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Jewelry Wholesale - Stainless Steel</title>
+    <title>K.M.W Jewelry Wholesale</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&family=Pyidaungsu:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&family=Pyidaungsu:wght@400;700&display=swap" rel="stylesheet">
     <style>
-        :root { --ali-orange: #FF4747; --bg: #F4F4F4; }
-        body { font-family: 'Plus Jakarta Sans', 'Pyidaungsu', sans-serif; background: var(--bg); margin: 0; padding-bottom: 100px; }
-        .header { background: white; padding: 15px; text-align: center; font-weight: 800; font-size: 20px; color: var(--ali-orange); box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
-        .container { max-width: 600px; margin: auto; padding: 15px; }
-        .menu-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
-        .card { background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
-        .card img { width: 100%; height: 150px; object-fit: cover; }
+        :root { --primary: #FF4747; --dark: #191919; --bg: #F0F2F5; }
+        body { font-family: 'Plus Jakarta Sans', 'Pyidaungsu', sans-serif; background: var(--bg); margin: 0; padding-bottom: 120px; }
+        
+        /* Navigation & Login */
+        .top-nav { background: white; padding: 10px 20px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 2000; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+        .logo { font-weight: 800; font-size: 22px; color: var(--primary); text-decoration: none; }
+        #user-profile { font-size: 13px; display: flex; align-items: center; gap: 8px; }
+        .login-btn { background: var(--primary); color: white; padding: 6px 15px; border-radius: 20px; text-decoration: none; font-weight: bold; font-size: 12px; }
+
+        /* Professional Promotion Slider */
+        .promo-slider { margin: 15px; height: 180px; background: linear-gradient(135deg, #FF4747 0%, #FF8E05 100%); border-radius: 20px; position: relative; overflow: hidden; color: white; display: flex; align-items: center; padding: 25px; box-sizing: border-box; }
+        .promo-slider h2 { margin: 0; font-size: 24px; font-weight: 800; }
+        .promo-slider p { margin: 5px 0; font-size: 14px; opacity: 0.9; }
+        .promo-tag { background: white; color: var(--primary); padding: 4px 10px; border-radius: 10px; font-size: 12px; font-weight: bold; }
+        .promo-img { position: absolute; right: -20px; bottom: -20px; width: 150px; opacity: 0.8; transform: rotate(-15px); }
+
+        .section-title { padding: 0 20px; font-size: 18px; font-weight: 800; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; }
+        
+        /* Products Grid */
+        .container { max-width: 600px; margin: auto; }
+        .menu-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; padding: 0 15px; }
+        .card { background: white; border-radius: 16px; overflow: hidden; border: 1px solid rgba(0,0,0,0.03); box-shadow: 0 4px 15px rgba(0,0,0,0.04); transition: 0.3s; }
+        .card img { width: 100%; height: 160px; object-fit: cover; }
         .card-info { padding: 12px; }
-        .price { color: var(--ali-orange); font-weight: 800; font-size: 16px; margin: 5px 0; }
+        .price { color: var(--primary); font-weight: 800; font-size: 18px; margin: 5px 0; }
         
-        /* Size Selector Styling */
-        .size-box { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 8px; }
-        .size-btn { border: 1px solid #ddd; background: white; padding: 4px 8px; border-radius: 5px; font-size: 11px; cursor: pointer; }
-        .size-btn.active { background: var(--ali-orange); color: white; border-color: var(--ali-orange); }
+        /* Size Buttons */
+        .size-box { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 10px; }
+        .size-btn { border: 1px solid #eee; background: #f9f9f9; padding: 6px 10px; border-radius: 8px; font-size: 11px; cursor: pointer; font-weight: 600; }
+        .size-btn:active { background: var(--primary); color: white; }
+
+        /* Floating Checkout Bar */
+        .footer { position: fixed; bottom: 0; width: 100%; max-width: 600px; left: 50%; transform: translateX(-50%); background: white; padding: 20px; box-shadow: 0 -10px 30px rgba(0,0,0,0.1); display: flex; justify-content: space-between; align-items: center; border-radius: 25px 25px 0 0; z-index: 1000; }
+        .btn-main { background: linear-gradient(90deg, #FF8E05, #FF4747); color: white; border: none; padding: 14px 30px; border-radius: 20px; font-weight: 800; cursor: pointer; }
         
-        .footer { position: fixed; bottom: 0; width: 100%; max-width: 600px; left: 50%; transform: translateX(-50%); background: white; padding: 20px; box-shadow: 0 -5px 20px rgba(0,0,0,0.1); display: flex; justify-content: space-between; align-items: center; border-radius: 20px 20px 0 0; }
-        .btn-checkout { background: linear-gradient(90deg, #FF8E05, #FF4747); color: white; border: none; padding: 12px 25px; border-radius: 25px; font-weight: bold; cursor: pointer; }
+        #toast { position: fixed; top: 80px; left: 50%; transform: translateX(-50%); background: var(--dark); color: white; padding: 10px 20px; border-radius: 30px; font-size: 12px; display: none; z-index: 3000; }
     </style>
 </head>
 <body>
 
-<div class="header">💍 JEWELRY WHOLESALE</div>
+<div id="toast">Cart ထဲသို့ ထည့်ပြီးပါပြီ ✨</div>
+
+<div class="top-nav">
+    <a href="index.html" class="logo">K.M.W</a>
+    <div id="user-profile">စစ်ဆေးနေသည်...</div>
+</div>
+
+<div class="promo-slider">
+    <div>
+        <span class="promo-tag">Promotion</span>
+        <h2>New Arrivals</h2>
+        <p>Stainless Steel Rings<br>လက်ကားဈေး ၅၀% အထူးလျှော့ဈေး</p>
+    </div>
+    <img src="https://via.placeholder.com/150" class="promo-img" alt="Jewelry">
+</div>
 
 <div class="container">
-    <div id="menu-display" class="menu-grid">ပစ္စည်းများတင်နေသည်...</div>
+    <div class="section-title">
+        <span>Products 🔥</span>
+        <span style="font-size: 12px; color: var(--primary);">အားလုံးကြည့်ရန်</span>
+    </div>
+    <div id="menu-display" class="menu-grid">Loading products...</div>
 </div>
 
 <div class="footer">
-    <div>စုစုပေါင်း: <b style="font-size: 1.2rem; color: var(--ali-orange);"><span id="total-price">0</span> K</b></div>
-    <button class="btn-checkout" onclick="goToCheckout()">အော်ဒါတင်မည် ➔</button>
+    <div>
+        <div style="font-size: 12px; color: #666;">Total Amount</div>
+        <b style="font-size: 22px; color: var(--primary);"><span id="total-price">0</span> K</b>
+    </div>
+    <button class="btn-main" onclick="goToCheckout()">Check Out ➔</button>
 </div>
 
 <script>
@@ -45,8 +85,25 @@
     const _supabase = window.supabase.createClient(SB_URL, SB_KEY);
 
     let allItems = [];
-    let cart = {}; // cart = { "Ring_Name_Size7": 2 }
+    let cart = {};
 
+    // ၁။ Login System Check
+    async function checkUser() {
+        const { data: { user } } = await _supabase.auth.getUser();
+        const profileDiv = document.getElementById('user-profile');
+        if (user) {
+            profileDiv.innerHTML = `
+                <img src="${user.user_metadata.avatar_url || 'https://api.dicebear.com/7.x/avataaars/svg?seed=Jewelry'}" style="width:30px; height:30px; border-radius:50%;">
+                <span style="font-weight:bold;">${user.user_metadata.full_name || 'User'}</span>
+                <button onclick="logout()" style="border:none; background:none; color:red; cursor:pointer; font-size:11px;">(ထွက်ရန်)</button>`;
+        } else {
+            profileDiv.innerHTML = `<a href="auth.html" class="login-btn">Login / Register</a>`;
+        }
+    }
+
+    async function logout() { await _supabase.auth.signOut(); location.reload(); }
+
+    // ၂။ Load Products
     async function loadMenu() {
         const { data, error } = await _supabase.from('menu_items').select('*').order('id');
         if (error) return;
@@ -57,37 +114,31 @@
     function renderMenu(items) {
         const display = document.getElementById('menu-display');
         display.innerHTML = items.map(item => {
-            // Size တွေကို String ကနေ Array ပြောင်းခြင်း (ဥပမာ "6,7,8" -> ["6","7","8"])
             const sizeList = item.sizes ? item.sizes.split(',') : [];
-            
             return `
             <div class="card">
-                <img src="${item.image_url}" alt="">
+                <img src="${item.image_url || 'https://via.placeholder.com/150'}" alt="">
                 <div class="card-info">
-                    <div style="font-weight:bold; font-size:14px;">${item.name}</div>
+                    <div style="font-weight:700; font-size:14px; color:var(--dark);">${item.name}</div>
                     <div class="price">${item.price.toLocaleString()} K</div>
-                    
-                    <div style="font-size:11px; color:#666; margin-top:5px;">Size ရွေးရန်:</div>
+                    <div style="font-size:10px; color:#999;">Select Size:</div>
                     <div class="size-box">
-                        ${sizeList.map(s => `<button class="size-btn" onclick="addToCart('${item.name}', '${s}', ${item.price}, this)">${s}</button>`).join('')}
-                        ${sizeList.length === 0 ? '<span style="font-size:10px;">Free Size</span>' : ''}
+                        ${sizeList.map(s => `<button class="size-btn" onclick="addToCart('${item.name}', '${s.trim()}', ${item.price})">${s.trim()}</button>`).join('')}
+                        ${sizeList.length === 0 ? `<button class="size-btn" onclick="addToCart('${item.name}', 'Free', ${item.price})">Free Size</button>` : ''}
                     </div>
-                    
-                    <div id="status-${item.name}" style="font-size:10px; color:green; margin-top:5px;"></div>
                 </div>
             </div>`;
         }).join('');
     }
 
-    function addToCart(name, size, price, btn) {
+    function addToCart(name, size, price) {
         const cartKey = `${name} (Size: ${size})`;
         cart[cartKey] = (cart[cartKey] || 0) + 1;
         
-        // Button Effect
-        btn.classList.add('active');
-        setTimeout(() => btn.classList.remove('active'), 200);
-        
-        document.getElementById(`status-${name}`).innerText = "ပေါင်းထည့်ပြီး";
+        const toast = document.getElementById('toast');
+        toast.style.display = 'block';
+        setTimeout(() => toast.style.display = 'none', 1000);
+
         calculateTotal();
     }
 
@@ -106,20 +157,22 @@
         if (total === "0") return alert("ပစ္စည်း အရင်ရွေးချယ်ပါ။");
 
         const { data: { user } } = await _supabase.auth.getUser();
+        if(!user) return alert("အော်ဒါတင်ရန် Login အရင်ဝင်ပေးပါ။");
+
         const { error } = await _supabase.from('orders').insert([{
-            customer_name: user ? user.user_metadata.full_name : "လက်ကားဧည့်သည်",
-            items: cart, // ဥပမာ - {"Ring Size 7": 2, "Earring": 5}
+            customer_name: user.user_metadata.full_name || user.email,
+            items: cart,
             total_price: parseInt(total.replace(/,/g, '')),
             status: 'pending'
         }]);
 
         if (!error) {
-            alert("လက်ကားအော်ဒါ တင်ပြီးပါပြီ။ ဆိုင်မှ အကြောင်းပြန်ပါမည်။");
+            alert("မှာယူမှု အောင်မြင်ပါသည်။");
             cart = {}; location.reload();
         }
     }
 
-    window.onload = loadMenu;
+    window.onload = async () => { await checkUser(); await loadMenu(); };
 </script>
 </body>
 </html>
