@@ -91,7 +91,7 @@
 
 <header>
     <div class="profile" id="user-profile">
-        <img src="https://via.placeholder.com/35" id="profile-avatar"/>
+        <img src="https://via.placeholder.com/35" id="profile-avatar" alt="User Profile">
         <span id="profile-name">Guest</span>
     </div>
     <input type="text" id="search-input" placeholder="ပစ္စည်းရှာရန်...">
@@ -101,6 +101,7 @@
 </header>
 
 <div class="main">
+    <h1 style="font-size: 1.5rem; margin-bottom: 15px;">K.M.W Jewelry Shop</h1>
     <div class="tabs" id="category-tabs">
         <div class="tab active" onclick="filterCategory('all', this)">All</div>
         <div class="tab" onclick="filterCategory('ring', this)">Rings</div>
@@ -133,7 +134,9 @@
         if (user) {
             currentUser = user;
             document.getElementById('profile-name').innerText = user.user_metadata.full_name || user.email;
-            document.getElementById('profile-avatar').src = user.user_metadata.avatar_url || 'https://via.placeholder.com/35';
+            const avatar = document.getElementById('profile-avatar');
+avatar.src = user.user_metadata.avatar_url || 'https://via.placeholder.com/35';
+avatar.alt = user.user_metadata.full_name || 'User Profile';
             document.getElementById('auth-btn').innerText = "Logout";
         }
     }
@@ -168,7 +171,7 @@
         }
         container.innerHTML = products.map(p => `
             <div class="product-card">
-                <img src="${p.image_url || 'https://via.placeholder.com/150'}" onerror="this.src='https://via.placeholder.com/150'" />
+                <img src="${p.image_url || 'https://via.placeholder.com/150'}" alt="${p.name}" onerror="this.src='https://via.placeholder.com/150'">
                 <h3>${p.name}</h3>
                 <p class="price-tag retail">Retail: ${Number(p.retail_price).toLocaleString()} K</p>
                 <p class="price-tag wholesale">Wholesale: ${Number(p.wholesale_price).toLocaleString()} K</p>
