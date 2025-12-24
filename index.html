@@ -147,7 +147,12 @@ avatar.alt = user.user_metadata.full_name || 'User Profile';
             await _supabase.auth.signOut();
             location.reload();
         } else {
-            await _supabase.auth.signInWithOAuth({ provider: 'google' });
+            await _supabase.auth.signInWithOAuth({ 
+    provider: 'google',
+    options: {
+        redirectTo: 'https://khinmarwin087-oss.github.io/myinthar-chicken/index.html'
+    }
+});
         }
     }
 
