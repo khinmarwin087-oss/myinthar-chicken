@@ -3,268 +3,243 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>K.M.W Jewelry - Wholesale & Retail</title>
+    <title>K.M.W Jewelry – Admin & Shop</title>
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
-        :root { --primary: #FF4747; --secondary: #fdf2f2; --dark: #1e1e2d; --bg: #f5f7fb; --card-bg: #fff; --accent: #FFD700; }
-        body { margin:0; font-family: 'Segoe UI', 'Pyidaungsu', sans-serif; background:var(--bg); color: var(--dark); padding-bottom: 80px;}
-        
-        /* Layout */
-        header { 
-            background: var(--primary); color: white; padding: 10px 15px; 
-            display:flex; align-items:center; justify-content:space-between; 
-            position:sticky; top:0; z-index:1000; box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }
-        header input { padding:10px; border:none; border-radius:8px; width:45%; outline: none; font-size: 14px;}
-        .login-btn { background:white; color:var(--primary); border:none; padding:8px 12px; border-radius:8px; cursor:pointer; font-weight: bold;}
-        
-        .main { padding:15px; max-width: 1200px; margin: auto; }
-        .tabs { display:flex; gap:10px; margin-bottom:20px; overflow-x: auto; padding: 5px 0; scrollbar-width: none;}
-        .tab { padding:8px 20px; background:white; border-radius:20px; cursor:pointer; white-space: nowrap; box-shadow:0 2px 5px rgba(0,0,0,0.05);}
-        .tab.active { background: var(--primary); color:white;}
-        
-        /* Products */
-        .products { display:grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap:15px; }
-        .product-card { background:var(--card-bg); border-radius:15px; padding:12px; text-align:center; box-shadow:0 4px 12px rgba(0,0,0,0.05); transition: 0.3s;}
-        .product-card img { width:100%; aspect-ratio: 1/1; object-fit: cover; border-radius:10px; }
-        .price-tag { font-size: 0.8rem; margin: 4px 0; color: #666; }
-        .wholesale { color: var(--primary); font-weight: bold; font-size: 1rem; }
-        .add-btn { background: var(--primary); color: white; border: none; padding: 10px; border-radius: 8px; width: 100%; cursor: pointer; font-weight: bold; margin-top: 5px;}
-
-        /* Admin & Modals */
-        .modal { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.7); z-index:2000; backdrop-filter: blur(5px); }
-        .modal-content { background:white; width:90%; max-width:450px; margin:30px auto; padding:20px; border-radius:20px; max-height: 85vh; overflow-y: auto;}
-        
-        .admin-panel { display:none; background: #fff; padding: 20px; margin: 15px 0; border-radius: 15px; border: 2px solid var(--primary); }
-        .admin-nav { display: flex; gap: 5px; overflow-x: auto; margin-bottom: 15px; padding-bottom: 5px; }
-        .admin-nav button { padding: 8px 12px; border-radius: 5px; border: 1px solid #ddd; background: #f9f9f9; cursor: pointer; white-space: nowrap;}
-        .admin-nav button.active { background: var(--primary); color: white; border-color: var(--primary); }
-        
-        /* Invoice */
-        #invoice-card { background: white; padding: 20px; border: 1px dashed #ccc; border-radius: 10px; color: #333; }
-        .invoice-header { text-align: center; border-bottom: 2px solid var(--primary); padding-bottom: 10px; margin-bottom: 15px; }
-        .invoice-row { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 14px; }
-        
-        .cart-btn { 
-            position:fixed; bottom:20px; right:20px; background:var(--primary); color:white; 
-            border:none; border-radius:50%; width:60px; height:60px; font-size:24px; cursor:pointer;
-            box-shadow: 0 4px 15px rgba(255, 71, 71, 0.4); z-index: 999;
-        }
-        .cart-count { position:absolute; top:0; right:0; background:var(--accent); color:var(--dark); font-size:12px; padding:3px 7px; border-radius:50%; border: 2px solid var(--primary);}
-        
-        .order-row { background: #f9f9f9; padding: 10px; border-radius: 8px; margin-bottom: 10px; border-left: 4px solid var(--primary); font-size: 13px;}
+        :root { --p: #FF4747; --bg: #f5f7fb; }
+        body { margin: 0; font-family: 'Pyidaungsu', sans-serif; background: var(--bg); padding-bottom: 80px; }
+        header { background: var(--p); color: #fff; padding: 10px 15px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; }
+        .login-btn { background: #fff; color: var(--p); border: none; padding: 8px 12px; border-radius: 8px; font-weight: bold; cursor: pointer; }
+        .products { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 15px; padding: 15px; }
+        .card { background: #fff; border-radius: 12px; padding: 10px; text-align: center; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        .card img { width: 100%; aspect-ratio: 1/1; object-fit: cover; border-radius: 10px; margin-bottom: 10px; }
+        .btn { background: var(--p); color: #fff; border: none; padding: 10px; border-radius: 8px; width: 100%; cursor: pointer; margin-top: 5px; }
+        .admin { display: none; padding: 15px; }
+        .order { background: #fff; padding: 15px; border-left: 5px solid var(--p); margin-bottom: 15px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 1000; overflow-y: auto; }
+        .modal-box { background: #fff; width: 90%; max-width: 400px; margin: 50px auto; padding: 20px; border-radius: 15px; position: relative; }
+        select { width: 100%; padding: 8px; margin-top: 10px; border-radius: 5px; border: 1px solid #ddd; }
     </style>
 </head>
 <body>
 
 <header>
-    <div style="display:flex; align-items:center; gap:10px;">
-        <img src="https://via.placeholder.com/35" class="profile-img" id="user-avatar" onclick="toggleHistory()" style="border-radius:50%; width:35px; cursor:pointer;">
-        <button id="auth-btn" class="login-btn" onclick="handleAuth()">Login</button>
+    <div style="font-weight: bold;">K.M.W</div>
+    <div>
+        <button class="login-btn" onclick="toggleAdmin()" id="adminBtn" style="display:none; margin-right: 5px;">Admin</button>
+        <button class="login-btn" onclick="auth()" id="authBtn">Login</button>
     </div>
-    <input type="text" id="search-input" placeholder="ပစ္စည်းရှာရန်...">
-    <button class="login-btn" onclick="toggleAdmin()" id="admin-toggle-btn" style="display:none; background: var(--accent); color: #000;">Admin</button>
 </header>
 
-<div class="main">
-    <div class="tabs" id="category-tabs">
-        <div class="tab active" onclick="filterCategory('all', this)">All Items</div>
-        <div class="tab" onclick="filterCategory('Ring', this)">Rings</div>
-        <div class="tab" onclick="filterCategory('Chain', this)">Chains</div>
-        <div class="tab" onclick="filterCategory('Earring', this)">Earrings</div>
-    </div>
-
-    <div id="admin-section" class="admin-panel">
-        <div class="admin-nav">
-            <button class="active" onclick="switchAdminTab('products', this)">Products</button>
-            <button onclick="switchAdminTab('vouchers', this)">Vouchers</button>
-            <button onclick="switchAdminTab('orders', this)">Orders</button>
-        </div>
-
-        <div id="admin-products-ui">
-            <h4>Add Product</h4>
-            <input type="text" id="p-name" placeholder="Name" style="width:90%; padding:8px; margin-bottom:5px;">
-            <input type="number" id="p-retail" placeholder="Retail Price" style="width:42%; padding:8px;">
-            <input type="number" id="p-wholesale" placeholder="WS Price" style="width:42%; padding:8px;">
-            <input type="text" id="p-img" placeholder="Image URL" style="width:90%; padding:8px; margin: 5px 0;">
-            <button class="add-btn" onclick="adminAddProduct()">Save Product</button>
-        </div>
-
-        <div id="admin-vouchers-ui" style="display:none;">
-            <h4>Add Voucher</h4>
-            <input type="text" id="v-code" placeholder="Code (eg. SAVE10)" style="width:45%; padding:8px;">
-            <input type="number" id="v-perc" placeholder="Discount %" style="width:40%; padding:8px;">
-            <button class="add-btn" onclick="adminAddVoucher()">Add Voucher</button>
-        </div>
-
-        <div id="admin-orders-ui" style="display:none;">
-            <h4>Recent Orders</h4>
-            <div id="admin-orders-list"></div>
-        </div>
-    </div>
-
-    <h2 style="font-size: 1.1rem;">New Arrivals ✨</h2>
-    <div class="products" id="product-list"></div>
+<div id="shop-view">
+    <div class="products" id="products">Loading products...</div>
 </div>
 
-<div id="cart-modal" class="modal">
-    <div class="modal-content">
-        <h3>Your Cart</h3>
-        <div id="cart-items-list"></div>
+<div class="admin" id="adminPanel">
+    <button onclick="location.reload()" style="background:none; border: 1px solid #666; padding: 5px 10px; border-radius: 5px; margin-bottom: 15px;">⬅ Back to Shop</button>
+    <h3>Orders Management</h3>
+    <div id="orders"></div>
+</div>
+
+<div class="modal" id="cartModal">
+    <div class="modal-box">
+        <h3>🛒 Cart</h3>
+        <div id="cartItems"></div>
         <hr>
-        <div style="display:flex; gap:5px; margin: 10px 0;">
-            <input type="text" id="voucher-input" placeholder="Voucher Code" style="flex:1; padding:8px;">
-            <button onclick="applyVoucher()" style="padding:8px; background:var(--dark); color:white; border-radius:5px;">Apply</button>
-        </div>
-        <div class="invoice-row"><span>Total:</span> <span id="cart-total">0</span> K</div>
-        <button class="add-btn" onclick="checkout()">Place Order</button>
-        <button class="add-btn" style="background:#ddd; color:#333;" onclick="closeModal('cart-modal')">Close</button>
+        <div style="display:flex; justify-content: space-between; font-weight: bold;">
+            <span>Total:</span> <span id="total">0</span> Ks
+        </div><br>
+        <button class="btn" onclick="checkout()">Confirm Checkout</button>
+        <button class="btn" style="background:#ccc; color:#000" onclick="closeModal()">Close</button>
     </div>
 </div>
 
-<div id="invoice-modal" class="modal">
-    <div class="modal-content">
-        <div id="invoice-card">
-            <div class="invoice-header"><h2>K.M.W Jewelry</h2><p>Invoice</p></div>
-            <div id="inv-items"></div>
+<div class="modal" id="invoiceModal">
+    <div class="modal-box" style="text-align: center;">
+        <div id="invoice" style="padding: 10px; background: #fff;">
+            <h2 style="color:var(--p)">K.M.W Jewelry</h2>
+            <p id="invId" style="font-size: 0.8rem; color: #666;"></p>
+            <div id="invItems" style="text-align: left; margin: 15px 0;"></div>
             <hr>
-            <div class="invoice-row"><strong>Total:</strong> <strong id="inv-total"></strong></div>
+            <h3 style="display:flex; justify-content: space-between;">Total: <span id="invTotal"></span></h3>
         </div>
-        <button class="add-btn" onclick="downloadInvoice()">Save Voucher Image</button>
-        <button class="add-btn" style="background:#ddd; color:#333;" onclick="location.reload()">Done</button>
+        <button class="btn" onclick="downloadInvoice()">📸 Save as Image</button>
+        <button class="btn" style="background:#ccc; color:#000" onclick="location.reload()">Done</button>
     </div>
 </div>
 
-<button class="cart-btn" onclick="openCart()">
-    <i class="fas fa-shopping-cart"></i>
-    <span class="cart-count" id="cart-count">0</span>
+<button onclick="openCart()" style="position:fixed; bottom:20px; right:20px; width:60px; height:60px; border-radius:50%; border:none; background:var(--p); color:#fff; font-size:25px; box-shadow: 0 4px 10px rgba(0,0,0,0.3); z-index: 99; cursor: pointer;">
+    🛒
 </button>
 
 <script>
-    const SB_URL = "https://ltusknkpwbyriikeyday.supabase.co";
-    const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx0dXNrbmtwd2J5cmlpa2V5ZGF5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYyMTYxNDksImV4cCI6MjA4MTc5MjE0OX0.7TXAvr2tHl03m_gYZNYq8xyy0yYHTx0sYMN4tS6GDnA";
-    const _supabase = supabase.createClient(SB_URL, SB_KEY);
+// Supabase Configuration
+const supa = supabase.createClient(
+    "https://ltusknkpwbyriikeyday.supabase.co",
+    "YOUR_PUBLIC_ANON_KEY" // <--- ဤနေရာတွင် သင်၏ Key အမှန်ကိုထည့်ပါ
+);
 
-    let currentUser = null, productsData = [], cart = [], discount = 0;
+const ADMIN_EMAIL = "yewin5375@gmail.com";
+let currentUser = null;
+let cart = [];
 
-    async function checkUser() {
-        const { data: { user } } = await _supabase.auth.getUser();
-        if (user) {
-            currentUser = user;
-            document.getElementById('user-avatar').src = user.user_metadata.avatar_url || 'https://via.placeholder.com/35';
-            document.getElementById('auth-btn').innerText = "Logout";
-            if(user.email.includes("admin") || user.email === "yewin5375@gmail.com") 
-                document.getElementById('admin-toggle-btn').style.display = 'block';
-            loadCart();
-        }
+// AUTHENTICATION
+async function auth() {
+    const { data: { user } } = await supa.auth.getUser();
+    if (user) {
+        await supa.auth.signOut();
+        location.reload();
+    } else {
+        await supa.auth.signInWithOAuth({ provider: "google" });
     }
+}
 
-    async function handleAuth() {
-        if (currentUser) { await _supabase.auth.signOut(); location.reload(); }
-        else { await _supabase.auth.signInWithOAuth({ provider: 'google' }); }
+async function checkUser() {
+    const { data: { user } } = await supa.auth.getUser();
+    if (!user) {
+        loadProducts(); // လူကြီးမင်း Login မဝင်ထားသော်လည်း Product ပြမည်
+        return;
     }
-
-    // --- Core Logic ---
-    async function loadProducts() {
-        const { data } = await _supabase.from('products').select('*').order('created_at', {ascending: false});
-        productsData = data || [];
-        renderProducts(productsData);
+    currentUser = user;
+    document.getElementById("authBtn").innerText = "Logout";
+    if (user.email === ADMIN_EMAIL) {
+        document.getElementById("adminBtn").style.display = "inline-block";
     }
+    await loadCart();
+    loadProducts();
+}
+checkUser();
 
-    function renderProducts(items) {
-        document.getElementById('product-list').innerHTML = items.map(p => `
-            <div class="product-card">
-                <img src="${p.image_url}">
-                <h4>${p.name}</h4>
-                <div class="price-tag">Retail: ${p.retail_price.toLocaleString()}</div>
-                <div class="price-tag wholesale">WS: ${p.wholesale_price.toLocaleString()} K</div>
-                <button class="add-btn" onclick="addToCart(${p.id})">Add to Cart</button>
-            </div>
-        `).join('');
+// PRODUCTS
+async function loadProducts() {
+    const { data, error } = await supa.from("products").select("*").order("created_at", { ascending: false });
+    if (error) return;
+    document.getElementById("products").innerHTML = data.map(p => `
+        <div class="card">
+            <img src="${p.image_url}" alt="${p.name}">
+            <div style="font-weight:bold; margin-bottom: 5px;">${p.name}</div>
+            <div style="color:var(--p); margin-bottom: 10px;">${p.wholesale_price.toLocaleString()} Ks</div>
+            <button class="btn" onclick="addCart(${p.id})">+ Add to Cart</button>
+        </div>`).join("");
+}
+
+// CART ACTIONS
+async function loadCart() {
+    if (!currentUser) return;
+    const { data } = await supa.from("cart_items").select("*, products(*)").eq("user_id", currentUser.id);
+    cart = data || [];
+}
+
+async function addCart(pid) {
+    if (!currentUser) return alert("ကျေးဇူးပြု၍ အရင် Login ဝင်ပါ။");
+    
+    const existing = cart.find(i => i.product_id === pid);
+    if (existing) {
+        await supa.from("cart_items").update({ quantity: existing.quantity + 1 }).eq("id", existing.id);
+    } else {
+        await supa.from("cart_items").insert({ user_id: currentUser.id, product_id: pid, quantity: 1 });
     }
+    await loadCart();
+    alert("Added to cart!");
+}
 
-    async function loadCart() {
-        const { data } = await _supabase.from('cart_items').select('*, products(*)').eq('user_id', currentUser.id);
-        cart = data || [];
-        document.getElementById('cart-count').innerText = cart.length;
-    }
+function openCart() {
+    if (!currentUser) return alert("Login အရင်ဝင်ပါ။");
+    if (cart.length === 0) return alert("Cart ထဲမှာ ဘာမှမရှိသေးပါ။");
 
-    async function addToCart(pid) {
-        if(!currentUser) return alert("Please Login First");
-        const exist = cart.find(c => c.product_id === pid);
-        if(exist) await _supabase.from('cart_items').update({quantity: exist.quantity + 1}).eq('id', exist.id);
-        else await _supabase.from('cart_items').insert({user_id: currentUser.id, product_id: pid});
-        loadCart();
-    }
+    let total = 0;
+    document.getElementById("cartItems").innerHTML = cart.map(i => {
+        const itemTotal = i.products.wholesale_price * i.quantity;
+        total += itemTotal;
+        return `<div style="display:flex; justify-content:space-between; margin-bottom:10px;">
+                    <span>${i.products.name} (x${i.quantity})</span>
+                    <span>${itemTotal.toLocaleString()} Ks</span>
+                </div>`;
+    }).join("");
+    
+    document.getElementById("total").innerText = total.toLocaleString();
+    document.getElementById("cartModal").style.display = "block";
+}
 
-    async function openCart() {
-        if(!currentUser) return;
-        document.getElementById('cart-modal').style.display = 'block';
-        let total = 0;
-        document.getElementById('cart-items-list').innerHTML = cart.map(i => {
-            total += i.products.wholesale_price * i.quantity;
-            return `<div class="invoice-row"><span>${i.products.name} x${i.quantity}</span><span>${(i.products.wholesale_price * i.quantity).toLocaleString()}</span></div>`;
-        }).join('');
-        document.getElementById('cart-total').innerText = (total - (total * discount/100)).toLocaleString();
-    }
+function closeModal() { document.querySelectorAll(".modal").forEach(m => m.style.display = "none"); }
 
-    async function checkout() {
-        const total = document.getElementById('cart-total').innerText.replace(/,/g, '');
-        const { data: order } = await _supabase.from('orders').insert({user_id: currentUser.id, total_price: parseInt(total)}).select().single();
-        if(order) {
-            showInvoice(total);
-            await _supabase.from('cart_items').delete().eq('user_id', currentUser.id);
-        }
-    }
+// CHECKOUT
+async function checkout() {
+    if (cart.length === 0) return;
+    let total = 0;
+    cart.forEach(i => total += i.products.wholesale_price * i.quantity);
 
-    function showInvoice(total) {
-        document.getElementById('cart-modal').style.display = 'none';
-        document.getElementById('invoice-modal').style.display = 'block';
-        document.getElementById('inv-total').innerText = total + " K";
-        document.getElementById('inv-items').innerHTML = cart.map(i => `<div class="invoice-row"><span>${i.products.name}</span><span>${i.quantity}</span></div>`).join('');
-    }
+    const { data: order, error } = await supa.from("orders").insert({
+        user_id: currentUser.id,
+        total_price: total,
+        status: "Pending"
+    }).select().single();
 
-    // --- Admin Functions ---
-    function toggleAdmin() {
-        const panel = document.getElementById('admin-section');
-        panel.style.display = panel.style.display === 'block' ? 'none' : 'block';
-        loadAdminOrders();
-    }
+    if (error) return alert("Error: " + error.message);
 
-    function switchAdminTab(tab, btn) {
-        document.querySelectorAll('.admin-nav button').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        ['products', 'vouchers', 'orders'].forEach(t => document.getElementById(`admin-${t}-ui`).style.display = t === tab ? 'block' : 'none');
-    }
-
-    async function adminAddProduct() {
-        const p = { name: document.getElementById('p-name').value, retail_price: document.getElementById('p-retail').value, wholesale_price: document.getElementById('p-wholesale').value, image_url: document.getElementById('p-img').value };
-        await _supabase.from('products').insert(p);
-        alert("Added!"); loadProducts();
-    }
-
-    async function loadAdminOrders() {
-        const { data } = await _supabase.from('orders').select('*, profiles(full_name)').order('created_at', {ascending: false});
-        document.getElementById('admin-orders-list').innerHTML = data.map(o => `
-            <div class="order-row">
-                <b>Order #${o.id.slice(0,5)}</b> - ${o.total_price.toLocaleString()} K<br>
-                Status: ${o.status} | Date: ${new Date(o.created_at).toLocaleDateString()}
-            </div>
-        `).join('');
-    }
-
-    function downloadInvoice() {
-        html2canvas(document.getElementById('invoice-card')).then(canvas => {
-            const a = document.createElement('a'); a.download = 'invoice.png'; a.href = canvas.toDataURL(); a.click();
+    for (const item of cart) {
+        await supa.from("order_items").insert({
+            order_id: order.id,
+            product_name: item.products.name,
+            price: item.products.wholesale_price,
+            quantity: item.quantity
         });
     }
 
-    function closeModal(id) { document.getElementById(id).style.display = 'none'; }
-    
-    checkUser(); loadProducts();
+    await supa.from("cart_items").delete().eq("user_id", currentUser.id);
+    showInvoice(order.id, total);
+}
+
+function showInvoice(id, total) {
+    closeModal();
+    document.getElementById("invoiceModal").style.display = "block";
+    document.getElementById("invId").innerText = "Order ID: #" + id.slice(0, 8);
+    document.getElementById("invTotal").innerText = total.toLocaleString() + " Ks";
+    document.getElementById("invItems").innerHTML = cart.map(i => 
+        `<div>${i.products.name} x ${i.quantity}</div>`
+    ).join("");
+}
+
+function downloadInvoice() {
+    html2canvas(document.getElementById("invoice")).then(canvas => {
+        const link = document.createElement("a");
+        link.download = "KMW-Invoice.png";
+        link.href = canvas.toDataURL();
+        link.click();
+    });
+}
+
+// ADMIN PANEL
+function toggleAdmin() {
+    document.getElementById("shop-view").style.display = "none";
+    document.getElementById("adminPanel").style.display = "block";
+    loadOrders();
+}
+
+async function loadOrders() {
+    const { data, error } = await supa.from("orders").select("*").order("created_at", { ascending: false });
+    if (error) return;
+    document.getElementById("orders").innerHTML = data.map(o => `
+        <div class="order">
+            <b>Order ID: #${o.id.slice(0, 8)}</b><br>
+            Time: ${new Date(o.created_at).toLocaleString()}<br>
+            Total: <b>${o.total_price.toLocaleString()} Ks</b><br>
+            <select onchange="updateStatus('${o.id}', this.value)">
+                <option value="Pending" ${o.status == "Pending" ? "selected" : ""}>⏳ Pending</option>
+                <option value="Paid" ${o.status == "Paid" ? "selected" : ""}>✅ Paid</option>
+                <option value="Delivered" ${o.status == "Delivered" ? "selected" : ""}>🚚 Delivered</option>
+                <option value="Cancelled" ${o.status == "Cancelled" ? "selected" : ""}>❌ Cancelled</option>
+            </select>
+        </div>`).join("");
+}
+
+async function updateStatus(id, s) {
+    const { error } = await supa.from("orders").update({ status: s }).eq("id", id);
+    if (!error) alert("Status updated to " + s);
+}
 </script>
+
 </body>
 </html>
 
