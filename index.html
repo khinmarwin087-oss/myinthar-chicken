@@ -40,7 +40,7 @@
         .profile img { width:35px; height:35px; border-radius:50%; border: 2px solid white;}
         #profile-name { font-size: 0.9rem; font-weight: bold; }
         
-        /* Modal Styles */
+        /* Popup Window Styles */
         .modal { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.7); z-index:2000; overflow-y:auto; padding:20px; }
         .modal-content { background:white; padding:20px; border-radius:15px; max-width:450px; margin:20px auto; position:relative; }
         .voucher-card { border: 2px solid var(--primary); padding: 20px; background: #fff; color: #333; margin-bottom: 10px; }
@@ -114,19 +114,47 @@
 <script>
     const SB_URL = "https://ltusknkpwbyriikeyday.supabase.co";
     const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx0dXNrbmtwd2J5cmlpa2V5ZGF5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYyMTYxNDksImV4cCI6MjA4MTc5MjE0OX0.7TXAvr2tHl03m_gYZNYq8xyy0yYHTx0sYMN4tS6GDnA";
-    const _supabase = supabase.createClient(SB_URL, SB_KEY);
+    
+    // Supabase ကို Session မှတ်ထားခိုင်းခြင်း
+    const _supabase = supabase.createClient(SB_URL, SB_KEY, {
+        auth: {
+            persistSession: true,
+            autoRefreshToken: true,
+            detectSessionInUrl: true
+        }
+    });
 
     let currentUser = null;
     let productsData = [];
     let userCartItems = [];
 
+    // Login အခြေအနေကို စစ်ဆေးပြီး UI ကို ပြောင်းလဲပေးခြင်း
     async function checkUser() {
-        const { data: { user } } = await _supabase.auth.getUser();
+        // ၁။ လက်ရှိ သိမ်းထားတဲ့ Session ရှိမရှိ အရင်စစ်မယ်
+        const { data: { session } } = await _supabase.auth.getSession();
+        updateUI(session?.user || null);
+
+        // ၂။ Login ဝင်ခြင်း၊ ထွက်ခြင်းကို အမြဲစောင့်ကြည့်နေမယ် (Refresh လုပ်ရင်လည်း ဒါက အလုပ်လုပ်တယ်)
+        _supabase.auth.onAuthStateChange((event, session) => {
+            console.log("Auth Event:", event);
+            updateUI(session?.user || null);
+        });
+    }
+
+    function updateUI(user) {
+        currentUser = user;
+        const profileName = document.getElementById('profile-name');
+        const avatar = document.getElementById('profile-avatar');
+        const authBtn = document.getElementById('auth-btn');
+
         if (user) {
-            currentUser = user;
-            document.getElementById('profile-name').innerText = user.user_metadata.full_name || user.email;
-            document.getElementById('profile-avatar').src = user.user_metadata.avatar_url || 'https://via.placeholder.com/35';
-            document.getElementById('auth-btn').innerText = "Logout";
+            profileName.innerText = user.user_metadata.full_name || user.email;
+            avatar.src = user.user_metadata.avatar_url || 'https://via.placeholder.com/35';
+            authBtn.innerText = "Logout";
+        } else {
+            profileName.innerText = "Guest";
+            avatar.src = 'https://via.placeholder.com/35';
+            authBtn.innerText = "Login";
         }
     }
 
@@ -137,7 +165,7 @@
         } else {
             await _supabase.auth.signInWithOAuth({ 
                 provider: 'google',
-                options: { redirectTo: window.location.origin + window.location.pathname }
+                options: { redirectTo: window.location.href } // လက်ရှိစာမျက်နှာကိုပဲ ပြန်လာဖို့
             });
         }
     }
@@ -252,8 +280,12 @@
         document.getElementById('checkout-form').style.display = 'none';
     }
 
-    checkUser();
-    loadProducts();
+    // Website စတက်တက်ချင်း စစ်ဆေးမှုများပြုလုပ်ရန်
+    window.addEventListener('load', () => {
+        setTimeout(checkUser, 300); // URL က Token တွေကို ဖတ်ဖို့ ခဏစောင့်ခြင်း
+        loadProducts();
+    });
 </script>
 </body>
 </html>
+
