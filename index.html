@@ -263,43 +263,76 @@
         document.getElementById('total-price').innerText = total.toLocaleString() + " K";
     }
 
-    async function confirmOrder() {
-        const name = document.getElementById('cust-name').value;
-        const phone = document.getElementById('cust-phone').value;
-        const addr = document.getElementById('cust-addr').value;
-        const total = cart.reduce((s, i) => s + (i.price * i.buyQty), 0);
+    // ဒီ code ကို အစားထိုးထည့်ပါ
+async function confirmOrder() {
+    const name = document.getElementById('cust-name').value;
+    const phone = document.getElementById('cust-phone').value;
+    const addr = document.getElementById('cust-addr').value;
+    
+    // Total ကို ပစ္စည်းမဖျက်ခင် အရင်တွက်ရမည်
+    const total = cart.reduce((s, i) => s + (i.price * i.buyQty), 0);
 
-        if(!name || !phone) return alert("အချက်အလက်ပြည့်စုံစွာဖြည့်ပါ။");
+    if (cart.length === 0) return alert("ခြင်းထဲမှာ ပစ္စည်းမရှိပါ။");
+    if (!name || !phone) return alert("အမည်နှင့် ဖုန်းနံပါတ် ဖြည့်ပေးပါ။");
+
+    // ခေတ္တစောင့်ရန် ခလုတ်ကို Disable လုပ်ထားခြင်း
+    const btn = document.querySelector('.btn-main');
+    btn.innerText = "ခေတ္တစောင့်ပါ...";
+    btn.disabled = true;
+
+    try {
         const { data, error } = await _supabase.from('orders').insert({
-            customer_name: name, phone: phone, address: addr, items: cart, total_price: total
+            customer_name: name, 
+            phone: phone, 
+            address: addr, 
+            items: JSON.stringify(cart), // JSON string အဖြစ်ပြောင်းလဲခြင်း
+            total_price: total
         }).select();
 
-        if(!error) {
-            showVoucher(name, phone, addr, total, data[0].id);
-            cart = []; // Clear cart after order
-        } else {
-            alert("Error: " + error.message);
-        }
-    }
+        if (error) throw error;
 
-    function showVoucher(name, phone, addr, total, id) {
-        document.getElementById('voucher-details').innerHTML = `
+        if (data && data.length > 0) {
+            // Voucher အရင်ပြမည် (ပစ္စည်းစာရင်းမပျောက်စေရန်)
+            showVoucher(name, phone, addr, total, data[0].id);
+            // Voucher ပြပြီးမှ Cart ကို အကုန်ဖျက်မည်
+            cart = []; 
+        }
+    } catch (err) {
+        alert("Database Error: " + err.message);
+        console.error("Order Insert Error:", err);
+    } finally {
+        btn.innerText = "Confirm Order";
+        btn.disabled = false;
+    }
+}
+
+function showVoucher(name, phone, addr, total, id) {
+    // ဝယ်သူအချက်အလက်
+    document.getElementById('voucher-details').innerHTML = `
+        <div style="margin-bottom:10px;">
             <b>Order ID:</b> #${id}<br>
             <b>ဝယ်သူအမည်:</b> ${name}<br>
             <b>ဖုန်းနံပါတ်:</b> ${phone}<br>
             <b>လိပ်စာ:</b> ${addr}<br>
-            <b>ရက်စွဲ:</b> ${new Date().toLocaleDateString()}
-        `;
-        document.getElementById('voucher-items-list').innerHTML = cart.map(i => `
-            <div style="display:flex; justify-content:space-between; font-size:13px; margin-bottom:5px;">
-                <span>${i.name} x ${i.buyQty}</span>
-                <b>${(i.price * i.buyQty).toLocaleString()} K</b>
-            </div>
-        `).join('');
-        document.getElementById('voucher-total-area').innerText = "Total: " + total.toLocaleString() + " K";
-        navigate('voucher-page');
-    }
+            <b>ရက်စွဲ:</b> ${new Date().toLocaleString()}
+        </div>
+    `;
 
+    // ပစ္စည်းစာရင်း (ခြင်းထဲက data တွေကို အသုံးပြု)
+    document.getElementById('voucher-items-list').innerHTML = cart.map(i => `
+        <div style="display:flex; justify-content:space-between; font-size:13px; margin-bottom:5px; border-bottom:1px solid #f2f2f2; padding-bottom:5px;">
+            <span>${i.name} (x ${i.buyQty})</span>
+            <b>${(i.price * i.buyQty).toLocaleString()} K</b>
+        </div>
+    `).join('');
+
+    // စုစုပေါင်းတန်ဖိုး
+    document.getElementById('voucher-total-area').innerText = "Total: " + total.toLocaleString() + " K";
+    
+    // Voucher Page သို့ သွားရန်
+    navigate('voucher-page');
+}
+    
     function downloadVoucher() {
         html2canvas(document.querySelector("#voucher-print")).then(canvas => {
             const link = document.createElement('a');
