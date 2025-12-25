@@ -55,10 +55,48 @@
         .btn-checkout { background: var(--primary); color: white; border: none; padding: 12px 35px; border-radius: 25px; font-weight: bold; cursor: pointer; box-shadow: 0 5px 15px rgba(255, 71, 71, 0.3); }
         .order-input { width: 100%; padding: 12px; margin-bottom: 10px; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; outline: none; }
         .btn-main { width: 100%; background: var(--primary); color: white; border: none; padding: 15px; border-radius: 25px; font-weight: bold; cursor: pointer; }
+          /* Toast Pop-up Design */
+#toast {
+    visibility: hidden;
+    min-width: 250px;
+    background-color: #333;
+    color: #fff;
+    text-align: center;
+    border-radius: 50px;
+    padding: 16px;
+    position: fixed;
+    z-index: 5000;
+    left: 50%;
+    bottom: 100px;
+    transform: translateX(-50%);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    font-weight: bold;
+}
+
+#toast.show {
+    visibility: visible;
+    animation: fadein 0.5s, fadeout 0.5s 2.5s;
+}
+
+@keyframes fadein {
+    from { bottom: 0; opacity: 0; }
+    to { bottom: 100px; opacity: 1; }
+}
+
+@keyframes fadeout {
+    from { bottom: 100px; opacity: 1; }
+    to { bottom: 0; opacity: 0; }
+}
+        
     </style>
 </head>
 <body>
 
+    <div id="toast"><i class="fas fa-check-circle" style="color: #4CAF50;"></i> ခြင်းထဲသို့ ထည့်ပြီးပါပြီ</div>
 <div id="home" class="page active">
     <header>
         <div style="font-weight:bold;">KMW</div>
@@ -242,13 +280,28 @@
         playSfx('pop');
     }
 
-    function addToCart(id) {
-        const p = productsData.find(x => x.id === id);
-        cart.push({...p, buyQty: selectedQty});
-        playSfx('cart');
-        alert("ခြင်းထဲသို့ ထည့်ပြီးပါပြီ။");
+    // ပစ္စည်းကို ခြင်းထဲထည့်တဲ့ Function
+function addToCart(id) {
+    const p = productsData.find(x => x.id === id);
+    cart.push({...p, buyQty: selectedQty});
+    playSfx('cart');
+
+    // Alert အစား Pop-up Animation (Toast) ကို ပြခြင်း
+    showToast();
+    
+    // ပိုကောင်းသွားအောင် ၁ စက္ကန့် စောင့်ပြီးမှ Home ကို ပြန်သွားခြင်း
+    setTimeout(() => {
         navigate('home');
-    }
+    }, 1000);
+}
+
+// Toast ကို ပြသတဲ့ Function
+function showToast() {
+    var x = document.getElementById("toast");
+    x.className = "show";
+    setTimeout(function(){ x.className = x.className.replace("show", ""); }, 3000);
+}
+    
 
     function renderCheckoutList() {
         let total = 0;
@@ -263,13 +316,11 @@
         document.getElementById('total-price').innerText = total.toLocaleString() + " K";
     }
 
-    // --- ဤနေရာမှ စတင်၍ အစားထိုးပါ ---
-async function confirmOrder() {
+    async function confirmOrder() {
     const name = document.getElementById('cust-name').value;
     const phone = document.getElementById('cust-phone').value;
     const addr = document.getElementById('cust-addr').value;
     
-    // ပစ္စည်းရှိမရှိ အရင်စစ်ပါ
     if (cart.length === 0) return alert("ခြင်းထဲမှာ ပစ္စည်းမရှိပါ။");
     if (!name || !phone) return alert("အမည်နှင့် ဖုန်းနံပါတ် ဖြည့်ပေးပါ။");
 
@@ -279,21 +330,21 @@ async function confirmOrder() {
     btn.disabled = true;
 
     try {
-        // သင့်ပုံထဲက table နာမည် 'orders' ကို အသုံးပြုထားပါသည်
+        // Supabase သို့ ပေးပို့ခြင်း
         const { data, error } = await _supabase.from('orders').insert({
             customer_name: name, 
             phone: phone, 
             address: addr, 
-            items: cart, // ပုံမှန်အားဖြင့် JSON အနေနဲ့ သိမ်းပါမည်
+            items: cart, 
             total_price: total
         }).select();
 
         if (error) throw error;
 
-        // အောင်မြင်လျှင် Voucher ထုတ်ပေးမည်
         if (data && data.length > 0) {
-            showVoucher(name, phone, addr, total, data[0].id);
-            cart = []; // Order တင်ပြီးမှ Cart ကို ရှင်းပါ
+            // အရေးကြီးသည်- Voucher ထဲမှာ ပစ္စည်းစာရင်းပြရန်အတွက် cart ကို မဖျက်ခင် showVoucher အရင်ခေါ်ရမည်
+            showVoucher(name, phone, addr, total, data[0].id, [...cart]); // cart ကို copy ကူးပြီး ပေးလိုက်ခြင်း
+            cart = []; // Voucher ပြပြီးမှသာ cart ကို ရှင်းပါ
         }
     } catch (err) {
         alert("မှာယူမှု မအောင်မြင်ပါ- " + err.message);
@@ -304,8 +355,7 @@ async function confirmOrder() {
     }
 }
 
-function showVoucher(name, phone, addr, total, id) {
-    // Voucher UI ထဲသို့ data ထည့်ခြင်း
+function showVoucher(name, phone, addr, total, id, itemsForVoucher) {
     document.getElementById('voucher-details').innerHTML = `
         <div style="line-height:1.8;">
             <b>Order ID:</b> #${id}<br>
@@ -316,7 +366,8 @@ function showVoucher(name, phone, addr, total, id) {
         </div>
     `;
 
-    document.getElementById('voucher-items-list').innerHTML = cart.map(i => `
+    // itemsForVoucher ကို အသုံးပြု၍ list ပြခြင်း
+    document.getElementById('voucher-items-list').innerHTML = itemsForVoucher.map(i => `
         <div style="display:flex; justify-content:space-between; font-size:13px; margin-bottom:8px; border-bottom:1px solid #eee; padding-bottom:5px;">
             <span>${i.name} (x ${i.buyQty})</span>
             <b>${(i.price * i.buyQty).toLocaleString()} K</b>
@@ -325,10 +376,9 @@ function showVoucher(name, phone, addr, total, id) {
 
     document.getElementById('voucher-total-area').innerText = "Total: " + total.toLocaleString() + " K";
     
-    // Voucher စာမျက်နှာသို့ ကူးပြောင်းခြင်း
     navigate('voucher-page');
 }
-// --- ဤနေရာတွင် အဆုံးသတ်ပါ ---
+    
     
     
     function downloadVoucher() {
