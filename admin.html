@@ -7,81 +7,24 @@
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
-        :root {
-            --primary: #FF4747;
-            --dark: #1A1A1A;
-            --bg: #F0F2F5;
-            --white: #ffffff;
-            --shadow: 0 4px 20px rgba(0,0,0,0.08);
-        }
-
-        body {
-            margin: 0; font-family: 'Segoe UI', Roboto, sans-serif;
-            background: var(--bg); color: var(--dark); padding-bottom: 80px;
-        }
-
-        /* Top Header */
-        header {
-            background: var(--white); padding: 15px 20px;
-            display: flex; justify-content: space-between; align-items: center;
-            position: sticky; top: 0; z-index: 100; box-shadow: 0 1px 5px rgba(0,0,0,0.05);
-        }
+        :root { --primary: #FF4747; --dark: #1A1A1A; --bg: #F0F2F5; --white: #ffffff; --shadow: 0 4px 20px rgba(0,0,0,0.08); }
+        body { margin: 0; font-family: 'Segoe UI', sans-serif; background: var(--bg); color: var(--dark); padding-bottom: 80px; }
+        header { background: var(--white); padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; box-shadow: 0 1px 5px rgba(0,0,0,0.05); }
         .header-title { font-size: 20px; font-weight: 800; color: var(--primary); }
-
         .container { padding: 15px; }
-
-        /* Card Design */
-        .admin-card {
-            background: var(--white); border-radius: 20px; padding: 20px;
-            margin-bottom: 20px; box-shadow: var(--shadow);
-        }
-
+        .admin-card { background: var(--white); border-radius: 20px; padding: 20px; margin-bottom: 20px; box-shadow: var(--shadow); }
         h3 { margin-top: 0; display: flex; align-items: center; gap: 10px; font-size: 18px; }
-        h3 i { color: var(--primary); }
-
-        /* Form Inputs */
-        input, textarea, select {
-            width: 100%; padding: 12px 15px; margin: 10px 0; border-radius: 12px;
-            border: 1.5px solid #EEE; outline: none; box-sizing: border-box; font-size: 14px;
-        }
+        input, textarea, select { width: 100%; padding: 12px 15px; margin: 10px 0; border-radius: 12px; border: 1.5px solid #EEE; outline: none; box-sizing: border-box; font-size: 14px; }
         input:focus { border-color: var(--primary); }
-
-        .btn-main {
-            background: var(--primary); color: #fff; border: none;
-            padding: 15px; border-radius: 12px; width: 100%;
-            font-weight: bold; font-size: 16px; cursor: pointer;
-            box-shadow: 0 4px 12px rgba(255, 71, 71, 0.3); margin-top: 10px;
-        }
-
-        /* Order List UI */
-        .order-item {
-            border-bottom: 1px solid #f0f0f0; padding: 15px 0;
-        }
-        .order-item:last-child { border: none; }
-        .order-header { display: flex; justify-content: space-between; font-weight: bold; }
-        .order-id { color: #888; font-size: 12px; }
-        .order-price { color: var(--primary); }
-        .order-details { font-size: 13px; color: #555; margin-top: 5px; }
-
-        /* Bottom Navigation */
-        .bottom-nav {
-            position: fixed; bottom: 0; width: 100%; background: var(--white);
-            display: flex; justify-content: space-around; padding: 12px 0;
-            border-top: 1px solid #eee; box-shadow: 0 -2px 10px rgba(0,0,0,0.03);
-        }
+        .btn-main { background: var(--primary); color: #fff; border: none; padding: 15px; border-radius: 12px; width: 100%; font-weight: bold; font-size: 16px; cursor: pointer; box-shadow: 0 4px 12px rgba(255, 71, 71, 0.3); margin-top: 10px; }
+        .order-item { border-bottom: 1px solid #f0f0f0; padding: 15px 0; }
+        .bottom-nav { position: fixed; bottom: 0; width: 100%; background: var(--white); display: flex; justify-content: space-around; padding: 12px 0; border-top: 1px solid #eee; }
         .nav-tab { text-align: center; color: #999; font-size: 12px; flex: 1; cursor: pointer; }
         .nav-tab.active { color: var(--primary); }
         .nav-tab i { font-size: 20px; display: block; margin-bottom: 3px; }
-
-        .page { display: none; animation: fadeIn 0.3s; }
+        .page { display: none; }
         .page.active { display: block; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-
-        #toast {
-            position: fixed; top: 20px; left: 50%; transform: translateX(-50%);
-            background: var(--dark); color: #fff; padding: 10px 20px;
-            border-radius: 50px; display: none; z-index: 1000;
-        }
+        #toast { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: var(--dark); color: #fff; padding: 10px 20px; border-radius: 50px; display: none; z-index: 1000; }
     </style>
 </head>
 <body>
@@ -102,7 +45,43 @@
         </div>
     </div>
 
-    
+    <div id="tab-add" class="page">
+        <div class="admin-card">
+            <h3><i class="fas fa-plus-circle"></i> ပစ္စည်းအသစ်ထည့်ရန်</h3>
+            
+            <div style="text-align: center; margin-bottom: 15px;">
+                <label for="p-file" style="cursor: pointer; display: block;">
+                    <div id="preview-container" style="width: 100%; height: 180px; border: 2px dashed #ddd; border-radius: 15px; display: flex; align-items: center; justify-content: center; overflow: hidden; background: #fafafa;">
+                        <div id="placeholder-text" style="color: #888; text-align: center;">
+                            <i class="fas fa-camera" style="font-size: 30px; display: block; margin-bottom: 5px;"></i>
+                            <span>နှိပ်ပြီး ဓာတ်ပုံရွေးပါ</span>
+                        </div>
+                        <img id="image-preview" style="display: none; width: 100%; height: 100%; object-fit: cover;">
+                    </div>
+                </label>
+                <input type="file" id="p-file" accept="image/*" style="display: none;" onchange="previewImage(event)">
+            </div>
+            
+            <input type="text" id="p-name" placeholder="ပစ္စည်းအမည်">
+            <textarea id="p-desc" placeholder="အသေးစိတ်ဖော်ပြချက်" rows="2"></textarea>
+            <input type="number" id="p-base" placeholder="၁ ခုချင်းဈေး (Retail)">
+            
+            <p style="font-size: 13px; font-weight: bold; margin: 15px 0 5px 0; color: var(--primary);">
+                <i class="fas fa-tags"></i> လက်ကားဈေးနှုန်းများ
+            </p>
+            <div style="display: flex; gap: 10px;">
+                <input type="number" id="p-q1" placeholder="အရေအတွက် (၁၀)">
+                <input type="number" id="p-pr1" placeholder="လက်ကားဈေး">
+            </div>
+            <div style="display: flex; gap: 10px;">
+                <input type="number" id="p-q2" placeholder="အရေအတွက် (၅၀)">
+                <input type="number" id="p-pr2" placeholder="လက်ကားဈေး">
+            </div>
+
+            <input type="text" id="p-variants" placeholder="အရောင်/ဆိုဒ်များ (ဥပမာ- နီ,ပြာ)">
+            <button class="btn-main" onclick="saveProduct()">ပစ္စည်း တင်မည်</button>
+        </div>
+    </div>
 
     <div id="tab-stock" class="page">
         <div class="admin-card">
@@ -120,58 +99,15 @@
 </div>
 
 <script>
-    // Supabase Config
     const SB_URL = "https://ltusknkpwbyriikeyday.supabase.co";
-    const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx0dXNrbmtwd2J5cmlpa2V5ZGF5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYyMTYxNDksImV4cCI6MjA4MTc5MjE0OX0.7TXAvr2tHl03m_gYZNYq8xyy0yYHTx0sYMN4tS6GDnA"; // သင်၏ Key ကို ဤနေရာတွင်ထည့်ပါ
-    const _supa = supabase.createClient(SB_URL, SB_<div id="tab-add" class="page">
-    <div class="admin-card">
-        <h3><i class="fas fa-plus-circle"></i> ပစ္စည်းအသစ်ထည့်ရန်</h3>
-        
-        <div style="text-align: center; margin-bottom: 15px;">
-            <label for="p-file" style="cursor: pointer; display: block;">
-                <div id="preview-container" style="width: 100%; height: 180px; border: 2px dashed #ddd; border-radius: 15px; display: flex; align-items: center; justify-content: center; overflow: hidden; background: #fafafa;">
-                    <div id="placeholder-text" style="color: #888; text-align: center;">
-                        <i class="fas fa-camera" style="font-size: 30px; display: block; margin-bottom: 5px;"></i>
-                        <span>နှိပ်ပြီး ဓာတ်ပုံရွေးပါ</span>
-                    </div>
-                    <img id="image-preview" style="display: none; width: 100%; height: 100%; object-fit: cover;">
-                </div>
-            </label>
-            <input type="file" id="p-file" accept="image/*" style="display: none;" onchange="previewImage(event)">
-        </div>
-        
-        <input type="text" id="p-name" placeholder="ပစ္စည်းအမည်">
-        <textarea id="p-desc" placeholder="အသေးစိတ်ဖော်ပြချက်" rows="2"></textarea>
-        <input type="number" id="p-base" placeholder="၁ ခုချင်းဈေး (Retail)">
-        
-        <p style="font-size: 13px; font-weight: bold; margin: 15px 0 5px 0; color: var(--primary);">
-            <i class="fas fa-tags"></i> လက်ကားဈေးနှုန်းများ သတ်မှတ်ရန်
-        </p>
-        
-        <div style="display: flex; gap: 10px; margin-bottom: 5px;">
-            <input type="number" id="p-q1" placeholder="အရေအတွက် (၁၀)">
-            <input type="number" id="p-pr1" placeholder="လက်ကားဈေး">
-        </div>
-        <div style="display: flex; gap: 10px;">
-            <input type="number" id="p-q2" placeholder="အရေအတွက် (၅၀)">
-            <input type="number" id="p-pr2" placeholder="လက်ကားဈေး">
-        </div>
+    const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx0dXNrbmtwd2J5cmlpa2V5ZGF5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYyMTYxNDksImV4cCI6MjA4MTc5MjE0OX0.7TXAvr2tHl03m_gYZNYq8xyy0yYHTx0sYMN4tS6GDnA"; 
+    const _supa = supabase.createClient(SB_URL, SB_KEY);
 
-        <input type="text" id="p-variants" placeholder="အရောင်/ဆိုဒ်များ (ဥပမာ- နီ,ပြာ,စိမ်း)">
-        <button class="btn-main" onclick="saveProduct()">
-            <i class="fas fa-cloud-upload-alt"></i> ပစ္စည်း တင်မည်
-        </button>
-    </div>
-</div>
-                                        KEY);
-
-    // Tab Switching
     function switchTab(id, el) {
         document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
         document.getElementById(id).classList.add('active');
         document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
         el.classList.add('active');
-        
         if(id === 'tab-orders') loadOrders();
         if(id === 'tab-stock') loadStock();
     }
@@ -183,140 +119,88 @@
         setTimeout(() => t.style.display = 'none', 3000);
     }
 
-    // --- Add Product Logic ---
     async function saveProduct() {
-    const name = document.getElementById('p-name').value;
-    const file = document.getElementById('p-file').files[0]; // ဖိုင်ကို ယူတယ်
-    const base = parseInt(document.getElementById('p-base').value);
-    
-    if (!file) return alert("ဓာတ်ပုံ အရင်ရွေးပေးပါ");
+        const name = document.getElementById('p-name').value;
+        const file = document.getElementById('p-file').files[0];
+        const base = parseInt(document.getElementById('p-base').value);
+        
+        if (!file || !name || !base) return alert("ဓာတ်ပုံ၊ အမည်နှင့် ဈေးနှုန်း ပြည့်စုံအောင် ထည့်ပါ။");
 
-    showToast("ပုံတင်နေသည်... ခဏစောင့်ပါ");
+        showToast("ပုံတင်နေသည်...");
 
-    // ၁။ ပုံကို Supabase Storage ထဲ အရင်တင်မယ်
-    const fileName = Date.now() + "_" + file.name; // နာမည်တူမရှိအောင် အချိန်နဲ့တွဲပေးတာ
-    const { data: uploadData, error: uploadError } = await _supa.storage
-        .from('products') // ခုနက ဆောက်ခဲ့တဲ့ bucket နာမည်
-        .upload(fileName, file);
+        // 1. Upload Image to Storage
+        const fileName = Date.now() + "_" + file.name;
+        const { data: uploadData, error: uploadError } = await _supa.storage
+            .from('products')
+            .upload(fileName, file);
 
-    if (uploadError) return alert("Upload Error: " + uploadError.message);
+        if (uploadError) return alert("Upload Error: " + uploadError.message);
 
-    // ၂။ တင်လိုက်တဲ့ပုံရဲ့ Public Link ကို ပြန်ယူမယ်
-    const { data: publicUrlData } = _supa.storage
-        .from('products')
-        .getPublicUrl(fileName);
+        // 2. Get Public URL
+        const { data: publicUrlData } = _supa.storage.from('products').getPublicUrl(fileName);
+        const imgUrl = publicUrlData.publicUrl;
 
-    const imgUrl = publicUrlData.publicUrl;
-
-    // ၃။ Database ထဲမှာ အချက်အလက်တွေ သွားသိမ်းမယ်
-    const tiers = [];
-    if(document.getElementById('p-q1').value) tiers.push({min: parseInt(document.getElementById('p-q1').value), price: parseInt(document.getElementById('p-pr1').value)});
-    if(document.getElementById('p-q2').value) tiers.push({min: parseInt(document.getElementById('p-q2').value), price: parseInt(document.getElementById('p-pr2').value)});
-
-    const { error } = await _supa.from('products').insert([{
-        name, 
-        image_url: imgUrl, // ရလာတဲ့ Link ကို သိမ်းလိုက်တာ
-        base_price: base, 
-        description: document.getElementById('p-desc').value,
-        variants: document.getElementById('p-variants').value,
-        wholesale_options: JSON.stringify(tiers)
-    }]);
-
-    if(!error) {
-        showToast("✅ ပစ္စည်းအသစ် ထည့်သွင်းပြီးပါပြီ");
-        clearForm();
-    } else {
-        alert("DB Error: " + error.message);
-
-            // ... saveProduct ရဲ့ အပေါ်ပိုင်းကုဒ်များ ...
-    
-    if(!error) {
-        showToast("✅ ပစ္စည်းအသစ် တင်ပြီးပါပြီ");
-        resetPreview(); // ပုံနဲ့ စာတွေကို ရှင်းထုတ်မယ်
-        loadStock();    // စတော့စာရင်းကို ချက်ချင်း Update လုပ်မယ်
-    } else {
-        alert("Error: " + error.message);
-     }
-  }   
-
-
-
-    
+        // 3. Prepare Wholesale Tiers
         const tiers = [];
-        if(document.getElementById('p-q1').value) tiers.push({min: parseInt(document.getElementById('p-q1').value), price: parseInt(document.getElementById('p-pr1').value)});
-        if(document.getElementById('p-q2').value) tiers.push({min: parseInt(document.getElementById('p-q2').value), price: parseInt(document.getElementById('p-pr2').value)});
+        const q1 = document.getElementById('p-q1').value;
+        const pr1 = document.getElementById('p-pr1').value;
+        if(q1 && pr1) tiers.push({min: parseInt(q1), price: parseInt(pr1)});
 
+        // 4. Insert to Database
         const { error } = await _supa.from('products').insert([{
-            name, image_url: img, base_price: base, 
+            name: name,
+            image_url: imgUrl,
+            base_price: base,
             description: document.getElementById('p-desc').value,
             variants: document.getElementById('p-variants').value,
             wholesale_options: JSON.stringify(tiers)
         }]);
 
         if(!error) {
-            showToast("✅ ပစ္စည်းအသစ် ထည့်သွင်းပြီးပါပြီ");
-            clearForm();
+            showToast("✅ အောင်မြင်ပါသည်");
+            resetPreview();
+            loadStock();
         } else {
-            alert("Error: " + error.message);
+            alert("DB Error: " + error.message);
         }
     }
 
-    function clearForm() {
-        document.querySelectorAll('input, textarea').forEach(i => i.value = '');
-    }
-
-    // --- Load Orders ---
     async function loadOrders() {
-        const { data, error } = await _supa.from('orders').select('*').order('id', {ascending: false});
+        const { data } = await _supa.from('orders').select('*').order('id', {ascending: false});
         const list = document.getElementById('order-list');
         if(data) {
             list.innerHTML = data.map(o => `
                 <div class="order-item">
-                    <div class="order-header">
-                        <span class="order-id">ID: #${o.id.toString().slice(-5)}</span>
-                        <span class="order-price">${o.total_price.toLocaleString()} Ks</span>
+                    <div style="display:flex; justify-content:space-between;">
+                        <b>#${o.id.toString().slice(-5)}</b>
+                        <span style="color:red;">${o.total_price.toLocaleString()} Ks</span>
                     </div>
-                    <div class="order-details">
-                        <b>ဝယ်သူ:</b> ${o.customer_name || 'Guest User'}<br>
-                        <b>မှာယူသည့်ပစ္စည်း:</b> ${o.items_summary || 'No summary'}
-                    </div>
+                    <small>${o.items_summary}</small>
                 </div>
             `).join('');
         }
     }
 
-    // --- Load Stock (Inventory) ---
     async function loadStock() {
         const { data } = await _supa.from('products').select('*').order('id', {ascending: false});
         const list = document.getElementById('stock-list');
         if(data) {
             list.innerHTML = data.map(p => `
-                <div class="order-item">
-                    <div style="display:flex; gap:10px; align-items:center;">
-                        <img src="${p.image_url}" style="width:40px; height:40px; border-radius:5px; object-fit:cover;">
-                        <div>
-                            <b>${p.name}</b><br>
-                            <small>${p.base_price.toLocaleString()} Ks</small>
-                        </div>
-                    </div>
+                <div class="order-item" style="display:flex; gap:10px; align-items:center;">
+                    <img src="${p.image_url}" style="width:50px; height:50px; border-radius:8px; object-fit:cover;">
+                    <div><b>${p.name}</b><br><small>${p.base_price.toLocaleString()} Ks</small></div>
                 </div>
             `).join('');
         }
     }
 
-    // Initial Load
-        // စဖွင့်ချင်းမှာ အော်ဒါရော စတော့စာရင်းရော ဆွဲတင်ထားမယ်
-    loadOrders();
-    loadStock();
-
     function previewImage(event) {
         const reader = new FileReader();
         reader.onload = function(){
             const output = document.getElementById('image-preview');
-            const placeholder = document.getElementById('placeholder-text');
             output.src = reader.result;
             output.style.display = 'block';
-            placeholder.style.display = 'none';
+            document.getElementById('placeholder-text').style.display = 'none';
         };
         reader.readAsDataURL(event.target.files[0]);
     }
@@ -324,20 +208,13 @@
     function resetPreview() {
         document.getElementById('image-preview').style.display = 'none';
         document.getElementById('placeholder-text').style.display = 'block';
-        document.getElementById('p-file').value = "";
-        // အခြားစာရိုက်တဲ့နေရာတွေကိုပါ ရှင်းထုတ်မယ်
-        document.getElementById('p-name').value = "";
-        document.getElementById('p-base').value = "";
-        document.getElementById('p-desc').value = "";
-        document.getElementById('p-q1').value = "";
-        document.getElementById('p-pr1').value = "";
-        document.getElementById('p-q2').value = "";
-        document.getElementById('p-pr2').value = "";
-        document.getElementById('p-variants').value = "";
+        document.querySelectorAll('input, textarea').forEach(i => i.value = '');
     }
-    
-    
-</script>
 
+    // Initial Load
+    loadOrders();
+    loadStock();
+</script>
 </body>
 </html>
+
