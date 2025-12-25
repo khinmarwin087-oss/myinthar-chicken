@@ -7,101 +7,75 @@
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-    
     <style>
-        :root {
-            --primary: #FF4747;
-            --bg: #f5f7fb;
-            --white: #ffffff;
-            --text-dark: #1e1e2d;
-        }
-        body { margin:0; font-family: 'Segoe UI', sans-serif; background:var(--bg); color: var(--text-dark); }
+        :root { --primary: #FF4747; --bg: #f5f7fb; --white: #ffffff; }
+        body { margin:0; font-family: sans-serif; background:var(--bg); }
         
-        /* Navigation System */
+        /* Page Navigation Logic */
         .page { display: none; padding-bottom: 80px; }
         .page.active { display: block; }
 
-        header { 
-            background: var(--primary); color: white; padding: 12px 15px; 
-            display:flex; align-items:center; position:sticky; top:0; z-index:1000;
-        }
-        .search-bar { flex:1; background:white; border-radius:20px; display:flex; align-items:center; padding:5px 15px; margin: 0 10px; }
-        .search-bar input { border:none; outline:none; width:100%; padding:5px; }
+        header { background: var(--primary); color: white; padding: 10px 15px; display:flex; align-items:center; position:sticky; top:0; z-index:1000; }
+        .search-box { flex:1; background:white; border-radius:20px; display:flex; align-items:center; padding:5px 15px; margin: 0 10px; }
+        .search-box input { border:none; outline:none; width:100%; }
 
-        /* Home Page Layout */
+        /* Product List Style */
         .products { display:grid; grid-template-columns: 1fr 1fr; gap:10px; padding:10px; }
-        .product-card { background:white; border-radius:12px; overflow:hidden; box-shadow:0 2px 8px rgba(0,0,0,0.05); cursor:pointer; }
-        .product-card img { width:100%; aspect-ratio: 1/1; object-fit: cover; }
-        .product-info { padding:10px; }
-        .price-wholesale { color:var(--primary); font-weight:bold; font-size:1.1rem; }
+        .p-card { background:white; border-radius:12px; overflow:hidden; box-shadow:0 2px 5px rgba(0,0,0,0.1); cursor:pointer; }
+        .p-card img { width:100%; aspect-ratio: 1/1; object-fit: cover; }
+        .p-info { padding:10px; }
 
-        /* Product Detail Page Styles */
-        .detail-header { position:relative; }
+        /* Detail Page Style */
         .detail-img { width:100%; aspect-ratio:1/1; object-fit:cover; }
-        .detail-content { padding:20px; background:white; border-radius:25px 25px 0 0; margin-top:-20px; position:relative; }
-        .detail-price { font-size:1.5rem; color:var(--primary); font-weight:bold; }
-        .detail-moq { font-size:0.9rem; color:#888; margin-bottom:15px; }
-        
-        /* Bottom Sticky Bar */
-        .bottom-nav { 
-            position:fixed; bottom:0; width:100%; background:white; 
-            display:flex; justify-content:space-around; padding:10px 0; 
-            border-top:1px solid #eee; z-index:2000;
-        }
-        .nav-item { text-align:center; font-size:12px; color:#888; cursor:pointer; }
+        .detail-box { padding:20px; background:white; border-radius:20px 20px 0 0; margin-top:-20px; position:relative; }
+        .sticky-bar { position:fixed; bottom:0; width:100%; background:white; display:flex; padding:10px; box-sizing:border-box; gap:10px; border-top:1px solid #eee; }
+        .btn-red { background:var(--primary); color:white; border:none; padding:12px; flex:1; border-radius:25px; font-weight:bold; }
+
+        /* Bottom Menu */
+        .bottom-nav { position:fixed; bottom:0; width:100%; background:white; display:flex; justify-content:space-around; padding:10px 0; border-top:1px solid #eee; z-index:999; }
+        .nav-item { text-align:center; color:#888; font-size:12px; cursor:pointer; }
         .nav-item.active { color:var(--primary); }
-        .nav-item i { font-size:20px; display:block; }
-
-        /* Buy Buttons in Detail */
-        .buy-actions { position:fixed; bottom:60px; width:100%; background:white; padding:10px; display:flex; gap:10px; box-sizing:border-box; border-top:1px solid #eee;}
-        .btn-cart { flex:1; background:#fff0f0; color:var(--primary); border:1px solid var(--primary); padding:12px; border-radius:25px; font-weight:bold; }
-        .btn-buy { flex:1; background:var(--primary); color:white; border:none; padding:12px; border-radius:25px; font-weight:bold; }
-
-        /* Profile Styles */
-        .profile-header { background:var(--primary); color:white; padding:40px 20px; text-align:center; }
-        .profile-avatar { width:80px; height:80px; border-radius:50%; border:3px solid white; margin-bottom:10px; }
-        .profile-menu { background:white; margin:15px; border-radius:12px; overflow:hidden; }
-        .menu-item { padding:15px; border-bottom:1px solid #eee; display:flex; align-items:center; gap:15px; cursor:pointer; }
-
     </style>
 </head>
 <body>
 
 <div id="home-page" class="page active">
     <header>
-        <div style="font-weight:bold; font-size:1.2rem;">K.M.W</div>
-        <div class="search-bar"><i class="fas fa-search" style="color:#888"></i><input type="text" placeholder="ပစ္စည်းရှာရန်..."></div>
-        <i class="fas fa-comment-dots" style="font-size:1.4rem"></i>
+        <div style="font-weight:bold;">KMW</div>
+        <div class="search-box"><input type="text" placeholder="ပစ္စည်းရှာရန်..."></div>
+        <i class="fas fa-shopping-cart" onclick="navigate('cart-page')"></i>
     </header>
-    <div class="products" id="product-list">
-        <p style="text-align:center; grid-column:span 2;">Loading products...</p>
-    </div>
+    <div class="products" id="main-grid"></div>
 </div>
 
 <div id="detail-page" class="page">
-    <div id="product-detail-content">
-        </div>
+    <div id="detail-content"></div>
+</div>
+
+<div id="cart-page" class="page">
+    <h3 style="padding:15px;">Shopping Cart</h3>
+    <div id="cart-list" style="padding:10px;"></div>
+    <div style="padding:20px; background:white; position:fixed; bottom:60px; width:100%;">
+        <button class="btn-red" onclick="placeOrder()">အော်ဒါတင်မည်</button>
+    </div>
 </div>
 
 <div id="profile-page" class="page">
-    <div class="profile-header">
-        <img src="https://via.placeholder.com/80" id="user-img" class="profile-avatar">
-        <h2 id="user-name" style="margin:0;">Guest User</h2>
-        <p id="user-email" style="opacity:0.8; font-size:14px;">Please login to see more</p>
+    <div style="background:var(--primary); color:white; padding:40px 20px; text-align:center;">
+        <img src="https://via.placeholder.com/80" style="border-radius:50%; border:3px solid white;">
+        <h2 id="user-name">Guest User</h2>
     </div>
-    <div class="profile-menu">
-        <div class="menu-item"><i class="fas fa-box-open" style="color:#ffa500"></i> ကျွန်ုပ်၏ မှာယူမှုများ</div>
-        <div class="menu-item"><i class="fas fa-map-marker-alt" style="color:#ff4747"></i> လိပ်စာစာအုပ်</div>
-        <div class="menu-item"><i class="fas fa-headset" style="color:#4caf50"></i> အကူအညီရယူရန်</div>
-        <div class="menu-item" onclick="handleAuth()" id="auth-menu-btn"><i class="fas fa-sign-in-alt"></i> Login ဝင်မည်</div>
+    <div style="background:white; margin:15px; border-radius:10px;">
+        <div style="padding:15px; border-bottom:1px solid #eee;"><i class="fas fa-box"></i> မှာယူမှုများ</div>
+        <div style="padding:15px; border-bottom:1px solid #eee;"><i class="fas fa-map-marker-alt"></i> လိပ်စာစာအုပ်</div>
+        <div style="padding:15px; color:red;" onclick="handleAuth()"><i class="fas fa-sign-out-alt"></i> Logout</div>
     </div>
 </div>
 
 <div class="bottom-nav">
-    <div class="nav-item active" onclick="navigate('home-page', this)"><i class="fas fa-home"></i>Home</div>
-    <div class="nav-item" onclick="navigate('home-page', this)"><i class="fas fa-th-large"></i>Categories</div>
-    <div class="nav-item" onclick="navigate('home-page', this)"><i class="fas fa-shopping-cart"></i>Cart</div>
-    <div class="nav-item" onclick="navigate('profile-page', this)"><i class="fas fa-user"></i>Account</div>
+    <div class="nav-item active" onclick="navigate('home-page')"><i class="fas fa-home"></i>Home</div>
+    <div class="nav-item" onclick="navigate('cart-page')"><i class="fas fa-shopping-bag"></i>Cart</div>
+    <div class="nav-item" onclick="navigate('profile-page')"><i class="fas fa-user"></i>Profile</div>
 </div>
 
 <script>
@@ -109,88 +83,75 @@
     const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx0dXNrbmtwd2J5cmlpa2V5ZGF5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYyMTYxNDksImV4cCI6MjA4MTc5MjE0OX0.7TXAvr2tHl03m_gYZNYq8xyy0yYHTx0sYMN4tS6GDnA";
     const _supabase = supabase.createClient(SB_URL, SB_KEY);
 
-    let productsData = [];
-    let currentUser = null;
+    let products = [];
+    let cart = [];
 
-    // Navigation System
-    function navigate(pageId, element) {
+    function navigate(id) {
         document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-        document.getElementById(pageId).classList.add('active');
-        document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-        element.classList.add('active');
-        window.scrollTo(0,0);
+        document.getElementById(id).classList.add('active');
+        if(id === 'cart-page') renderCart();
     }
 
-    // Load Data
-    async function loadApp() {
-        const { data: { user } } = await _supabase.auth.getUser();
-        if(user) {
-            currentUser = user;
-            document.getElementById('user-name').innerText = user.user_metadata.full_name || user.email;
-            document.getElementById('user-img').src = user.user_metadata.avatar_url || 'https://via.placeholder.com/80';
-            document.getElementById('user-email').innerText = user.email;
-            document.getElementById('auth-menu-btn').innerHTML = `<i class="fas fa-sign-out-alt"></i> Logout ထွက်မည်`;
-        }
-
-        const { data } = await _supabase.from('products').select('*').order('created_at', {ascending: false});
-        productsData = data || [];
-        renderHome(productsData);
-    }
-
-    function renderHome(items) {
-        const container = document.getElementById('product-list');
-        container.innerHTML = items.map(p => `
-            <div class="product-card" onclick="showProductDetail(${p.id})">
-                <img src="${p.image_url || 'https://via.placeholder.com/150'}">
-                <div class="product-info">
-                    <div style="font-size:14px; height:38px; overflow:hidden;">${p.name}</div>
-                    <div class="price-wholesale">${Number(p.wholesale_price).toLocaleString()} K</div>
-                    <div style="font-size:11px; color:#888;">MOQ: 1 pcs</div>
+    async function loadData() {
+        const { data } = await _supabase.from('products').select('*');
+        products = data || [];
+        document.getElementById('main-grid').innerHTML = products.map(p => `
+            <div class="p-card" onclick="showDetail(${p.id})">
+                <img src="${p.image_url}">
+                <div class="p-info">
+                    <div style="font-size:14px; height:35px;">${p.name}</div>
+                    <div style="color:red; font-weight:bold;">${p.wholesale_price.toLocaleString()} K</div>
                 </div>
             </div>
         `).join('');
     }
 
-    function showProductDetail(id) {
-        const p = productsData.find(x => x.id === id);
-        const detailContainer = document.getElementById('product-detail-content');
-        
-        detailContainer.innerHTML = `
-            <div class="detail-header">
-                <i class="fas fa-chevron-left" onclick="navigate('home-page', document.querySelector('.nav-item'))" style="position:absolute; top:20px; left:20px; background:rgba(0,0,0,0.5); color:white; padding:10px; border-radius:50%; z-index:10;"></i>
-                <img src="${p.image_url || 'https://via.placeholder.com/400'}" class="detail-img">
+    function showDetail(id) {
+        const p = products.find(x => x.id === id);
+        document.getElementById('detail-content').innerHTML = `
+            <img src="${p.image_url}" class="detail-img">
+            <div class="detail-box">
+                <h2 style="color:red;">${p.wholesale_price.toLocaleString()} K</h2>
+                <h3>${p.name}</h3>
+                <p>ဒါကတော့ အရည်အသွေးမြင့် လက်ကားပစ္စည်း ဖြစ်ပါတယ်။</p>
             </div>
-            <div class="detail-content">
-                <div class="detail-price">${Number(p.wholesale_price).toLocaleString()} K</div>
-                <div class="detail-moq">လက်ကားစျေး (အနည်းဆုံး ၁ ခုမှစ၍)</div>
-                <h1 style="font-size:1.2rem; margin:10px 0;">${p.name}</h1>
-                <p style="color:#666; font-size:14px; line-height:1.6;">${p.description || 'ကုန်ပစ္စည်းအကြောင်းအရာ မရှိသေးပါ။'}</p>
-                <div style="margin-top:20px; padding:15px; background:#f9f9f9; border-radius:10px;">
-                    <i class="fas fa-shield-alt" style="color:#4caf50"></i> ၁၀၀% စစ်မှန်သော ကုန်ပစ္စည်း
-                </div>
-            </div>
-            <div class="buy-actions">
-                <button class="btn-cart" onclick="addToCart(${p.id})">ခြင်းထဲထည့်မည်</button>
-                <button class="btn-buy" onclick="directBuy(${p.id})">အခုဝယ်မည်</button>
+            <div class="sticky-bar">
+                <button class="btn-red" style="background:#fff; color:red; border:1px solid red;" onclick="cart.push(${p.id}); alert('Added!')">Add to Cart</button>
+                <button class="btn-red" onclick="navigate('cart-page')">Buy Now</button>
             </div>
         `;
-        document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-        document.getElementById('detail-page').classList.add('active');
-        window.scrollTo(0,0);
+        navigate('detail-page');
     }
 
-    async function handleAuth() {
-        if(currentUser) {
-            await _supabase.auth.signOut();
-            location.reload();
-        } else {
-            await _supabase.auth.signInWithOAuth({ provider: 'google', options: { redirectTo: window.location.href } });
-        }
+    function renderCart() {
+        const list = document.getElementById('cart-list');
+        list.innerHTML = cart.map(id => {
+            const p = products.find(x => x.id === id);
+            return `<div style="background:white; padding:10px; margin-bottom:10px; border-radius:8px; display:flex; gap:10px;">
+                <img src="${p.image_url}" style="width:50px; height:50px; border-radius:5px;">
+                <div><b>${p.name}</b><br><span style="color:red;">${p.wholesale_price} K</span></div>
+            </div>`;
+        }).join('');
     }
 
-    // Initialize App
-    loadApp();
+    async function placeOrder() {
+        const name = prompt("ဝယ်သူအမည်ထည့်ပါ");
+        const addr = prompt("ပို့ဆောင်ရမည့်လိပ်စာထည့်ပါ");
+        if(!name || !addr) return;
 
+        const { error } = await _supabase.from('orders').insert({
+            customer_name: name,
+            address: addr,
+            total_price: 0,
+            status: 'Pending'
+        });
+
+        if(!error) { alert("အော်ဒါတင်ပြီးပါပြီ။"); cart = []; navigate('home-page'); }
+        else alert("Error: " + error.message);
+    }
+
+    loadData();
 </script>
 </body>
 </html>
+
