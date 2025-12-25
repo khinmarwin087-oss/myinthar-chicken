@@ -172,6 +172,37 @@
     const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx0dXNrbmtwd2J5cmlpa2V5ZGF5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYyMTYxNDksImV4cCI6MjA4MTc5MjE0OX0.7TXAvr2tHl03m_gYZNYq8xyy0yYHTx0sYMN4tS6GDnA";
     const _supabase = supabase.createClient(SB_URL, SB_KEY);
 
+    async function loadItems() {
+  const { data, error } = await supabase
+    .from("items")
+    .select(`
+      *,
+      item_variants(*),
+      wholesale_prices(*)
+    `)
+    .eq("active", true);
+
+  if (error) {
+    alert(error.message);
+    return;
+  }
+
+  renderItems(data);
+    }
+    function renderItems(items) {
+  document.getElementById("product-list").innerHTML =
+    items.map(i => `
+      <div class="p-card" onclick="openDetail('${i.id}')">
+        <img src="${i.image_url}">
+        <div class="p-info">
+          <b>${i.name}</b>
+          <div>${i.base_price} Ks</div>
+        </div>
+      </div>
+    `).join("");
+    }
+    loadItems();
+    
     let productsData = [], cart = [], selectedQty = 1;
 
     function playSfx(type) {
