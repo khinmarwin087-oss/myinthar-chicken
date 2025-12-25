@@ -9,97 +9,79 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
         :root { --primary: #002347; --accent: #D4AF37; --orange: #ff6a00; --bg: #f4f4f7; --white: #ffffff; }
-        body { margin:0; font-family: 'Segoe UI', Roboto, sans-serif; background:var(--bg); overflow-x: hidden; }
+        body { margin:0; font-family: 'Segoe UI', sans-serif; background:var(--bg); padding-bottom: 70px; }
         
-        /* Navigation */
         nav { background: var(--primary); padding: 12px 15px; display: flex; align-items: center; position: sticky; top: 0; z-index: 2000; gap: 15px; }
         .search-box { flex: 1; background: white; border-radius: 20px; display: flex; align-items: center; padding: 5px 15px; }
         .search-box input { border: none; outline: none; width: 100%; padding: 5px; }
-        .nav-icons { color: white; font-size: 20px; display: flex; gap: 15px; cursor: pointer; }
 
-        /* Page Management */
-        .page { display: none; padding-bottom: 80px; }
+        .page { display: none; }
         .page.active { display: block; }
 
-        /* Home Page - Alibaba Grid */
-        .hero { background: var(--primary); color: var(--accent); padding: 20px; text-align: center; }
+        /* Home Page */
         .product-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 10px; }
-        .item-card { background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+        .item-card { background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.1); cursor: pointer; }
         .item-card img { width: 100%; aspect-ratio: 1/1; object-fit: cover; }
         .item-info { padding: 10px; }
-        .item-price { color: var(--primary); font-weight: bold; font-size: 16px; }
+        .item-price { color: var(--orange); font-weight: bold; font-size: 16px; }
 
-        /* Product Detail Page */
-        .detail-container { background: white; padding: 15px; }
-        .detail-img { width: 100%; border-radius: 8px; }
-        .price-table { width: 100%; border-collapse: collapse; margin: 15px 0; }
-        .price-table td { border: 1px solid #eee; padding: 10px; text-align: center; }
-        .selector-group { margin: 15px 0; }
-        .option-btn { border: 1px solid #ddd; padding: 8px 15px; margin: 5px; border-radius: 4px; cursor: pointer; display: inline-block; }
-        .option-btn.selected { border-color: var(--orange); color: var(--orange); background: #fff5f0; }
+        /* Detail Page */
+        .detail-view { background: white; padding: 15px; }
+        .price-tier { display: flex; justify-content: space-around; background: #fff5f0; padding: 10px; border-radius: 8px; margin: 15px 0; border: 1px solid #ffe5d4; }
+        .tier-box { text-align: center; font-size: 12px; color: #666; }
+        .tier-price { display: block; color: var(--orange); font-weight: bold; font-size: 14px; }
 
-        /* Cart Page */
-        .cart-item { background: white; padding: 15px; margin: 10px; border-radius: 8px; display: flex; gap: 10px; }
-        .qty-control { display: flex; align-items: center; gap: 10px; border: 1px solid #ddd; border-radius: 4px; padding: 5px; }
-
-        /* Footer Nav */
+        .qty-box { display: flex; align-items: center; gap: 20px; margin: 20px 0; border-top: 1px solid #eee; padding-top: 15px; }
+        .qty-btn { border: 1px solid #ddd; width: 35px; height: 35px; display: flex; align-items: center; justify-content: center; background: white; cursor: pointer; border-radius: 4px; }
+        
+        /* Footer */
         .footer-nav { position: fixed; bottom: 0; width: 100%; background: white; display: flex; justify-content: space-around; padding: 10px 0; border-top: 1px solid #ddd; z-index: 2000; }
-        .nav-item { text-align: center; color: #666; font-size: 12px; cursor: pointer; }
+        .nav-item { text-align: center; color: #666; font-size: 11px; cursor: pointer; }
         .nav-item.active { color: var(--orange); }
-        .nav-item i { font-size: 20px; display: block; }
+        .nav-item i { font-size: 20px; display: block; margin-bottom: 2px; }
 
-        /* Global Buttons */
-        .btn-orange { background: var(--orange); color: white; border: none; padding: 12px; width: 100%; border-radius: 25px; font-weight: bold; cursor: pointer; }
-        .btn-outline { border: 1px solid var(--orange); color: var(--orange); background: white; }
+        .buy-btn { background: var(--orange); color: white; border: none; padding: 15px; width: 100%; border-radius: 25px; font-weight: bold; font-size: 16px; cursor: pointer; }
+        
+        /* Cart */
+        .cart-item { background: white; padding: 12px; margin: 10px; border-radius: 8px; display: flex; gap: 12px; align-items: center; }
+        .cart-img { width: 70px; height: 70px; object-fit: cover; border-radius: 4px; }
     </style>
 </head>
 <body>
 
 <nav>
     <div style="color:var(--accent); font-weight:bold;" onclick="showPage('home')">KMW</div>
-    <div class="search-box"><i class="fas fa-search"></i><input type="text" placeholder="Search Alibaba..."></div>
+    <div class="search-box"><i class="fas fa-search"></i><input type="text" placeholder="Search Wholesale..."></div>
 </nav>
 
 <div id="home" class="page active">
-    <div class="hero">
-        <h2>Global Wholesale</h2>
-        <p>Source directly from K.M.W Jewelry</p>
+    <div style="background:var(--primary); color:white; padding:20px; text-align:center;">
+        <h2 style="margin:0; color:var(--accent);">K.M.W WHOLESALE</h2>
+        <p style="font-size:12px;">Direct Factory Price - MOQ 10 Pcs</p>
     </div>
     <div class="product-grid" id="main-grid"></div>
 </div>
 
 <div id="product-detail" class="page">
-    <div class="detail-container" id="detail-view"></div>
+    <div id="detail-content" class="detail-view"></div>
 </div>
 
 <div id="cart" class="page">
     <h3 style="padding:15px;">Shopping Cart</h3>
-    <div id="cart-items"></div>
-    <div style="position:fixed; bottom:60px; width:100%; background:white; padding:15px; border-top:1px solid #ddd;">
+    <div id="cart-list"></div>
+    <div style="padding:15px; background:white; position:fixed; bottom:60px; width:100%; border-top:1px solid #eee;">
         <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
-            <b>Total Amount:</b> <span id="cart-total" style="color:var(--orange); font-size:18px;">0 K</span>
+            <b>Total:</b> <span id="cart-total" style="color:var(--orange); font-size:18px;">0 K</span>
         </div>
-        <button class="btn-orange" onclick="checkout()">Proceed to Checkout</button>
-    </div>
-</div>
-
-<div id="contact" class="page">
-    <div style="padding:20px; text-align:center;">
-        <h3>Contact Us</h3>
-        <button class="btn-orange" style="margin-bottom:10px;" onclick="window.open('https://m.me/yourpage')">Chat with Agent</button>
-        <hr>
-        <h3>Track Order</h3>
-        <input type="text" id="track-id" placeholder="Enter Order ID" style="width:90%; padding:10px; margin-bottom:10px;">
-        <button class="btn-orange btn-outline" onclick="trackOrder()">Check Status</button>
-        <div id="track-result" style="margin-top:20px;"></div>
+        <button class="buy-btn" onclick="openCheckout()">Place Order</button>
     </div>
 </div>
 
 <div class="footer-nav">
     <div class="nav-item active" onclick="showPage('home', this)"><i class="fas fa-home"></i>Home</div>
     <div class="nav-item" onclick="showPage('cart', this)"><i class="fas fa-shopping-cart"></i>Cart</div>
-    <div class="nav-item" onclick="window.open('https://wa.me/yournumber')"><i class="fas fa-comment-dots"></i>Chat</div>
-    <div class="nav-item" onclick="showPage('contact', this)"><i class="fas fa-user"></i>Account</div>
+    <div class="nav-item" onclick="window.location.href='https://wa.me/yournumber'"><i class="fab fa-whatsapp"></i>Chat</div>
+    <div class="nav-item" onclick="showPage('home', this)"><i class="fas fa-user"></i>Account</div>
 </div>
 
 <script>
@@ -107,13 +89,14 @@
     const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx0dXNrbmtwd2J5cmlpa2V5ZGF5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYyMTYxNDksImV4cCI6MjA4MTc5MjE0OX0.7TXAvr2tHl03m_gYZNYq8xyy0yYHTx0sYMN4tS6GDnA";
     const _supabase = supabase.createClient(SB_URL, SB_KEY);
 
-    let products = [];
-    let cart = [];
+    let allProducts = [];
+    let myCart = [];
+    let currentQty = 10;
 
-    // Page Router
+    // Page Switching
     function showPage(pageId, el) {
-        document.querySelectorAll('.page').forEach(p => p.style.display = 'none');
-        document.getElementById(pageId).style.display = 'block';
+        document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+        document.getElementById(pageId).classList.add('active');
         if(el) {
             document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
             el.classList.add('active');
@@ -122,88 +105,111 @@
         window.scrollTo(0,0);
     }
 
-    async function init() {
+    async function loadData() {
         const { data } = await _supabase.from('products').select('*');
-        products = data || [];
-        document.getElementById('main-grid').innerHTML = products.map(p => `
-            <div class="item-card" onclick="viewDetail(${p.id})">
+        allProducts = data || [];
+        document.getElementById('main-grid').innerHTML = allProducts.map(p => `
+            <div class="item-card" onclick="openProduct(${p.id})">
                 <img src="${p.image_url}">
                 <div class="item-info">
-                    <div style="font-size:13px; height:35px; overflow:hidden;">${p.name}</div>
+                    <div style="font-size:13px; margin-bottom:5px;">${p.name}</div>
                     <div class="item-price">${Number(p.wholesale_price).toLocaleString()} K</div>
-                    <div style="font-size:10px; color:#888;">MOQ: 10 pcs</div>
+                    <div style="font-size:10px; color:#999;">MOQ: 10 pcs</div>
                 </div>
             </div>
         `).join('');
     }
 
-    function viewDetail(id) {
-        const p = products.find(x => x.id === id);
-        document.getElementById('detail-view').innerHTML = `
-            <img src="${p.image_url}" class="detail-img">
-            <h2>${p.name}</h2>
-            <table class="price-table">
-                <tr><td>10-49 pcs</td><td>50-99 pcs</td><td>100+ pcs</td></tr>
-                <tr style="color:var(--orange); font-weight:bold;">
-                    <td>${p.wholesale_price}K</td>
-                    <td>${p.wholesale_price - 500}K</td>
-                    <td>${p.wholesale_price - 1000}K</td>
-                </tr>
-            </table>
-            <div class="selector-group">
-                <b>Size:</b><br>
-                <span class="option-btn selected">Standard</span><span class="option-btn">Custom</span>
+    function openProduct(id) {
+        const p = allProducts.find(x => x.id === id);
+        currentQty = 10;
+        document.getElementById('detail-content').innerHTML = `
+            <img src="${p.image_url}" style="width:100%; border-radius:8px; margin-bottom:15px;">
+            <h2 style="margin:0 0 10px 0;">${p.name}</h2>
+            <div class="price-tier">
+                <div class="tier-box">10-49 Pcs<br><span class="tier-price">${p.wholesale_price.toLocaleString()} K</span></div>
+                <div class="tier-box">50-99 Pcs<br><span class="tier-price">${(p.wholesale_price-500).toLocaleString()} K</span></div>
+                <div class="tier-box">100+ Pcs<br><span class="tier-price">${(p.wholesale_price-1000).toLocaleString()} K</span></div>
             </div>
-            <button class="btn-orange" onclick="addToCart(${p.id})">Add to Cart</button>
+            <div class="qty-box">
+                <b>Quantity:</b>
+                <div style="display:flex; gap:10px; align-items:center;">
+                    <button class="qty-btn" onclick="changeQty(-1)">-</button>
+                    <b id="qty-val" style="font-size:18px; width:30px; text-align:center;">10</b>
+                    <button class="qty-btn" onclick="changeQty(1)">+</button>
+                </div>
+            </div>
+            <button class="buy-btn" onclick="addToCart(${p.id})">Add to Shopping Cart</button>
         `;
         showPage('product-detail');
     }
 
+    function changeQty(n) {
+        currentQty += n;
+        if(currentQty < 10) currentQty = 10;
+        document.getElementById('qty-val').innerText = currentQty;
+    }
+
     function addToCart(id) {
-        const p = products.find(x => x.id === id);
-        cart.push({...p, qty: 10});
-        new Audio('https://www.myinstants.com/media/sounds/cart.mp3').play();
-        alert("Added to cart!");
+        const p = allProducts.find(x => x.id === id);
+        // Tiered Pricing Logic
+        let finalPrice = p.wholesale_price;
+        if(currentQty >= 100) finalPrice -= 1000;
+        else if(currentQty >= 50) finalPrice -= 500;
+
+        myCart.push({ ...p, buyQty: currentQty, buyPrice: finalPrice });
+        new Audio('https://www.myinstants.com/media/sounds/cart.mp3').play().catch(e => {});
+        alert("ခြင်းထဲသို့ ထည့်ပြီးပါပြီ။");
     }
 
     function renderCart() {
-        const container = document.getElementById('cart-items');
+        const list = document.getElementById('cart-list');
         let total = 0;
-        container.innerHTML = cart.map((item, idx) => {
-            total += item.wholesale_price * item.qty;
-            return `
-                <div class="cart-item">
-                    <img src="${item.image_url}" style="width:60px; height:60px; object-fit:cover;">
-                    <div style="flex:1;">
-                        <div style="font-size:14px;">${item.name}</div>
-                        <div style="color:var(--orange); font-weight:bold;">${item.wholesale_price.toLocaleString()} K</div>
-                        <div class="qty-control">
-                            <i class="fas fa-minus" onclick="updateQty(${idx}, -1)"></i>
-                            <span>${item.qty}</span>
-                            <i class="fas fa-plus" onclick="updateQty(${idx}, 1)"></i>
+        if(myCart.length === 0) {
+            list.innerHTML = "<p style='text-align:center; padding:50px; color:#999;'>Your cart is empty.</p>";
+        } else {
+            list.innerHTML = myCart.map((item, idx) => {
+                total += item.buyPrice * item.buyQty;
+                return `
+                    <div class="cart-item">
+                        <img src="${item.image_url}" class="cart-img">
+                        <div style="flex:1;">
+                            <div style="font-size:14px; font-weight:bold;">${item.name}</div>
+                            <div style="color:var(--orange); font-size:14px;">${item.buyPrice.toLocaleString()} K x ${item.buyQty}</div>
                         </div>
+                        <i class="fas fa-trash" style="color:#ccc;" onclick="removeItem(${idx})"></i>
                     </div>
-                </div>
-            `;
-        }).join('');
+                `;
+            }).join('');
+        }
         document.getElementById('cart-total').innerText = total.toLocaleString() + " K";
     }
 
-    function updateQty(idx, delta) {
-        cart[idx].qty += delta;
-        if(cart[idx].qty < 10) cart[idx].qty = 10;
+    function removeItem(idx) {
+        myCart.splice(idx, 1);
         renderCart();
     }
 
-    async function trackOrder() {
-        const id = document.getElementById('track-id').value;
-        const { data } = await _supabase.from('orders').select('*').eq('id', id).single();
-        document.getElementById('track-result').innerHTML = data 
-            ? `<div style="padding:15px; background:white; border:1px solid var(--accent);">Status: <b>${data.status}</b></div>`
-            : "Order not found.";
+    async function openCheckout() {
+        const name = prompt("ဝယ်ယူသူအမည် ရိုက်ထည့်ပါ -");
+        if(!name) return;
+        const total = myCart.reduce((s, i) => s + (i.buyPrice * i.buyQty), 0);
+        
+        const { error } = await _supabase.from('orders').insert({
+            customer_name: name,
+            total_price: total,
+            status: 'Pending'
+        });
+
+        if(!error) {
+            alert("Order အောင်မြင်ပါသည်။ ကျေးဇူးတင်ပါသည်။");
+            myCart = [];
+            showPage('home');
+        }
     }
 
-    init();
+    loadData();
 </script>
 </body>
 </html>
+
