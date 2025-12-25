@@ -3,114 +3,103 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>K.M.W Wholesale - Official Site</title>
+    <title>K.M.W Wholesale Platform</title>
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-    
     <style>
-        :root {
-            --primary: #002347; /* Royal Blue */
-            --accent: #D4AF37;  /* Gold */
-            --bg: #f1f2f5;
-            --white: #ffffff;
-        }
-        body { margin:0; font-family: 'Segoe UI', Arial, sans-serif; background:var(--bg); color: #333;}
-
-        /* Header Style */
-        header { 
-            background: var(--primary); 
-            padding: 12px 15px; 
-            display:flex; 
-            align-items:center; 
-            position:sticky; top:0; z-index:1000;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
-        }
-        .search-box {
-            flex: 1;
-            background: var(--white);
-            display: flex;
-            align-items: center;
-            padding: 8px 15px;
-            border-radius: 4px;
-            margin: 0 10px;
-        }
-        .search-box input { border: none; outline: none; width: 100%; font-size: 14px; }
-        .logo { color: var(--accent); font-weight: bold; font-size: 20px; text-decoration: none; }
-
-        /* Banner & Category */
-        .hero-banner { background: linear-gradient(rgba(0,35,71,0.8), rgba(0,35,71,0.8)), url('https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?auto=format&fit=crop&w=800'); background-size: cover; height: 150px; display: flex; flex-direction: column; align-items: center; justify-content: center; color: var(--accent); text-align: center; }
+        :root { --primary: #002347; --accent: #D4AF37; --orange: #ff6a00; --bg: #f4f4f7; --white: #ffffff; }
+        body { margin:0; font-family: 'Segoe UI', Roboto, sans-serif; background:var(--bg); overflow-x: hidden; }
         
-        .cat-bar { display:flex; gap:10px; padding: 15px; overflow-x: auto; background: var(--white); margin-bottom: 10px; border-bottom: 1px solid #ddd; }
-        .cat-item { padding: 6px 15px; border-radius: 20px; border: 1px solid #ddd; font-size: 13px; white-space: nowrap; cursor: pointer; }
-        .cat-item.active { background: var(--primary); color: var(--white); border-color: var(--primary); }
+        /* Navigation */
+        nav { background: var(--primary); padding: 12px 15px; display: flex; align-items: center; position: sticky; top: 0; z-index: 2000; gap: 15px; }
+        .search-box { flex: 1; background: white; border-radius: 20px; display: flex; align-items: center; padding: 5px 15px; }
+        .search-box input { border: none; outline: none; width: 100%; padding: 5px; }
+        .nav-icons { color: white; font-size: 20px; display: flex; gap: 15px; cursor: pointer; }
 
-        /* Wholesale Product Grid */
-        .products { display:grid; grid-template-columns: 1fr 1fr; gap:10px; padding: 10px; }
-        .p-card { background:var(--white); border-radius: 8px; overflow: hidden; display: flex; flex-direction: column; box-shadow: 0 1px 3px rgba(0,0,0,0.1); transition: 0.3s; }
-        .p-card:hover { box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
-        .p-card img { width:100%; aspect-ratio: 1/1; object-fit: cover; }
-        .p-details { padding: 12px; flex: 1; display: flex; flex-direction: column; }
-        .p-title { font-size: 14px; margin-bottom: 5px; height: 38px; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; line-height: 1.4; }
-        
-        /* Pricing Table Style */
-        .p-price-area { margin-top: auto; }
-        .p-price { color: var(--primary); font-size: 16px; font-weight: bold; }
-        .p-moq { font-size: 11px; color: #777; margin-top: 2px; }
+        /* Page Management */
+        .page { display: none; padding-bottom: 80px; }
+        .page.active { display: block; }
 
-        .action-btn { background: linear-gradient(to right, #FFB400, #FF8C00); color: var(--primary); border: none; padding: 10px; border-radius: 4px; font-weight: bold; width: 100%; margin-top: 10px; cursor: pointer; }
+        /* Home Page - Alibaba Grid */
+        .hero { background: var(--primary); color: var(--accent); padding: 20px; text-align: center; }
+        .product-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 10px; }
+        .item-card { background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+        .item-card img { width: 100%; aspect-ratio: 1/1; object-fit: cover; }
+        .item-info { padding: 10px; }
+        .item-price { color: var(--primary); font-weight: bold; font-size: 16px; }
 
-        /* Float Cart */
-        .cart-float { position: fixed; bottom: 30px; right: 20px; background: var(--primary); color: var(--accent); width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 24px; box-shadow: 0 4px 15px rgba(0,0,0,0.3); z-index: 1000; cursor: pointer; }
+        /* Product Detail Page */
+        .detail-container { background: white; padding: 15px; }
+        .detail-img { width: 100%; border-radius: 8px; }
+        .price-table { width: 100%; border-collapse: collapse; margin: 15px 0; }
+        .price-table td { border: 1px solid #eee; padding: 10px; text-align: center; }
+        .selector-group { margin: 15px 0; }
+        .option-btn { border: 1px solid #ddd; padding: 8px 15px; margin: 5px; border-radius: 4px; cursor: pointer; display: inline-block; }
+        .option-btn.selected { border-color: var(--orange); color: var(--orange); background: #fff5f0; }
 
-        /* Order Modal */
-        .modal { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.75); z-index:2000; padding:15px; overflow-y: auto; }
-        .modal-content { background:var(--white); padding:25px; border-radius:12px; max-width:450px; margin:20px auto; }
-        .order-input { width: 100%; padding: 12px; margin-bottom: 12px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; font-size: 15px; }
+        /* Cart Page */
+        .cart-item { background: white; padding: 15px; margin: 10px; border-radius: 8px; display: flex; gap: 10px; }
+        .qty-control { display: flex; align-items: center; gap: 10px; border: 1px solid #ddd; border-radius: 4px; padding: 5px; }
+
+        /* Footer Nav */
+        .footer-nav { position: fixed; bottom: 0; width: 100%; background: white; display: flex; justify-content: space-around; padding: 10px 0; border-top: 1px solid #ddd; z-index: 2000; }
+        .nav-item { text-align: center; color: #666; font-size: 12px; cursor: pointer; }
+        .nav-item.active { color: var(--orange); }
+        .nav-item i { font-size: 20px; display: block; }
+
+        /* Global Buttons */
+        .btn-orange { background: var(--orange); color: white; border: none; padding: 12px; width: 100%; border-radius: 25px; font-weight: bold; cursor: pointer; }
+        .btn-outline { border: 1px solid var(--orange); color: var(--orange); background: white; }
     </style>
 </head>
 <body>
 
-<header>
-    <a href="#" class="logo">KMW</a>
-    <div class="search-box">
-        <i class="fas fa-search" style="color:#888;"></i>
-        <input type="text" id="search-input" placeholder="ပစ္စည်းအမည်ဖြင့် ရှာဖွေပါ...">
-    </div>
-</header>
+<nav>
+    <div style="color:var(--accent); font-weight:bold;" onclick="showPage('home')">KMW</div>
+    <div class="search-box"><i class="fas fa-search"></i><input type="text" placeholder="Search Alibaba..."></div>
+</nav>
 
-<div class="hero-banner">
-    <h1 style="margin:0;">K.M.W WHOLESALE</h1>
-    <p style="font-size: 14px;">မြန်မာနိုင်ငံ၏ ယုံကြည်ရဆုံး လက်ကားရောင်းဝယ်ရေး</p>
+<div id="home" class="page active">
+    <div class="hero">
+        <h2>Global Wholesale</h2>
+        <p>Source directly from K.M.W Jewelry</p>
+    </div>
+    <div class="product-grid" id="main-grid"></div>
 </div>
 
-<div class="cat-bar" id="category-list">
-    <div class="cat-item active" onclick="filterCat('all', this)">All Products</div>
-    <div class="cat-item" onclick="filterCat('ring', this)">လက်စွပ် (Rings)</div>
-    <div class="cat-item" onclick="filterCat('chain', this)">ဆွဲကြိုး (Chains)</div>
-    <div class="cat-item" onclick="filterCat('earring', this)">နားကပ် (Earrings)</div>
+<div id="product-detail" class="page">
+    <div class="detail-container" id="detail-view"></div>
 </div>
 
-<div class="products" id="product-grid">
+<div id="cart" class="page">
+    <h3 style="padding:15px;">Shopping Cart</h3>
+    <div id="cart-items"></div>
+    <div style="position:fixed; bottom:60px; width:100%; background:white; padding:15px; border-top:1px solid #ddd;">
+        <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
+            <b>Total Amount:</b> <span id="cart-total" style="color:var(--orange); font-size:18px;">0 K</span>
+        </div>
+        <button class="btn-orange" onclick="checkout()">Proceed to Checkout</button>
     </div>
-
-<div class="cart-float" onclick="openCart()">
-    <i class="fas fa-shopping-bag"></i>
 </div>
 
-<div id="order-modal" class="modal">
-    <div class="modal-content">
-        <h3 style="text-align: center; color: var(--primary); margin-top: 0;">Confirm Wholesale Order</h3>
-        <div id="order-summary" style="background:#f9f9f9; padding:15px; border-radius:8px; margin-bottom:20px;"></div>
-        
-        <label style="font-size: 13px; font-weight: bold;">ဝယ်ယူသူ အချက်အလက်</label>
-        <input type="text" id="cust-name" class="order-input" placeholder="အမည် (သို့မဟုတ်) ဆိုင်အမည်">
-        <input type="text" id="cust-phone" class="order-input" placeholder="ဖုန်းနံပါတ်">
-        <textarea id="cust-address" class="order-input" rows="3" placeholder="ပို့ဆောင်ရမည့်လိပ်စာ (မြို့နယ်၊ လမ်း၊ အိမ်အမှတ်)"></textarea>
-        
-        <button class="action-btn" onclick="submitOrder()">အော်ဒါတင်မည် (Confirm)</button>
-        <button onclick="closeModal()" style="width:100%; background:none; border:none; color: #888; margin-top:10px; cursor:pointer;">ပယ်ဖျက်မည်</button>
+<div id="contact" class="page">
+    <div style="padding:20px; text-align:center;">
+        <h3>Contact Us</h3>
+        <button class="btn-orange" style="margin-bottom:10px;" onclick="window.open('https://m.me/yourpage')">Chat with Agent</button>
+        <hr>
+        <h3>Track Order</h3>
+        <input type="text" id="track-id" placeholder="Enter Order ID" style="width:90%; padding:10px; margin-bottom:10px;">
+        <button class="btn-orange btn-outline" onclick="trackOrder()">Check Status</button>
+        <div id="track-result" style="margin-top:20px;"></div>
     </div>
+</div>
+
+<div class="footer-nav">
+    <div class="nav-item active" onclick="showPage('home', this)"><i class="fas fa-home"></i>Home</div>
+    <div class="nav-item" onclick="showPage('cart', this)"><i class="fas fa-shopping-cart"></i>Cart</div>
+    <div class="nav-item" onclick="window.open('https://wa.me/yournumber')"><i class="fas fa-comment-dots"></i>Chat</div>
+    <div class="nav-item" onclick="showPage('contact', this)"><i class="fas fa-user"></i>Account</div>
 </div>
 
 <script>
@@ -119,83 +108,102 @@
     const _supabase = supabase.createClient(SB_URL, SB_KEY);
 
     let products = [];
-    let selectedItem = null;
+    let cart = [];
 
-    async function fetchProducts() {
-        const { data } = await _supabase.from('products').select('*').order('created_at', { ascending: false });
-        products = data || [];
-        renderProducts(products);
+    // Page Router
+    function showPage(pageId, el) {
+        document.querySelectorAll('.page').forEach(p => p.style.display = 'none');
+        document.getElementById(pageId).style.display = 'block';
+        if(el) {
+            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+            el.classList.add('active');
+        }
+        if(pageId === 'cart') renderCart();
+        window.scrollTo(0,0);
     }
 
-    function renderProducts(items) {
-        const grid = document.getElementById('product-grid');
-        grid.innerHTML = items.map(p => `
-            <div class="p-card">
-                <img src="${p.image_url || 'https://via.placeholder.com/200'}">
-                <div class="p-details">
-                    <div class="p-title">${p.name}</div>
-                    <div class="p-price-area">
-                        <div class="p-price">${Number(p.wholesale_price).toLocaleString()} K</div>
-                        <div class="p-moq">Min. Order: 10 pieces</div>
-                    </div>
-                    <button class="action-btn" onclick="initOrder(${p.id})">ခြင်းထဲထည့်မည်</button>
+    async function init() {
+        const { data } = await _supabase.from('products').select('*');
+        products = data || [];
+        document.getElementById('main-grid').innerHTML = products.map(p => `
+            <div class="item-card" onclick="viewDetail(${p.id})">
+                <img src="${p.image_url}">
+                <div class="item-info">
+                    <div style="font-size:13px; height:35px; overflow:hidden;">${p.name}</div>
+                    <div class="item-price">${Number(p.wholesale_price).toLocaleString()} K</div>
+                    <div style="font-size:10px; color:#888;">MOQ: 10 pcs</div>
                 </div>
             </div>
         `).join('');
     }
 
-    function initOrder(id) {
-        selectedItem = products.find(p => p.id === id);
-        document.getElementById('order-summary').innerHTML = `
-            <div style="display:flex; gap:15px; align-items:center;">
-                <img src="${selectedItem.image_url}" style="width:60px; height:60px; object-fit:cover; border-radius:4px;">
-                <div>
-                    <div style="font-weight:bold;">${selectedItem.name}</div>
-                    <div style="color:var(--primary); font-size:18px;">${selectedItem.wholesale_price.toLocaleString()} K</div>
-                    <div style="font-size:12px; color:red;">* အနည်းဆုံး (၁၀) ခု မှာယူရပါမည်။</div>
-                </div>
+    function viewDetail(id) {
+        const p = products.find(x => x.id === id);
+        document.getElementById('detail-view').innerHTML = `
+            <img src="${p.image_url}" class="detail-img">
+            <h2>${p.name}</h2>
+            <table class="price-table">
+                <tr><td>10-49 pcs</td><td>50-99 pcs</td><td>100+ pcs</td></tr>
+                <tr style="color:var(--orange); font-weight:bold;">
+                    <td>${p.wholesale_price}K</td>
+                    <td>${p.wholesale_price - 500}K</td>
+                    <td>${p.wholesale_price - 1000}K</td>
+                </tr>
+            </table>
+            <div class="selector-group">
+                <b>Size:</b><br>
+                <span class="option-btn selected">Standard</span><span class="option-btn">Custom</span>
             </div>
+            <button class="btn-orange" onclick="addToCart(${p.id})">Add to Cart</button>
         `;
-        document.getElementById('order-modal').style.display = 'block';
+        showPage('product-detail');
     }
 
-    async function submitOrder() {
-        const name = document.getElementById('cust-name').value;
-        const phone = document.getElementById('cust-phone').value;
-        const address = document.getElementById('cust-address').value;
-
-        if(!name || !phone || !address) return alert("အချက်အလက်များ ပြည့်စုံစွာ ဖြည့်သွင်းပါ။");
-
-        const { error } = await _supabase.from('orders').insert({
-            customer_name: name,
-            phone: phone,
-            address: address,
-            total_price: selectedItem.wholesale_price * 10,
-            status: 'Pending'
-        });
-
-        if (error) {
-            alert("Error: " + error.message);
-        } else {
-            alert("Order တင်ခြင်း အောင်မြင်ပါသည်။ ဆိုင်မှ အမြန်ဆုံး ပြန်လည်ဆက်သွယ်ပေးပါမည်။");
-            closeModal();
-        }
+    function addToCart(id) {
+        const p = products.find(x => x.id === id);
+        cart.push({...p, qty: 10});
+        new Audio('https://www.myinstants.com/media/sounds/cart.mp3').play();
+        alert("Added to cart!");
     }
 
-    function filterCat(cat, el) {
-        document.querySelectorAll('.cat-item').forEach(i => i.classList.remove('active'));
-        el.classList.add('active');
-        renderProducts(cat === 'all' ? products : products.filter(p => p.category === cat));
+    function renderCart() {
+        const container = document.getElementById('cart-items');
+        let total = 0;
+        container.innerHTML = cart.map((item, idx) => {
+            total += item.wholesale_price * item.qty;
+            return `
+                <div class="cart-item">
+                    <img src="${item.image_url}" style="width:60px; height:60px; object-fit:cover;">
+                    <div style="flex:1;">
+                        <div style="font-size:14px;">${item.name}</div>
+                        <div style="color:var(--orange); font-weight:bold;">${item.wholesale_price.toLocaleString()} K</div>
+                        <div class="qty-control">
+                            <i class="fas fa-minus" onclick="updateQty(${idx}, -1)"></i>
+                            <span>${item.qty}</span>
+                            <i class="fas fa-plus" onclick="updateQty(${idx}, 1)"></i>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }).join('');
+        document.getElementById('cart-total').innerText = total.toLocaleString() + " K";
     }
 
-    function closeModal() { document.getElementById('order-modal').style.display = 'none'; }
+    function updateQty(idx, delta) {
+        cart[idx].qty += delta;
+        if(cart[idx].qty < 10) cart[idx].qty = 10;
+        renderCart();
+    }
 
-    document.getElementById('search-input').addEventListener('input', (e) => {
-        const val = e.target.value.toLowerCase();
-        renderProducts(products.filter(p => p.name.toLowerCase().includes(val)));
-    });
+    async function trackOrder() {
+        const id = document.getElementById('track-id').value;
+        const { data } = await _supabase.from('orders').select('*').eq('id', id).single();
+        document.getElementById('track-result').innerHTML = data 
+            ? `<div style="padding:15px; background:white; border:1px solid var(--accent);">Status: <b>${data.status}</b></div>`
+            : "Order not found.";
+    }
 
-    fetchProducts();
+    init();
 </script>
 </body>
 </html>
