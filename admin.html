@@ -3,243 +3,324 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>K.M.W Jewelry – Admin & Shop</title>
+    <title>K.M.W Premium Wholesale</title>
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    
     <style>
-        :root { --p: #FF4747; --bg: #f5f7fb; }
-        body { margin: 0; font-family: 'Pyidaungsu', sans-serif; background: var(--bg); padding-bottom: 80px; }
-        header { background: var(--p); color: #fff; padding: 10px 15px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; }
-        .login-btn { background: #fff; color: var(--p); border: none; padding: 8px 12px; border-radius: 8px; font-weight: bold; cursor: pointer; }
-        .products { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 15px; padding: 15px; }
-        .card { background: #fff; border-radius: 12px; padding: 10px; text-align: center; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
-        .card img { width: 100%; aspect-ratio: 1/1; object-fit: cover; border-radius: 10px; margin-bottom: 10px; }
-        .btn { background: var(--p); color: #fff; border: none; padding: 10px; border-radius: 8px; width: 100%; cursor: pointer; margin-top: 5px; }
-        .admin { display: none; padding: 15px; }
-        .order { background: #fff; padding: 15px; border-left: 5px solid var(--p); margin-bottom: 15px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 1000; overflow-y: auto; }
-        .modal-box { background: #fff; width: 90%; max-width: 400px; margin: 50px auto; padding: 20px; border-radius: 15px; position: relative; }
-        select { width: 100%; padding: 8px; margin-top: 10px; border-radius: 5px; border: 1px solid #ddd; }
+        :root {
+            --primary: #FF4747;
+            --secondary: #1A1A1A;
+            --accent: #FFD700;
+            --bg: #F8F9FA;
+            --glass: rgba(255, 255, 255, 0.9);
+            --shadow: 0 8px 32px rgba(0,0,0,0.1);
+        }
+
+        body {
+            margin: 0; font-family: 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg); color: var(--secondary);
+            user-select: none; -webkit-tap-highlight-color: transparent;
+        }
+
+        /* Premium Header */
+        header {
+            background: var(--glass); backdrop-filter: blur(10px);
+            padding: 15px 20px; display: flex; justify-content: space-between;
+            align-items: center; position: sticky; top: 0; z-index: 1000;
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+        }
+
+        .logo { font-size: 22px; font-weight: 800; color: var(--primary); letter-spacing: 1px; }
+
+        /* Admin/Shop View Toggle */
+        .main-container { padding: 15px; }
+        .page { display: none; animation: slideUp 0.4s ease-out; }
+        .active { display: block; }
+
+        @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+        /* Premium Product Cards */
+        .product-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        .p-card {
+            background: #fff; border-radius: 20px; overflow: hidden;
+            box-shadow: var(--shadow); border: 1px solid rgba(0,0,0,0.03);
+            transition: 0.3s;
+        }
+        .p-card:active { transform: scale(0.95); }
+        .p-card img { width: 100%; aspect-ratio: 1/1; object-fit: cover; }
+        .p-info { padding: 12px; }
+        .p-name { font-weight: 600; font-size: 14px; margin-bottom: 5px; height: 35px; overflow: hidden; }
+        .p-price { color: var(--primary); font-weight: 800; font-size: 16px; }
+
+        /* Admin Panel Premium UI */
+        .admin-section { background: #fff; padding: 20px; border-radius: 25px; margin-bottom: 20px; box-shadow: var(--shadow); }
+        input, textarea, select {
+            width: 100%; padding: 12px 15px; margin: 8px 0; border-radius: 12px;
+            border: 1.5px solid #EEE; outline: none; transition: 0.3s; font-size: 14px;
+        }
+        input:focus { border-color: var(--primary); }
+
+        .btn-premium {
+            background: var(--primary); color: #fff; border: none;
+            padding: 15px; border-radius: 15px; width: 100%;
+            font-weight: bold; font-size: 16px; box-shadow: 0 4px 15px rgba(255, 71, 71, 0.3);
+            cursor: pointer;
+        }
+
+        /* Detail Page Premium */
+        .detail-img { width: 100%; border-radius: 30px; margin-bottom: 20px; box-shadow: var(--shadow); }
+        .wholesale-badge {
+            background: #FFF5F5; color: var(--primary); padding: 5px 12px;
+            border-radius: 10px; font-size: 12px; font-weight: bold; margin-right: 5px;
+        }
+
+        /* Quantity Controller */
+        .qty-control {
+            display: flex; align-items: center; justify-content: center;
+            background: #F1F3F5; padding: 10px; border-radius: 20px; margin: 20px 0;
+        }
+        .qty-btn {
+            width: 45px; height: 45px; border: none; background: #fff;
+            border-radius: 15px; font-size: 20px; font-weight: bold; box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+        #qtyInput { width: 80px; background: transparent; border: none; font-size: 20px; text-align: center; }
+
+        /* Bottom Navigation */
+        .nav-bar {
+            position: fixed; bottom: 0; width: 100%; background: var(--glass);
+            backdrop-filter: blur(15px); display: flex; justify-content: space-around;
+            padding: 15px 0; border-top: 1px solid rgba(0,0,0,0.05); z-index: 2000;
+        }
+        .nav-item { color: #888; font-size: 12px; text-align: center; flex: 1; }
+        .nav-item.active { color: var(--primary); }
+        .nav-item i { font-size: 20px; display: block; margin-bottom: 4px; }
+
+        /* Toast Sound Notification */
+        #toast {
+            position: fixed; top: 20px; left: 50%; transform: translateX(-50%);
+            background: var(--secondary); color: #fff; padding: 12px 25px;
+            border-radius: 50px; display: none; z-index: 3000; font-size: 14px;
+        }
     </style>
 </head>
 <body>
 
+<div id="toast">✅ လုပ်ဆောင်ချက် အောင်မြင်ပါသည်</div>
+
 <header>
-    <div style="font-weight: bold;">K.M.W</div>
-    <div>
-        <button class="login-btn" onclick="toggleAdmin()" id="adminBtn" style="display:none; margin-right: 5px;">Admin</button>
-        <button class="login-btn" onclick="auth()" id="authBtn">Login</button>
-    </div>
+    <div class="logo">K.M.W</div>
+    <div id="admin-trigger" onclick="checkAdmin()"><i class="fas fa-user-shield" style="font-size: 20px; color: #555;"></i></div>
 </header>
 
-<div id="shop-view">
-    <div class="products" id="products">Loading products...</div>
-</div>
-
-<div class="admin" id="adminPanel">
-    <button onclick="location.reload()" style="background:none; border: 1px solid #666; padding: 5px 10px; border-radius: 5px; margin-bottom: 15px;">⬅ Back to Shop</button>
-    <h3>Orders Management</h3>
-    <div id="orders"></div>
-</div>
-
-<div class="modal" id="cartModal">
-    <div class="modal-box">
-        <h3>🛒 Cart</h3>
-        <div id="cartItems"></div>
-        <hr>
-        <div style="display:flex; justify-content: space-between; font-weight: bold;">
-            <span>Total:</span> <span id="total">0</span> Ks
-        </div><br>
-        <button class="btn" onclick="checkout()">Confirm Checkout</button>
-        <button class="btn" style="background:#ccc; color:#000" onclick="closeModal()">Close</button>
+<div class="main-container">
+    <div id="shop-page" class="page active">
+        <div class="product-grid" id="product-list">
+            </div>
     </div>
-</div>
 
-<div class="modal" id="invoiceModal">
-    <div class="modal-box" style="text-align: center;">
-        <div id="invoice" style="padding: 10px; background: #fff;">
-            <h2 style="color:var(--p)">K.M.W Jewelry</h2>
-            <p id="invId" style="font-size: 0.8rem; color: #666;"></p>
-            <div id="invItems" style="text-align: left; margin: 15px 0;"></div>
-            <hr>
-            <h3 style="display:flex; justify-content: space-between;">Total: <span id="invTotal"></span></h3>
+    <div id="detail-page" class="page">
+        <button onclick="navigate('shop-page')" style="background:none; border:none; margin-bottom:15px; font-weight:bold;"><i class="fas fa-chevron-left"></i> Back</button>
+        <div id="product-detail"></div>
+    </div>
+
+    <div id="admin-page" class="page">
+        <h2 style="margin-bottom: 25px;">Admin Control</h2>
+        
+        <div class="admin-section">
+            <h3>➕ Add New Item</h3>
+            <input type="text" id="p-name" placeholder="Item Name">
+            <input type="text" id="p-img" placeholder="Image Link (URL)">
+            <textarea id="p-desc" placeholder="Product Description" rows="3"></textarea>
+            <input type="number" id="p-base" placeholder="Retail Price (1 pcs price)">
+            
+            <p style="font-size: 13px; font-weight: bold; margin-top: 15px;">Wholesale Prices (လက်ကားဈေးများ)</p>
+            <div style="display: flex; gap: 10px;">
+                <input type="number" id="p-q1" placeholder="Min Qty (e.g. 10)">
+                <input type="number" id="p-pr1" placeholder="Price per unit">
+            </div>
+            <div style="display: flex; gap: 10px;">
+                <input type="number" id="p-q2" placeholder="Min Qty (e.g. 30)">
+                <input type="number" id="p-pr2" placeholder="Price per unit">
+            </div>
+
+            <input type="text" id="p-variants" placeholder="Variants (e.g. Red, Blue, XL, L)">
+            <button class="btn-premium" onclick="saveProduct()">Save Product</button>
         </div>
-        <button class="btn" onclick="downloadInvoice()">📸 Save as Image</button>
-        <button class="btn" style="background:#ccc; color:#000" onclick="location.reload()">Done</button>
+
+        <div class="admin-section">
+            <h3>📦 Incoming Orders</h3>
+            <div id="order-list"></div>
+        </div>
     </div>
 </div>
 
-<button onclick="openCart()" style="position:fixed; bottom:20px; right:20px; width:60px; height:60px; border-radius:50%; border:none; background:var(--p); color:#fff; font-size:25px; box-shadow: 0 4px 10px rgba(0,0,0,0.3); z-index: 99; cursor: pointer;">
-    🛒
-</button>
+<div class="nav-bar">
+    <div class="nav-item active" onclick="navigate('shop-page', this)"><i class="fas fa-home"></i>Home</div>
+    <div class="nav-item" onclick="navigate('shop-page', this)"><i class="fas fa-th-large"></i>Catalog</div>
+    <div class="nav-item" onclick="showHistory()"><i class="fas fa-history"></i>History</div>
+    <div class="nav-item" onclick="checkAdmin()"><i class="fas fa-cog"></i>Admin</div>
+</div>
 
 <script>
-// Supabase Configuration
-const supa = supabase.createClient(
-    "https://ltusknkpwbyriikeyday.supabase.co",
-    "YOUR_PUBLIC_ANON_KEY" // <--- ဤနေရာတွင် သင်၏ Key အမှန်ကိုထည့်ပါ
-);
-
-const ADMIN_EMAIL = "yewin5375@gmail.com";
-let currentUser = null;
-let cart = [];
-
-// AUTHENTICATION
-async function auth() {
-    const { data: { user } } = await supa.auth.getUser();
-    if (user) {
-        await supa.auth.signOut();
-        location.reload();
-    } else {
-        await supa.auth.signInWithOAuth({ provider: "google" });
-    }
-}
-
-async function checkUser() {
-    const { data: { user } } = await supa.auth.getUser();
-    if (!user) {
-        loadProducts(); // လူကြီးမင်း Login မဝင်ထားသော်လည်း Product ပြမည်
-        return;
-    }
-    currentUser = user;
-    document.getElementById("authBtn").innerText = "Logout";
-    if (user.email === ADMIN_EMAIL) {
-        document.getElementById("adminBtn").style.display = "inline-block";
-    }
-    await loadCart();
-    loadProducts();
-}
-checkUser();
-
-// PRODUCTS
-async function loadProducts() {
-    const { data, error } = await supa.from("products").select("*").order("created_at", { ascending: false });
-    if (error) return;
-    document.getElementById("products").innerHTML = data.map(p => `
-        <div class="card">
-            <img src="${p.image_url}" alt="${p.name}">
-            <div style="font-weight:bold; margin-bottom: 5px;">${p.name}</div>
-            <div style="color:var(--p); margin-bottom: 10px;">${p.wholesale_price.toLocaleString()} Ks</div>
-            <button class="btn" onclick="addCart(${p.id})">+ Add to Cart</button>
-        </div>`).join("");
-}
-
-// CART ACTIONS
-async function loadCart() {
-    if (!currentUser) return;
-    const { data } = await supa.from("cart_items").select("*, products(*)").eq("user_id", currentUser.id);
-    cart = data || [];
-}
-
-async function addCart(pid) {
-    if (!currentUser) return alert("ကျေးဇူးပြု၍ အရင် Login ဝင်ပါ။");
+    // Configuration
+    const SB_URL = "https://ltusknkpwbyriikeyday.supabase.co";
+    const SB_KEY = "YOUR_ANON_KEY"; 
+    const _supa = supabase.createClient(SB_URL, SB_KEY);
+    const ADMIN_PASS = "kmw123";
     
-    const existing = cart.find(i => i.product_id === pid);
-    if (existing) {
-        await supa.from("cart_items").update({ quantity: existing.quantity + 1 }).eq("id", existing.id);
-    } else {
-        await supa.from("cart_items").insert({ user_id: currentUser.id, product_id: pid, quantity: 1 });
-    }
-    await loadCart();
-    alert("Added to cart!");
-}
+    let products = [];
+    const popSound = new Audio('https://www.soundjay.com/button/button-16.mp3');
+    const successSound = new Audio('https://www.soundjay.com/misc/sounds/bell-ringing-05.mp3');
 
-function openCart() {
-    if (!currentUser) return alert("Login အရင်ဝင်ပါ။");
-    if (cart.length === 0) return alert("Cart ထဲမှာ ဘာမှမရှိသေးပါ။");
-
-    let total = 0;
-    document.getElementById("cartItems").innerHTML = cart.map(i => {
-        const itemTotal = i.products.wholesale_price * i.quantity;
-        total += itemTotal;
-        return `<div style="display:flex; justify-content:space-between; margin-bottom:10px;">
-                    <span>${i.products.name} (x${i.quantity})</span>
-                    <span>${itemTotal.toLocaleString()} Ks</span>
-                </div>`;
-    }).join("");
-    
-    document.getElementById("total").innerText = total.toLocaleString();
-    document.getElementById("cartModal").style.display = "block";
-}
-
-function closeModal() { document.querySelectorAll(".modal").forEach(m => m.style.display = "none"); }
-
-// CHECKOUT
-async function checkout() {
-    if (cart.length === 0) return;
-    let total = 0;
-    cart.forEach(i => total += i.products.wholesale_price * i.quantity);
-
-    const { data: order, error } = await supa.from("orders").insert({
-        user_id: currentUser.id,
-        total_price: total,
-        status: "Pending"
-    }).select().single();
-
-    if (error) return alert("Error: " + error.message);
-
-    for (const item of cart) {
-        await supa.from("order_items").insert({
-            order_id: order.id,
-            product_name: item.products.name,
-            price: item.products.wholesale_price,
-            quantity: item.quantity
-        });
+    // UI Navigation
+    function navigate(pageId, el) {
+        document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+        document.getElementById(pageId).classList.add('active');
+        if(el) {
+            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+            el.classList.add('active');
+        }
+        window.scrollTo(0,0);
     }
 
-    await supa.from("cart_items").delete().eq("user_id", currentUser.id);
-    showInvoice(order.id, total);
-}
+    // Sound and Toast
+    function notify(msg) {
+        successSound.play();
+        const t = document.getElementById('toast');
+        t.innerText = msg;
+        t.style.display = 'block';
+        setTimeout(() => t.style.display = 'none', 3000);
+    }
 
-function showInvoice(id, total) {
-    closeModal();
-    document.getElementById("invoiceModal").style.display = "block";
-    document.getElementById("invId").innerText = "Order ID: #" + id.slice(0, 8);
-    document.getElementById("invTotal").innerText = total.toLocaleString() + " Ks";
-    document.getElementById("invItems").innerHTML = cart.map(i => 
-        `<div>${i.products.name} x ${i.quantity}</div>`
-    ).join("");
-}
+    // Admin Auth
+    function checkAdmin() {
+        if(prompt("Enter Admin Password:") === ADMIN_PASS) {
+            navigate('admin-page');
+            loadOrders();
+        } else {
+            alert("မှားယွင်းနေပါသည်။");
+        }
+    }
 
-function downloadInvoice() {
-    html2canvas(document.getElementById("invoice")).then(canvas => {
-        const link = document.createElement("a");
-        link.download = "KMW-Invoice.png";
-        link.href = canvas.toDataURL();
-        link.click();
-    });
-}
+    // Load Data
+    async function loadProducts() {
+        const { data } = await _supa.from('products').select('*').order('id', {ascending: false});
+        products = data || [];
+        renderShop();
+    }
 
-// ADMIN PANEL
-function toggleAdmin() {
-    document.getElementById("shop-view").style.display = "none";
-    document.getElementById("adminPanel").style.display = "block";
-    loadOrders();
-}
+    function renderShop() {
+        const list = document.getElementById('product-list');
+        list.innerHTML = products.map(p => `
+            <div class="p-card" onclick="openProduct(${p.id})">
+                <img src="${p.image_url}">
+                <div class="p-info">
+                    <div class="p-name">${p.name}</div>
+                    <div class="p-price">${p.base_price.toLocaleString()} Ks</div>
+                </div>
+            </div>
+        `).join('');
+    }
 
-async function loadOrders() {
-    const { data, error } = await supa.from("orders").select("*").order("created_at", { ascending: false });
-    if (error) return;
-    document.getElementById("orders").innerHTML = data.map(o => `
-        <div class="order">
-            <b>Order ID: #${o.id.slice(0, 8)}</b><br>
-            Time: ${new Date(o.created_at).toLocaleString()}<br>
-            Total: <b>${o.total_price.toLocaleString()} Ks</b><br>
-            <select onchange="updateStatus('${o.id}', this.value)">
-                <option value="Pending" ${o.status == "Pending" ? "selected" : ""}>⏳ Pending</option>
-                <option value="Paid" ${o.status == "Paid" ? "selected" : ""}>✅ Paid</option>
-                <option value="Delivered" ${o.status == "Delivered" ? "selected" : ""}>🚚 Delivered</option>
-                <option value="Cancelled" ${o.status == "Cancelled" ? "selected" : ""}>❌ Cancelled</option>
+    // Wholesale Price Logic
+    function getPrice(qty, p) {
+        let price = p.base_price;
+        try {
+            const tiers = JSON.parse(p.wholesale_options || "[]");
+            tiers.sort((a,b) => b.min - a.min).forEach(t => {
+                if(qty >= t.min) price = t.price;
+            });
+        } catch(e) {}
+        return price;
+    }
+
+    // Detail View
+    function openProduct(id) {
+        const p = products.find(x => x.id === id);
+        navigate('detail-page');
+        const variants = p.variants ? p.variants.split(',') : [];
+        
+        document.getElementById('product-detail').innerHTML = `
+            <img src="${p.image_url}" class="detail-img">
+            <h2>${p.name}</h2>
+            <div style="margin-bottom:15px;">
+                ${JSON.parse(p.wholesale_options || "[]").map(t => `<span class="wholesale-badge">${t.min}+ လျှော့ဈေး: ${t.price}</span>`).join('')}
+            </div>
+            <p style="color:#666; font-size:14px; line-height:1.6;">${p.description || ''}</p>
+            <h1 id="total-price" style="color:var(--primary);">${p.base_price.toLocaleString()} Ks</h1>
+
+            <label style="font-weight:bold; display:block; margin-bottom:8px;">အရွယ်အစား/အရောင် ရွေးချယ်ရန်:</label>
+            <select id="v-select">
+                ${variants.map(v => `<option value="${v.trim()}">${v.trim()}</option>`).join('')}
             </select>
-        </div>`).join("");
-}
 
-async function updateStatus(id, s) {
-    const { error } = await supa.from("orders").update({ status: s }).eq("id", id);
-    if (!error) alert("Status updated to " + s);
-}
+            <div class="qty-control">
+                <button class="qty-btn" onclick="updateQty(-1, ${p.id})">-</button>
+                <input type="number" id="qtyInput" value="1" oninput="recalc(${p.id})">
+                <button class="qty-btn" onclick="updateQty(1, ${p.id})">+</button>
+            </div>
+
+            <button class="btn-premium" onclick="placeOrder(${p.id})">Checkout Order</button>
+        `;
+    }
+
+    function updateQty(n, pid) {
+        popSound.play();
+        const inp = document.getElementById('qtyInput');
+        inp.value = Math.max(1, parseInt(inp.value || 1) + n);
+        recalc(pid);
+    }
+
+    function recalc(pid) {
+        const p = products.find(x => x.id === pid);
+        const qty = parseInt(document.getElementById('qtyInput').value || 1);
+        const unitPrice = getPrice(qty, p);
+        document.getElementById('total-price').innerText = (unitPrice * qty).toLocaleString() + " Ks";
+    }
+
+    // Admin: Save Product
+    async function saveProduct() {
+        const name = document.getElementById('p-name').value;
+        const img = document.getElementById('p-img').value;
+        const base = parseInt(document.getElementById('p-base').value);
+        
+        const tiers = [];
+        if(document.getElementById('p-q1').value) tiers.push({min: parseInt(document.getElementById('p-q1').value), price: parseInt(document.getElementById('p-pr1').value)});
+        if(document.getElementById('p-q2').value) tiers.push({min: parseInt(document.getElementById('p-q2').value), price: parseInt(document.getElementById('p-pr2').value)});
+
+        const { error } = await _supa.from('products').insert([{
+            name, image_url: img, base_price: base, 
+            description: document.getElementById('p-desc').value,
+            variants: document.getElementById('p-variants').value,
+            wholesale_options: JSON.stringify(tiers)
+        }]);
+
+        if(!error) {
+            notify("Item အသစ်တင်ပြီးပါပြီ");
+            loadProducts();
+            navigate('shop-page');
+        }
+    }
+
+    // Order View for Admin
+    async function loadOrders() {
+        const { data } = await _supa.from('orders').select('*').order('id', {ascending: false});
+        document.getElementById('order-list').innerHTML = data.map(o => `
+            <div style="border-bottom: 1px solid #eee; padding: 15px 0;">
+                <div style="display:flex; justify-content:space-between;">
+                    <b>ID: #${o.id.toString().slice(-5)}</b>
+                    <span style="color:var(--primary); font-weight:bold;">${o.total_price.toLocaleString()} Ks</span>
+                </div>
+                <div style="font-size:12px; color:#777;">${new Date(o.created_at).toLocaleString()}</div>
+                <div style="margin-top:5px; font-size:14px;">${o.items_summary}</div>
+            </div>
+        `).join('');
+    }
+
+    loadProducts();
 </script>
-
 </body>
 </html>
 
