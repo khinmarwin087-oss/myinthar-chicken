@@ -317,12 +317,19 @@ function showToast() {
     }
 
     async function confirmOrder() {
+    console.log("Starting checkout process..."); // Debug log
     const name = document.getElementById('cust-name').value;
     const phone = document.getElementById('cust-phone').value;
     const addr = document.getElementById('cust-addr').value;
     
-    if (cart.length === 0) return alert("ခြင်းထဲမှာ ပစ္စည်းမရှိပါ။");
-    if (!name || !phone) return alert("အမည်နှင့် ဖုန်းနံပါတ် ဖြည့်ပေးပါ။");
+    if (cart.length === 0) {
+        alert("ခြင်းထဲမှာ ပစ္စည်းမရှိသေးပါ။");
+        return;
+    }
+    if (!name || !phone) {
+        alert("အမည်နှင့် ဖုန်းနံပါတ် ဖြည့်ပေးပါ။");
+        return;
+    }
 
     const total = cart.reduce((s, i) => s + (i.price * i.buyQty), 0);
     const btn = document.querySelector('.btn-main');
@@ -330,30 +337,41 @@ function showToast() {
     btn.disabled = true;
 
     try {
-        // Supabase သို့ ပေးပို့ခြင်း
-        const { data, error } = await _supabase.from('orders').insert({
-            customer_name: name, 
-            phone: phone, 
-            address: addr, 
-            items: cart, 
-            total_price: total
-        }).select();
+        // Supabase သို့ Data ပို့ခြင်း
+        const { data, error } = await _supabase
+            .from('orders') // Table နာမည် 'orders' ဖြစ်ရပါမယ်
+            .insert([{
+                customer_name: name, 
+                phone: phone, 
+                address: addr, 
+                items: cart, 
+                total_price: total
+            }])
+            .select();
 
-        if (error) throw error;
+        if (error) {
+            console.error("Supabase Error:", error);
+            alert("Database Error: " + error.message + "\nCode: " + error.code);
+            return;
+        }
 
         if (data && data.length > 0) {
-            // အရေးကြီးသည်- Voucher ထဲမှာ ပစ္စည်းစာရင်းပြရန်အတွက် cart ကို မဖျက်ခင် showVoucher အရင်ခေါ်ရမည်
-            showVoucher(name, phone, addr, total, data[0].id, [...cart]); // cart ကို copy ကူးပြီး ပေးလိုက်ခြင်း
-            cart = []; // Voucher ပြပြီးမှသာ cart ကို ရှင်းပါ
+            console.log("Order success:", data);
+            // Voucher အရင်ပြပြီးမှ Cart ကို ရှင်းပါ
+            showVoucher(name, phone, addr, total, data[0].id, [...cart]);
+            cart = []; 
+        } else {
+            alert("မှာယူမှု မအောင်မြင်ပါ။ Data မပြန်လာပါ။");
         }
     } catch (err) {
-        alert("မှာယူမှု မအောင်မြင်ပါ- " + err.message);
-        console.error("Order Error:", err);
+        console.error("Catch Error:", err);
+        alert("Error: " + err.message);
     } finally {
         btn.innerText = "Confirm Order";
         btn.disabled = false;
     }
-}
+  }
+    
 
 function showVoucher(name, phone, addr, total, id, itemsForVoucher) {
     document.getElementById('voucher-details').innerHTML = `
