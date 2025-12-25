@@ -3,123 +3,105 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>K.M.W Wholesale Premium</title>
+    <title>K.M.W Jewelry - Professional Store</title>
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
     
     <style>
-        :root { --primary: #002347; --accent: #D4AF37; --orange: #ff6a00; --white: #ffffff; --glass: rgba(255, 255, 255, 0.95); }
-        body { margin:0; font-family: 'Segoe UI', sans-serif; background: #f0f2f5; overflow-x: hidden; }
-
-        /* Animation Keyframes */
-        @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-
-        nav { background: var(--primary); padding: 12px 15px; display: flex; align-items: center; position: sticky; top: 0; z-index: 2000; gap: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
-        .search-box { flex: 1; background: white; border-radius: 20px; display: flex; align-items: center; padding: 6px 15px; }
-        .search-box input { border: none; outline: none; width: 100%; padding: 5px; }
-
-        .page { display: none; animation: fadeIn 0.5s; padding-bottom: 80px; }
+        :root {
+            --primary: #FF4747;
+            --bg: #f5f7fb;
+            --white: #ffffff;
+            --text-dark: #1e1e2d;
+        }
+        body { margin:0; font-family: 'Segoe UI', sans-serif; background:var(--bg); color: var(--text-dark); }
+        
+        /* Navigation System */
+        .page { display: none; padding-bottom: 80px; }
         .page.active { display: block; }
 
-        /* Product Grid */
-        .product-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; padding: 12px; }
-        .item-card { background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.05); transition: 0.3s; cursor: pointer; }
-        .item-card:active { transform: scale(0.95); }
-        .item-card img { width: 100%; aspect-ratio: 1/1; object-fit: cover; }
-        .item-info { padding: 12px; }
-        .item-price { color: var(--orange); font-weight: bold; font-size: 1.1rem; }
+        header { 
+            background: var(--primary); color: white; padding: 12px 15px; 
+            display:flex; align-items:center; position:sticky; top:0; z-index:1000;
+        }
+        .search-bar { flex:1; background:white; border-radius:20px; display:flex; align-items:center; padding:5px 15px; margin: 0 10px; }
+        .search-bar input { border:none; outline:none; width:100%; padding:5px; }
 
-        /* Floating Cart */
-        .cart-badge { position: fixed; bottom: 85px; right: 20px; background: var(--orange); color: white; width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 15px rgba(255,106,0,0.4); z-index: 1000; animation: bounceIn 1s; }
+        /* Home Page Layout */
+        .products { display:grid; grid-template-columns: 1fr 1fr; gap:10px; padding:10px; }
+        .product-card { background:white; border-radius:12px; overflow:hidden; box-shadow:0 2px 8px rgba(0,0,0,0.05); cursor:pointer; }
+        .product-card img { width:100%; aspect-ratio: 1/1; object-fit: cover; }
+        .product-info { padding:10px; }
+        .price-wholesale { color:var(--primary); font-weight:bold; font-size:1.1rem; }
 
-        /* Premium Modal */
-        .modal { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.6); z-index:3000; backdrop-filter: blur(5px); animation: fadeIn 0.3s; }
-        .modal-content { background: var(--white); width: 90%; max-width: 400px; margin: 10% auto; border-radius: 20px; padding: 25px; position: relative; animation: slideUp 0.4s; box-shadow: 0 20px 40px rgba(0,0,0,0.2); }
+        /* Product Detail Page Styles */
+        .detail-header { position:relative; }
+        .detail-img { width:100%; aspect-ratio:1/1; object-fit:cover; }
+        .detail-content { padding:20px; background:white; border-radius:25px 25px 0 0; margin-top:-20px; position:relative; }
+        .detail-price { font-size:1.5rem; color:var(--primary); font-weight:bold; }
+        .detail-moq { font-size:0.9rem; color:#888; margin-bottom:15px; }
         
-        .premium-input { width: 100%; padding: 12px; margin-bottom: 15px; border: 1.5px solid #eee; border-radius: 10px; outline: none; transition: 0.3s; font-size: 16px; box-sizing: border-box; }
-        .premium-input:focus { border-color: var(--orange); box-shadow: 0 0 10px rgba(255,106,0,0.1); }
+        /* Bottom Sticky Bar */
+        .bottom-nav { 
+            position:fixed; bottom:0; width:100%; background:white; 
+            display:flex; justify-content:space-around; padding:10px 0; 
+            border-top:1px solid #eee; z-index:2000;
+        }
+        .nav-item { text-align:center; font-size:12px; color:#888; cursor:pointer; }
+        .nav-item.active { color:var(--primary); }
+        .nav-item i { font-size:20px; display:block; }
 
-        .btn-grad { background: linear-gradient(90deg, #ff9000, #ff5000); color: white; border: none; padding: 15px; width: 100%; border-radius: 12px; font-weight: bold; font-size: 16px; cursor: pointer; transition: 0.3s; }
-        .btn-grad:active { transform: scale(0.98); }
+        /* Buy Buttons in Detail */
+        .buy-actions { position:fixed; bottom:60px; width:100%; background:white; padding:10px; display:flex; gap:10px; box-sizing:border-box; border-top:1px solid #eee;}
+        .btn-cart { flex:1; background:#fff0f0; color:var(--primary); border:1px solid var(--primary); padding:12px; border-radius:25px; font-weight:bold; }
+        .btn-buy { flex:1; background:var(--primary); color:white; border:none; padding:12px; border-radius:25px; font-weight:bold; }
 
-        /* Invoice Style */
-        .voucher-box { background: white; padding: 20px; border: 2px solid var(--primary); border-radius: 10px; text-align: left; }
-        .invoice-header { text-align: center; border-bottom: 1px dashed #ccc; padding-bottom: 10px; margin-bottom: 15px; }
-        
-        /* Footer Nav */
-        .footer-nav { position: fixed; bottom: 0; width: 100%; background: var(--white); display: flex; justify-content: space-around; padding: 12px 0; border-top: 1px solid #eee; z-index: 2000; }
-        .nav-item { text-align: center; color: #888; font-size: 12px; cursor: pointer; transition: 0.3s; }
-        .nav-item.active { color: var(--orange); transform: translateY(-3px); }
-        .nav-item i { font-size: 22px; display: block; margin-bottom: 4px; }
+        /* Profile Styles */
+        .profile-header { background:var(--primary); color:white; padding:40px 20px; text-align:center; }
+        .profile-avatar { width:80px; height:80px; border-radius:50%; border:3px solid white; margin-bottom:10px; }
+        .profile-menu { background:white; margin:15px; border-radius:12px; overflow:hidden; }
+        .menu-item { padding:15px; border-bottom:1px solid #eee; display:flex; align-items:center; gap:15px; cursor:pointer; }
+
     </style>
 </head>
 <body>
 
-<nav>
-    <div style="color:var(--accent); font-weight:bold; font-size: 1.2rem;" onclick="location.reload()">KMW</div>
-    <div class="search-box"><i class="fas fa-search"></i><input type="text" placeholder="Search Wholesale Jewelry..."></div>
-</nav>
-
-<div id="home" class="page active">
-    <div style="background:var(--primary); color:white; padding:30px 20px; text-align:center;">
-        <h2 class="animate__animated animate__fadeInDown" style="margin:0; color:var(--accent);">Royal Wholesale</h2>
-        <p class="animate__animated animate__fadeInUp" style="font-size:13px; opacity:0.8;">Premium Quality Jewelry | Direct Factory</p>
+<div id="home-page" class="page active">
+    <header>
+        <div style="font-weight:bold; font-size:1.2rem;">K.M.W</div>
+        <div class="search-bar"><i class="fas fa-search" style="color:#888"></i><input type="text" placeholder="ပစ္စည်းရှာရန်..."></div>
+        <i class="fas fa-comment-dots" style="font-size:1.4rem"></i>
+    </header>
+    <div class="products" id="product-list">
+        <p style="text-align:center; grid-column:span 2;">Loading products...</p>
     </div>
-    <div class="product-grid" id="product-grid"></div>
 </div>
 
-<div id="cart-page" class="page">
-    <div style="padding:20px;">
-        <h3><i class="fas fa-shopping-cart"></i> Shopping Cart</h3>
-        <div id="cart-items"></div>
-        <div style="margin-top:20px; padding:20px; background:white; border-radius:15px;">
-            <div style="display:flex; justify-content:space-between; font-size:1.2rem; margin-bottom:15px;">
-                <b>Total:</b> <span id="cart-total" style="color:var(--orange);">0 K</span>
-            </div>
-            <button class="btn-grad" onclick="openCheckoutModal()">Checkout Now</button>
+<div id="detail-page" class="page">
+    <div id="product-detail-content">
         </div>
+</div>
+
+<div id="profile-page" class="page">
+    <div class="profile-header">
+        <img src="https://via.placeholder.com/80" id="user-img" class="profile-avatar">
+        <h2 id="user-name" style="margin:0;">Guest User</h2>
+        <p id="user-email" style="opacity:0.8; font-size:14px;">Please login to see more</p>
+    </div>
+    <div class="profile-menu">
+        <div class="menu-item"><i class="fas fa-box-open" style="color:#ffa500"></i> ကျွန်ုပ်၏ မှာယူမှုများ</div>
+        <div class="menu-item"><i class="fas fa-map-marker-alt" style="color:#ff4747"></i> လိပ်စာစာအုပ်</div>
+        <div class="menu-item"><i class="fas fa-headset" style="color:#4caf50"></i> အကူအညီရယူရန်</div>
+        <div class="menu-item" onclick="handleAuth()" id="auth-menu-btn"><i class="fas fa-sign-in-alt"></i> Login ဝင်မည်</div>
     </div>
 </div>
 
-<div id="checkout-modal" class="modal">
-    <div class="modal-content">
-        <h3 style="margin-top:0; color:var(--primary);">Order Information</h3>
-        <p style="font-size:12px; color:#666; margin-bottom:20px;">ကျေးဇူးပြု၍ အောက်ပါအချက်အလက်များကို ဖြည့်သွင်းပေးပါ။</p>
-        
-        <input type="text" id="cust-name" class="premium-input" placeholder="ဝယ်သူအမည် / ဆိုင်အမည်">
-        <input type="text" id="cust-phone" class="premium-input" placeholder="ဖုန်းနံပါတ်">
-        <textarea id="cust-address" class="premium-input" style="height:80px;" placeholder="ပို့ဆောင်ရမည့် လိပ်စာ"></textarea>
-        
-        <button class="btn-grad" id="confirm-btn" onclick="processOrder()">အော်ဒါတင်မည်</button>
-        <button onclick="closeModal()" style="width:100%; background:none; border:none; color:#888; margin-top:15px;">ပယ်ဖျက်မည်</button>
-    </div>
-</div>
-
-<div id="invoice-modal" class="modal">
-    <div class="modal-content" style="max-width: 450px;">
-        <div id="voucher-area" class="voucher-box">
-            <div class="invoice-header">
-                <h2 style="margin:0; color:var(--primary);">K.M.W JEWELRY</h2>
-                <small>Official Wholesale Invoice</small>
-            </div>
-            <div id="invoice-data" style="font-size:14px; line-height:1.8;"></div>
-            <hr style="border:0.5px dashed #ccc;">
-            <div id="invoice-items"></div>
-            <div id="invoice-total" style="text-align:right; font-size:18px; font-weight:bold; color:var(--orange); margin-top:15px;"></div>
-        </div>
-        <button class="btn-grad" style="margin-top:20px; background:#28a745;" onclick="downloadInvoice()">Voucher ပုံသိမ်းမည်</button>
-        <button onclick="location.reload()" style="width:100%; background:none; border:none; color:#888; margin-top:10px;">Back to Home</button>
-    </div>
-</div>
-
-<div class="footer-nav">
-    <div class="nav-item active" onclick="showPage('home', this)"><i class="fas fa-home"></i>Home</div>
-    <div class="nav-item" onclick="showPage('cart-page', this)"><i class="fas fa-shopping-bag"></i>Order</div>
-    <div class="nav-item" onclick="window.location.href='https://m.me/yourpage'"><i class="fas fa-comment-dots"></i>Chat</div>
-    <div class="nav-item" onclick="showPage('home', this)"><i class="fas fa-user-circle"></i>Profile</div>
+<div class="bottom-nav">
+    <div class="nav-item active" onclick="navigate('home-page', this)"><i class="fas fa-home"></i>Home</div>
+    <div class="nav-item" onclick="navigate('home-page', this)"><i class="fas fa-th-large"></i>Categories</div>
+    <div class="nav-item" onclick="navigate('home-page', this)"><i class="fas fa-shopping-cart"></i>Cart</div>
+    <div class="nav-item" onclick="navigate('profile-page', this)"><i class="fas fa-user"></i>Account</div>
 </div>
 
 <script>
@@ -127,114 +109,88 @@
     const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx0dXNrbmtwd2J5cmlpa2V5ZGF5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYyMTYxNDksImV4cCI6MjA4MTc5MjE0OX0.7TXAvr2tHl03m_gYZNYq8xyy0yYHTx0sYMN4tS6GDnA";
     const _supabase = supabase.createClient(SB_URL, SB_KEY);
 
-    let products = [];
-    let cart = [];
+    let productsData = [];
+    let currentUser = null;
 
-    async function init() {
-        const { data } = await _supabase.from('products').select('*');
-        products = data || [];
-        renderHome(products);
+    // Navigation System
+    function navigate(pageId, element) {
+        document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+        document.getElementById(pageId).classList.add('active');
+        document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+        element.classList.add('active');
+        window.scrollTo(0,0);
+    }
+
+    // Load Data
+    async function loadApp() {
+        const { data: { user } } = await _supabase.auth.getUser();
+        if(user) {
+            currentUser = user;
+            document.getElementById('user-name').innerText = user.user_metadata.full_name || user.email;
+            document.getElementById('user-img').src = user.user_metadata.avatar_url || 'https://via.placeholder.com/80';
+            document.getElementById('user-email').innerText = user.email;
+            document.getElementById('auth-menu-btn').innerHTML = `<i class="fas fa-sign-out-alt"></i> Logout ထွက်မည်`;
+        }
+
+        const { data } = await _supabase.from('products').select('*').order('created_at', {ascending: false});
+        productsData = data || [];
+        renderHome(productsData);
     }
 
     function renderHome(items) {
-        document.getElementById('product-grid').innerHTML = items.map(p => `
-            <div class="item-card animate__animated animate__zoomIn">
-                <img src="${p.image_url}">
-                <div class="item-info">
-                    <div style="font-size:14px; color:#444; height:38px; overflow:hidden;">${p.name}</div>
-                    <div class="item-price">${Number(p.wholesale_price).toLocaleString()} K</div>
-                    <button class="btn-grad" style="padding:8px; font-size:12px; margin-top:10px;" onclick="addToCart(${p.id})">Add to Bag</button>
+        const container = document.getElementById('product-list');
+        container.innerHTML = items.map(p => `
+            <div class="product-card" onclick="showProductDetail(${p.id})">
+                <img src="${p.image_url || 'https://via.placeholder.com/150'}">
+                <div class="product-info">
+                    <div style="font-size:14px; height:38px; overflow:hidden;">${p.name}</div>
+                    <div class="price-wholesale">${Number(p.wholesale_price).toLocaleString()} K</div>
+                    <div style="font-size:11px; color:#888;">MOQ: 1 pcs</div>
                 </div>
             </div>
         `).join('');
     }
 
-    function addToCart(id) {
-        const p = products.find(x => x.id === id);
-        cart.push(p);
-        alert("ခြင်းထဲသို့ ထည့်ပြီးပါပြီ။");
-    }
-
-    function showPage(pId, el) {
+    function showProductDetail(id) {
+        const p = productsData.find(x => x.id === id);
+        const detailContainer = document.getElementById('product-detail-content');
+        
+        detailContainer.innerHTML = `
+            <div class="detail-header">
+                <i class="fas fa-chevron-left" onclick="navigate('home-page', document.querySelector('.nav-item'))" style="position:absolute; top:20px; left:20px; background:rgba(0,0,0,0.5); color:white; padding:10px; border-radius:50%; z-index:10;"></i>
+                <img src="${p.image_url || 'https://via.placeholder.com/400'}" class="detail-img">
+            </div>
+            <div class="detail-content">
+                <div class="detail-price">${Number(p.wholesale_price).toLocaleString()} K</div>
+                <div class="detail-moq">လက်ကားစျေး (အနည်းဆုံး ၁ ခုမှစ၍)</div>
+                <h1 style="font-size:1.2rem; margin:10px 0;">${p.name}</h1>
+                <p style="color:#666; font-size:14px; line-height:1.6;">${p.description || 'ကုန်ပစ္စည်းအကြောင်းအရာ မရှိသေးပါ။'}</p>
+                <div style="margin-top:20px; padding:15px; background:#f9f9f9; border-radius:10px;">
+                    <i class="fas fa-shield-alt" style="color:#4caf50"></i> ၁၀၀% စစ်မှန်သော ကုန်ပစ္စည်း
+                </div>
+            </div>
+            <div class="buy-actions">
+                <button class="btn-cart" onclick="addToCart(${p.id})">ခြင်းထဲထည့်မည်</button>
+                <button class="btn-buy" onclick="directBuy(${p.id})">အခုဝယ်မည်</button>
+            </div>
+        `;
         document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-        document.getElementById(pId).classList.add('active');
-        document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-        el.classList.add('active');
-        if(pId === 'cart-page') renderCart();
+        document.getElementById('detail-page').classList.add('active');
+        window.scrollTo(0,0);
     }
 
-    function renderCart() {
-        const list = document.getElementById('cart-items');
-        let total = 0;
-        list.innerHTML = cart.map((item, idx) => {
-            total += item.wholesale_price;
-            return `<div style="display:flex; gap:15px; background:white; padding:12px; border-radius:12px; margin-bottom:10px; align-items:center;">
-                <img src="${item.image_url}" style="width:50px; height:50px; object-fit:cover; border-radius:8px;">
-                <div style="flex:1;"><b>${item.name}</b><br><span style="color:var(--orange);">${item.wholesale_price.toLocaleString()} K</span></div>
-                <i class="fas fa-trash" style="color:#ddd;" onclick="cart.splice(${idx},1); renderCart();"></i>
-            </div>`;
-        }).join('');
-        document.getElementById('cart-total').innerText = total.toLocaleString() + " K";
-    }
-
-    function openCheckoutModal() {
-        if(cart.length === 0) return alert("ခြင်းထဲမှာ ပစ္စည်းမရှိသေးပါ။");
-        document.getElementById('checkout-modal').style.display = 'block';
-    }
-
-    async function processOrder() {
-        const name = document.getElementById('cust-name').value;
-        const phone = document.getElementById('cust-phone').value;
-        const address = document.getElementById('cust-address').value;
-        const total = cart.reduce((s, i) => s + i.wholesale_price, 0);
-
-        if(!name || !phone || !address) return alert("အချက်အလက်များ ပြည့်စုံအောင် ဖြည့်ပါ။");
-
-        document.getElementById('confirm-btn').innerText = "Processing...";
-
-        const { data, error } = await _supabase.from('orders').insert({
-            customer_name: name, phone: phone, address: address, total_price: total, status: 'Pending'
-        }).select();
-
-        if(!error) {
-            showInvoice(name, phone, address, total, data[0].id);
+    async function handleAuth() {
+        if(currentUser) {
+            await _supabase.auth.signOut();
+            location.reload();
         } else {
-            alert(error.message);
+            await _supabase.auth.signInWithOAuth({ provider: 'google', options: { redirectTo: window.location.href } });
         }
     }
 
-    function showInvoice(name, phone, addr, total, orderId) {
-        document.getElementById('checkout-modal').style.display = 'none';
-        document.getElementById('invoice-modal').style.display = 'block';
-        
-        document.getElementById('invoice-data').innerHTML = `
-            <b>Order ID:</b> #${orderId}<br>
-            <b>ဝယ်သူအမည်:</b> ${name}<br>
-            <b>ဖုန်းနံပါတ်:</b> ${phone}<br>
-            <b>လိပ်စာ:</b> ${addr}<br>
-            <b>ရက်စွဲ:</b> ${new Date().toLocaleDateString()}
-        `;
-        document.getElementById('invoice-items').innerHTML = cart.map(i => `
-            <div style="display:flex; justify-content:space-between; font-size:13px;">
-                <span>${i.name}</span><b>${i.wholesale_price.toLocaleString()} K</b>
-            </div>
-        `).join('');
-        document.getElementById('invoice-total').innerText = "TOTAL: " + total.toLocaleString() + " K";
-    }
+    // Initialize App
+    loadApp();
 
-    function downloadInvoice() {
-        html2canvas(document.querySelector("#voucher-area")).then(canvas => {
-            const link = document.createElement('a');
-            link.download = 'KMW-Invoice.png';
-            link.href = canvas.toDataURL();
-            link.click();
-        });
-    }
-
-    function closeModal() { document.getElementById('checkout-modal').style.display = 'none'; }
-
-    init();
 </script>
 </body>
 </html>
-
