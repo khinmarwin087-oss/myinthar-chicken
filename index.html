@@ -263,43 +263,41 @@
         document.getElementById('total-price').innerText = total.toLocaleString() + " K";
     }
 
-    // ဒီ code ကို အစားထိုးထည့်ပါ
+    // --- ဤနေရာမှ စတင်၍ အစားထိုးပါ ---
 async function confirmOrder() {
     const name = document.getElementById('cust-name').value;
     const phone = document.getElementById('cust-phone').value;
     const addr = document.getElementById('cust-addr').value;
     
-    // Total ကို ပစ္စည်းမဖျက်ခင် အရင်တွက်ရမည်
-    const total = cart.reduce((s, i) => s + (i.price * i.buyQty), 0);
-
+    // ပစ္စည်းရှိမရှိ အရင်စစ်ပါ
     if (cart.length === 0) return alert("ခြင်းထဲမှာ ပစ္စည်းမရှိပါ။");
     if (!name || !phone) return alert("အမည်နှင့် ဖုန်းနံပါတ် ဖြည့်ပေးပါ။");
 
-    // ခေတ္တစောင့်ရန် ခလုတ်ကို Disable လုပ်ထားခြင်း
+    const total = cart.reduce((s, i) => s + (i.price * i.buyQty), 0);
     const btn = document.querySelector('.btn-main');
     btn.innerText = "ခေတ္တစောင့်ပါ...";
     btn.disabled = true;
 
     try {
+        // သင့်ပုံထဲက table နာမည် 'orders' ကို အသုံးပြုထားပါသည်
         const { data, error } = await _supabase.from('orders').insert({
             customer_name: name, 
             phone: phone, 
             address: addr, 
-            items: JSON.stringify(cart), // JSON string အဖြစ်ပြောင်းလဲခြင်း
+            items: cart, // ပုံမှန်အားဖြင့် JSON အနေနဲ့ သိမ်းပါမည်
             total_price: total
         }).select();
 
         if (error) throw error;
 
+        // အောင်မြင်လျှင် Voucher ထုတ်ပေးမည်
         if (data && data.length > 0) {
-            // Voucher အရင်ပြမည် (ပစ္စည်းစာရင်းမပျောက်စေရန်)
             showVoucher(name, phone, addr, total, data[0].id);
-            // Voucher ပြပြီးမှ Cart ကို အကုန်ဖျက်မည်
-            cart = []; 
+            cart = []; // Order တင်ပြီးမှ Cart ကို ရှင်းပါ
         }
     } catch (err) {
-        alert("Database Error: " + err.message);
-        console.error("Order Insert Error:", err);
+        alert("မှာယူမှု မအောင်မြင်ပါ- " + err.message);
+        console.error("Order Error:", err);
     } finally {
         btn.innerText = "Confirm Order";
         btn.disabled = false;
@@ -307,9 +305,9 @@ async function confirmOrder() {
 }
 
 function showVoucher(name, phone, addr, total, id) {
-    // ဝယ်သူအချက်အလက်
+    // Voucher UI ထဲသို့ data ထည့်ခြင်း
     document.getElementById('voucher-details').innerHTML = `
-        <div style="margin-bottom:10px;">
+        <div style="line-height:1.8;">
             <b>Order ID:</b> #${id}<br>
             <b>ဝယ်သူအမည်:</b> ${name}<br>
             <b>ဖုန်းနံပါတ်:</b> ${phone}<br>
@@ -318,20 +316,20 @@ function showVoucher(name, phone, addr, total, id) {
         </div>
     `;
 
-    // ပစ္စည်းစာရင်း (ခြင်းထဲက data တွေကို အသုံးပြု)
     document.getElementById('voucher-items-list').innerHTML = cart.map(i => `
-        <div style="display:flex; justify-content:space-between; font-size:13px; margin-bottom:5px; border-bottom:1px solid #f2f2f2; padding-bottom:5px;">
+        <div style="display:flex; justify-content:space-between; font-size:13px; margin-bottom:8px; border-bottom:1px solid #eee; padding-bottom:5px;">
             <span>${i.name} (x ${i.buyQty})</span>
             <b>${(i.price * i.buyQty).toLocaleString()} K</b>
         </div>
     `).join('');
 
-    // စုစုပေါင်းတန်ဖိုး
     document.getElementById('voucher-total-area').innerText = "Total: " + total.toLocaleString() + " K";
     
-    // Voucher Page သို့ သွားရန်
+    // Voucher စာမျက်နှာသို့ ကူးပြောင်းခြင်း
     navigate('voucher-page');
 }
+// --- ဤနေရာတွင် အဆုံးသတ်ပါ ---
+    
     
     function downloadVoucher() {
         html2canvas(document.querySelector("#voucher-print")).then(canvas => {
