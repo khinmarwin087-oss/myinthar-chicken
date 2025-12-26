@@ -155,13 +155,13 @@ function showToast(){
 
 // ================== Load Items ==================
 async function loadItems(){
-  const { data,error } = await _supabase.from("items")
-    .select("*, item_variants(*), wholesale_prices(*)")
-    .eq("active",true);
+  // items -> products သို့ပြောင်း
+  const { data, error } = await _supabase.from("products").select("*");
   if(error){ alert(error.message); return; }
   productsData = data;
   renderItems(data);
 }
+  
 
 // ================== Render Items ==================
 function renderItems(items){
@@ -173,7 +173,7 @@ function renderItems(items){
     div.innerHTML=`<img src="${item.image_url || ''}">
       <div class="p-info">
         <div style="font-size:14px;height:35px;overflow:hidden;">${item.name}</div>
-        <div class="p-price">${item.base_price.toLocaleString()} K</div>
+          <div class="p-price">${item.retail_price.toLocaleString()} K</div>
       </div>`;
     div.onclick=()=>openDetail(item.id);
     box.appendChild(div);
@@ -188,58 +188,60 @@ document.getElementById('search-input')?.addEventListener('input', e=>{
 
 // ================== Detail Page ==================
 async function openDetail(id){
-  const { data,error } = await _supabase.from("items")
-    .select("*, item_variants(*), wholesale_prices(*)")
-    .eq("id",id)
-    .single();
+  const { data, error } = await _supabase.from("products").select("*").eq("id", id).single();
   if(error){ alert(error.message); return; }
-  currentItem=data; variants=data.item_variants||[]; wholesalePrices=data.wholesale_prices||[];
+  
+  currentItem = data;
+  // wholesale_prices အစား wholesale_tiers ကို ယူသုံးမည်
+  wholesalePrices = data.wholesale_tiers || []; 
 
-  const html=`<img src="${data.image_url}" class="detail-img">
+  const html = `
+    <img src="${data.image_url}" class="detail-img">
     <div class="detail-content">
-      <h2 style="color:red;margin:0;">${data.base_price} K</h2>
+      <h2 style="color:red;margin:0;">${data.retail_price} K</h2>
       <h3>${data.name}</h3>
+      <p style="font-size:14px; color:#666;">${data.description || ""}</p>
       <div class="qty-box">
         <button class="qty-btn" onclick="changeQty(-1)">-</button>
-        <input type="number" id="qtyInput" value="1" min="1" style="width:50px;text-align:center;">
+        <input type="number" id="qtyInput" value="1" min="1" style="width:50px;text-align:center;" onchange="changeQty(0)">
         <button class="qty-btn" onclick="changeQty(1)">+</button>
       </div>
       <button class="btn-main" onclick="addToCart(${data.id})">Add to Cart</button>
     </div>`;
-  document.getElementById('detail-data').innerHTML=html;
+  document.getElementById('detail-data').innerHTML = html;
   navigate('detail');
 }
+  
 
 // ================== Wholesale Price Calculation ==================
 function getWholesalePrice(qty, prices, basePrice) {
   let price = basePrice;
-  if (prices && prices.length > 0) {
-    // အရေအတွက်နဲ့ ကိုက်ညီတဲ့ အသက်သာဆုံး လက်ကားဈေးကို ရှာခြင်း
+  if (prices && Array.isArray(prices)) {
+    // Admin JSON ထဲက min_qty နဲ့ price ကို ပြန်စစ်ခြင်း
     prices.sort((a, b) => a.min_qty - b.min_qty).forEach(p => {
-      if (qty >= p.min_qty) price = p.price_per_unit;
+      if (qty >= p.min_qty) price = p.price;
     });
   }
   return price;
 }
+  
 
 // Detail Page မှာ Quantity ပြောင်းရင် ဈေးနှုန်းချက်ချင်းလိုက်ပြောင်းရန်
 function changeQty(n) {
   const i = document.getElementById("qtyInput");
   i.value = Math.max(1, parseInt(i.value || 1) + n);
-  
-  // လက်ရှိ item ရဲ့ wholesale price ကို တွက်ချက်ပြီး ပြန်ပြပေးခြင်း
   const qty = parseInt(i.value);
-  const currentPrice = getWholesalePrice(qty, wholesalePrices, currentItem.base_price);
+  // base_price -> retail_price သို့ပြောင်း
+  const currentPrice = getWholesalePrice(qty, wholesalePrices, currentItem.retail_price);
   document.querySelector('#detail-data h2').innerText = `${currentPrice.toLocaleString()} K (x${qty})`;
 }
+  
 
 // ================== Add to Cart (Wholesale Aware) ==================
 function addToCart(id) {
   const item = productsData.find(x => x.id === id);
   const qty = parseInt(document.getElementById("qtyInput")?.value || 1);
-  
-  // ခြင်းထဲထည့်တဲ့အချိန်မှာ ဝယ်ယူတဲ့ အရေအတွက်အပေါ်မူတည်ပြီး ဈေးနှုန်းသတ်မှတ်ခြင်း
-  const finalPrice = getWholesalePrice(qty, item.wholesale_prices, item.base_price);
+  const finalPrice = getWholesalePrice(qty, item.wholesale_tiers, item.retail_price);
 
   cart.push({
     id: item.id,
@@ -252,6 +254,7 @@ function addToCart(id) {
   showToast();
   navigate('home');
 }
+  
 
 // ================== Checkout List Logic ==================
 function renderCheckoutList() {
@@ -262,7 +265,6 @@ function renderCheckoutList() {
     document.getElementById('total-price').innerText = "0 K";
     return;
   }
-
   list.innerHTML = cart.map(item => {
     total += (item.price * item.buyQty);
     return `<div style="display:flex;gap:10px;background:white;padding:10px;border-radius:10px;margin-bottom:10px;align-items:center;">
@@ -273,7 +275,6 @@ function renderCheckoutList() {
   }).join('');
   document.getElementById('total-price').innerText = total.toLocaleString() + " K";
 }
-
 // ================== Confirm Order (Database Insert) ==================
 async function confirmOrder() {
   const name = document.getElementById('cust-name').value.trim();
@@ -300,6 +301,20 @@ async function confirmOrder() {
 
     if (error) throw error;
 
+    const history = JSON.parse(localStorage.getItem('order_history') || '[]');
+    history.push({ id: data[0].id, name, phone, addr, items: [...cart], total, date: new Date().toLocaleString() });
+    localStorage.setItem('order_history', JSON.stringify(history));
+
+    renderVoucher(name, phone, addr, [...cart], data[0].id);
+    cart = [];
+    navigate('voucher-page');
+  } catch (err) {
+    alert("မှာယူမှု မအောင်မြင်ပါ: " + err.message);
+  } finally {
+    btn.innerText = "Confirm Order";
+    btn.disabled = false;
+  }
+}
     // Local History ထဲ သိမ်းခြင်း
     const history = JSON.parse(localStorage.getItem('order_history') || '[]');
     history.push({ id: data[0].id, name, phone, addr, items: [...cart], total, date: new Date().toLocaleString() });
