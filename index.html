@@ -306,22 +306,24 @@ async function confirmOrder() {
   try {
     const { data, error } = await _supabase.from("orders").insert([{
       customer_name: name,
-      customer_phone: phone,
-      customer_address: addr,
-      items: JSON.stringify(cart),
-      total: total,
+      customer_phone: phone,          // Database မှာ phone ဖြစ်လို့ phone လို့ရေးရမည်
+      address: addr,        // Database မှာ address ဖြစ်လို့ address လို့ရေးရမည်
+      total_price: total,   // Database မှာ total_price ဖြစ်လို့ total_price လို့ရေးရမည်
+      items: JSON.stringify(cart), // အပေါ်အဆင့်မှာ column အသစ်ဆောက်ခဲ့မှ အလုပ်လုပ်မည်
       created_at: new Date().toISOString()
     }]).select();
 
     if (error) throw error;
 
+    // Local History သိမ်းခြင်း
     const history = JSON.parse(localStorage.getItem('order_history') || '[]');
     history.push({ id: data[0].id, name, phone, addr, items: [...cart], total, date: new Date().toLocaleString() });
     localStorage.setItem('order_history', JSON.stringify(history));
 
     renderVoucher(name, phone, addr, [...cart], data[0].id);
-    cart = []; 
+    cart = [];
     navigate('voucher-page');
+
   } catch (err) {
     alert("မှာယူမှု မအောင်မြင်ပါ: " + err.message);
   } finally {
@@ -329,32 +331,7 @@ async function confirmOrder() {
     btn.disabled = false;
   }
 }
-
-// ================== Utility ==================
-function showToast(){
-  const t=document.getElementById("toast");
-  t.className="show";
-  setTimeout(()=>{ t.className=t.className.replace("show",""); },3000);
-}
-
-function renderVoucher(name, phone, addr, items, orderId) {
-  let html = items.map(item => `
-    <div style="display:flex; justify-content:space-between; font-size:13px; margin-bottom:5px; border-bottom:1px solid #eee; padding-bottom:5px;">
-      <span>${item.name} (x${item.buyQty})</span>
-      <b>${(item.price * item.buyQty).toLocaleString()} K</b>
-    </div>`).join('');
-
-  document.getElementById('voucher-details').innerHTML = `
-    <div style="font-size:12px; margin-bottom:10px;">
-      <b>Order ID:</b> #${orderId}<br>
-      <b>Customer:</b> ${name}<br>
-      <b>Phone:</b> ${phone}<br>
-      <b>Address:</b> ${addr}<br>
-      <b>Date:</b> ${new Date().toLocaleString()}
-    </div>`;
-  document.getElementById('voucher-items-list').innerHTML = html;
-  document.getElementById('voucher-total-area').innerText = "Total: " + items.reduce((a, b) => a + (b.price * b.buyQty), 0).toLocaleString() + " K";
-}
+  
 
 function loadHistory() {
   const history = JSON.parse(localStorage.getItem('order_history') || '[]');
