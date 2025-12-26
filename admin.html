@@ -3,231 +3,101 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>K.M.W Advanced Admin</title>
-    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <title>Admin - မြင်သာကြက်ကင်</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        :root { --primary: #FF4747; --bg: #F0F2F5; --white: #ffffff; }
-        body { margin: 0; font-family: 'Segoe UI', sans-serif; background: var(--bg); padding-bottom: 70px; }
-        header { background: var(--white); padding: 15px; text-align: center; border-bottom: 1px solid #ddd; position: sticky; top: 0; z-index: 100; }
-        .header-title { font-size: 18px; font-weight: 800; color: var(--primary); }
-        .container { padding: 15px; }
-        .page { display: none; }
-        .page.active { display: block; }
-        .card { background: var(--white); border-radius: 15px; padding: 15px; margin-bottom: 15px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
-        input, textarea { width: 100%; padding: 12px; margin: 8px 0; border-radius: 10px; border: 1px solid #ddd; box-sizing: border-box; }
-        
-        /* Wholesale UI */
-        .tier-row { display: flex; gap: 8px; margin-bottom: 8px; align-items: center; }
-        .btn-add-tier { background: #E8F5E9; color: #2E7D32; border: 1px dashed #2E7D32; padding: 10px; width: 100%; border-radius: 10px; cursor: pointer; font-weight: bold; margin: 10px 0; }
-        .btn-del-tier { background: #FFEBEE; color: #C62828; border: none; padding: 10px; border-radius: 8px; }
-
-        .btn-main { background: var(--primary); color: #fff; border: none; padding: 15px; border-radius: 10px; width: 100%; font-weight: bold; cursor: pointer; margin-top: 10px; }
-        .btn-delete { background: #f44336; color: white; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer; font-size: 12px; margin-left: 5px; }
-        .btn-edit { background: #2196F3; color: white; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer; font-size: 12px; }
-
-        .bottom-nav { position: fixed; bottom: 0; width: 100%; background: #fff; display: flex; border-top: 1px solid #ddd; z-index: 100; }
-        .nav-item { flex: 1; text-align: center; padding: 10px; color: #888; cursor: pointer; font-size: 12px; }
-        .nav-item.active { color: var(--primary); }
-        .nav-item i { font-size: 20px; display: block; margin-bottom: 2px; }
-        
-        #preview-box { width: 100%; height: 150px; border: 2px dashed #ddd; border-radius: 10px; display: flex; align-items: center; justify-content: center; margin-bottom: 10px; overflow: hidden; cursor: pointer; }
+        body { font-family: sans-serif; background: #f4f7f6; padding: 20px; }
+        .card { background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); margin-bottom: 20px; }
+        input, select { width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #ddd; border-radius: 5px; box-sizing: border-box; }
+        button { width: 100%; padding: 12px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; }
+        .btn-add { background: #2ecc71; color: white; }
+        .item-list { display: grid; grid-template-columns: 1fr; gap: 10px; }
+        .item { background: white; padding: 10px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #eee; }
+        .item img { width: 50px; height: 50px; border-radius: 5px; object-fit: cover; }
     </style>
 </head>
 <body>
 
-<header><div class="header-title">K.M.W ADMIN (V2)</div></header>
+<h2>🍗 Admin Panel (Menu စီမံရန်)</h2>
 
-<div class="container">
-    <div id="page-stocks" class="page active">
-        <div class="card">
-            <h3><i class="fas fa-boxes"></i> လက်ရှိပစ္စည်းများ</h3>
-            <div id="stock-list">Loading...</div>
-        </div>
-    </div>
-
-    <div id="page-add" class="page">
-        <div class="card">
-            <h3 id="form-title">ပစ္စည်းအသစ်ထည့်ရန်</h3>
-            <input type="hidden" id="edit-id">
-
-            <div id="preview-box" onclick="document.getElementById('p-file').click()">
-                <span id="pre-txt">ပုံရွေးရန် နှိပ်ပါ</span>
-                <img id="p-img" style="display:none; width:100%; height:100%; object-fit:cover;">
-            </div>
-            <input type="file" id="p-file" hidden onchange="preview(this)">
-
-            <input type="text" id="p-name" placeholder="ပစ္စည်းအမည်">
-            <input type="number" id="p-retail" placeholder="၁ ခုချင်းဈေး (Retail Price)">
-            
-            <div style="display:flex; gap:10px;">
-                <input type="text" id="p-size" placeholder="ဆိုဒ် (ဥပမာ- S, M, L)">
-                <input type="text" id="p-color" placeholder="အရောင် (ဥပမာ- နီ, ပြာ)">
-            </div>
-
-            <div style="margin-top: 15px;">
-                <label style="font-weight: bold; font-size: 13px;">လက်ကားဈေးနှုန်းများ (Tiers)</label>
-                <div id="tier-container">
-                    </div>
-                <button class="btn-add-tier" onclick="addTierRow()">+ Add Wholesale Price</button>
-            </div>
-
-            <textarea id="p-desc" placeholder="အသေးစိတ်ဖော်ပြချက်" rows="2"></textarea>
-            <button class="btn-main" id="btn-save" onclick="saveItem()">ပစ္စည်း သိမ်းဆည်းမည်</button>
-            <button id="btn-cancel" style="display:none; margin-top:10px; border:none; background:none; color:grey; width:100%; cursor:pointer;" onclick="location.reload()">မလုပ်တော့ပါ</button>
-        </div>
-    </div>
+<div class="card">
+    <h3>➕ မီနူးအသစ်ထည့်ရန်</h3>
+    <input type="text" id="name" placeholder="ဟင်းပွဲအမည်">
+    <input type="number" id="price" placeholder="စျေးနှုန်း">
+    <input type="number" id="stock" placeholder="Stock အရေအတွက်">
+    <select id="category">
+        <option value="single">တစ်ခုချင်း</option>
+        <option value="set-10000">၁၀၀၀၀ တန်ဆပ်</option>
+        <option value="set-20000">၂၀၀၀၀ တန်ဆပ်</option>
+    </select>
+    <label>ပုံရွေးပါ (ဖုန်းထဲမှ):</label>
+    <input type="file" id="fileInput" accept="image/*">
+    <button class="btn-add" onclick="uploadAndSave()">သိမ်းဆည်းမည်</button>
 </div>
 
-<div class="bottom-nav">
-    <div class="nav-item" onclick="nav('page-orders', this)"><i class="fas fa-list"></i>Orders</div>
-    <div class="nav-item active" onclick="nav('page-stocks', this)"><i class="fas fa-boxes"></i>Stocks</div>
-    <div class="nav-item" onclick="nav('page-add', this)"><i class="fas fa-plus-circle"></i>Add Item</div>
+<div class="card">
+    <h3>📦 လက်ရှိမီနူးများ</h3>
+    <div id="admin-menu-list" class="item-list">ဒေတာများ ဆွဲယူနေသည်...</div>
 </div>
 
 <script>
-    const SB_URL = "https://ltusknkpwbyriikeyday.supabase.co";
-    const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx0dXNrbmtwd2J5cmlpa2V5ZGF5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYyMTYxNDksImV4cCI6MjA4MTc5MjE0OX0.7TXAvr2tHl03m_gYZNYq8xyy0yYHTx0sYMN4tS6GDnA";
-    const _supa = supabase.createClient(SB_URL, SB_KEY);
+    const SB_URL = "https://deabtvqzxpkepgcdutzd.supabase.co";
+    const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRlYWJ0dnF6eHBrZXBnY2R1dHpkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYyNzQzNDMsImV4cCI6MjA4MTg1MDM0M30.BbxmM65uoTDcf_nTP6w5siSF6Y5_eM4peqYJCAxR90I";
+    const _supabase = window.supabase.createClient(SB_URL, SB_KEY);
 
-    let currentImgUrl = "";
+    async function uploadAndSave() {
+        const file = document.getElementById('fileInput').files[0];
+        const name = document.getElementById('name').value;
+        const price = document.getElementById('price').value;
+        const stock = document.getElementById('stock').value;
+        const cat = document.getElementById('category').value;
 
-    function nav(id, el) {
-        document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-        document.getElementById(id).classList.add('active');
-        document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-        if(el) el.classList.add('active');
-        if(id === 'page-stocks') loadStocks();
+        if (!file || !name || !price) return alert("အချက်အလက် အကုန်ဖြည့်ပါ");
+
+        // 1. Upload Image to Storage
+        const fileName = Date.now() + "_" + file.name;
+        const { data: uploadData, error: uploadError } = await _supabase.storage
+            .from('menu-images')
+            .upload(fileName, file);
+
+        if (uploadError) return alert("Upload Error: " + uploadError.message);
+
+        // 2. Get Public URL
+        const { data: urlData } = _supabase.storage.from('menu-images').getPublicUrl(fileName);
+        const imgUrl = urlData.publicUrl;
+
+        // 3. Save to Database
+        const { error: dbError } = await _supabase.from('menu_items').insert([
+            { name: name, price: parseInt(price), stock_qty: parseInt(stock), category: cat, image_url: imgUrl }
+        ]);
+
+        if (dbError) alert("DB Error: " + dbError.message);
+        else { alert("အောင်မြင်စွာ သိမ်းဆည်းပြီးပါပြီ"); location.reload(); }
     }
 
-    // Tier တစ်ကြောင်း တိုးပေးသည့် function
-    function addTierRow(qty = '', price = '') {
-        const div = document.createElement('div');
-        div.className = 'tier-row';
-        div.innerHTML = `
-            <input type="number" class="t-qty" placeholder="Qty" value="${qty}" style="margin:0">
-            <input type="number" class="t-price" placeholder="Price" value="${price}" style="margin:0">
-            <button class="btn-del-tier" onclick="this.parentElement.remove()"><i class="fas fa-trash"></i></button>
-        `;
-        document.getElementById('tier-container').appendChild(div);
-    }
-
-    function preview(input) {
-        if (input.files[0]) {
-            const reader = new FileReader();
-            reader.onload = e => {
-                document.getElementById('p-img').src = e.target.result;
-                document.getElementById('p-img').style.display = 'block';
-                document.getElementById('pre-txt').style.display = 'none';
-            }
-            reader.readAsDataURL(input.files[0]);
-        }
-    }
-
-    async function saveItem() {
-        const id = document.getElementById('edit-id').value;
-        const file = document.getElementById('p-file').files[0];
-        const name = document.getElementById('p-name').value;
-        const retail = document.getElementById('p-retail').value;
-        
-        // Tier တွေကို စုစည်းခြင်း
-        const tiers = [];
-        document.querySelectorAll('.tier-row').forEach(row => {
-            const q = row.querySelector('.t-qty').value;
-            const p = row.querySelector('.t-price').value;
-            if(q && p) tiers.push({ min_qty: parseInt(q), price: parseInt(p) });
-        });
-
-        if(!name || !retail) return alert("အမည်နှင့် ဈေးနှုန်း ဖြည့်ပါ");
-
-        let imgUrl = currentImgUrl;
-        if (file) {
-            const fileName = Date.now() + ".jpg";
-            const { data } = await _supa.storage.from('products').upload(fileName, file);
-            const { data: publicData } = _supa.storage.from('products').getPublicUrl(fileName);
-            imgUrl = publicData.publicUrl;
-        }
-
-        const productData = {
-            name: name,
-            retail_price: parseInt(retail),
-            image_url: imgUrl,
-            category: `Size: ${document.getElementById('p-size').value} | Color: ${document.getElementById('p-color').value}`,
-            wholesale_tiers: tiers, // JSON အနေနဲ့ သိမ်းမည်
-            description: document.getElementById('p-desc').value,
-            is_new: true
-        };
-
-        let result;
-        if (id) {
-            result = await _supa.from('products').update(productData).eq('id', id);
-        } else {
-            result = await _supa.from('products').insert([productData]);
-        }
-
-        if(!result.error) {
-            alert("အောင်မြင်ပါသည်");
-            location.reload();
-        } else {
-            alert("Error: " + result.error.message);
-        }
-    }
-
-    async function loadStocks() {
-        const { data } = await _supa.from('products').select('*').order('id', {ascending: false});
-        if(data) document.getElementById('stock-list').innerHTML = data.map(p => `
-            <div style="display:flex; gap:10px; border-bottom:1px solid #eee; padding:10px 0; align-items:center;">
-                <img src="${p.image_url}" style="width:50px; height:50px; border-radius:5px; object-fit:cover;">
-                <div style="flex:1">
-                    <b>${p.name}</b><br>
-                    <small>R: ${p.retail_price} Ks</small>
-                </div>
+    async function loadMenu() {
+        const { data } = await _supabase.from('menu_items').select('*').order('id', { ascending: false });
+        const list = document.getElementById('admin-menu-list');
+        list.innerHTML = data.map(item => `
+            <div class="item">
+                <img src="${item.image_url || 'https://via.placeholder.com/50'}" alt="">
                 <div>
-                    <button class="btn-edit" onclick='openEdit(${JSON.stringify(p).replace(/'/g, "&apos;")})'>Edit</button>
-                    <button class="btn-delete" onclick="deleteItem(${p.id})">Delete</button>
+                    <b>${item.name}</b><br>
+                    <small>${item.price} K | Stock: ${item.stock_qty}</small>
                 </div>
+                <button onclick="deleteItem(${item.id})" style="width:auto; background:#ff4757; color:white; padding:5px 10px;">ဖျက်ရန်</button>
             </div>
         `).join('');
     }
 
     async function deleteItem(id) {
-        if(confirm("ဤပစ္စည်းကို ဖျက်ရန် သေချာပါသလား?")) {
-            const { error } = await _supa.from('products').delete().eq('id', id);
-            if(!error) loadStocks();
-            else alert("ဖျက်လို့မရပါ: " + error.message);
+        if (confirm("ဖျက်မှာ သေချာပါသလား?")) {
+            await _supabase.from('menu_items').delete().eq('id', id);
+            location.reload();
         }
     }
 
-    function openEdit(p) {
-        nav('page-add');
-        document.getElementById('form-title').innerText = "ပစ္စည်းအချက်အလက် ပြင်ရန်";
-        document.getElementById('edit-id').value = p.id;
-        document.getElementById('p-name').value = p.name;
-        document.getElementById('p-retail').value = p.retail_price;
-        
-        const parts = p.category ? p.category.split('|') : [];
-        document.getElementById('p-size').value = parts[0] ? parts[0].replace('Size: ', '').trim() : '';
-        document.getElementById('p-color').value = parts[1] ? parts[1].replace('Color: ', '').trim() : '';
-        document.getElementById('p-desc').value = p.description || "";
-        
-        // Tiers ပြန်ဖော်ခြင်း
-        document.getElementById('tier-container').innerHTML = '';
-        if(p.wholesale_tiers && Array.isArray(p.wholesale_tiers)) {
-            p.wholesale_tiers.forEach(t => addTierRow(t.min_qty, t.price));
-        }
-
-        currentImgUrl = p.image_url;
-        document.getElementById('p-img').src = p.image_url;
-        document.getElementById('p-img').style.display = 'block';
-        document.getElementById('pre-txt').style.display = 'none';
-        
-        document.getElementById('btn-save').innerText = "ပြင်ဆင်ချက်များ သိမ်းမည်";
-        document.getElementById('btn-cancel').style.display = "block";
-    }
-
-    // Initial Load
-    loadStocks();
+    window.onload = loadMenu;
 </script>
 </body>
 </html>
-
