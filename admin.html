@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>K.M.W Admin Dashboard</title>
+    <title>K.M.W Admin Editor</title>
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
@@ -13,7 +13,7 @@
         .header-title { font-size: 18px; font-weight: 800; color: var(--primary); }
         .container { padding: 15px; }
         .page { display: none; }
-        .page.active { display: block; animation: fadeIn 0.3s; }
+        .page.active { display: block; }
         .card { background: var(--white); border-radius: 15px; padding: 15px; margin-bottom: 15px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
         input, textarea { width: 100%; padding: 12px; margin: 8px 0; border-radius: 10px; border: 1px solid #ddd; box-sizing: border-box; }
         .btn-main { background: var(--primary); color: #fff; border: none; padding: 15px; border-radius: 10px; width: 100%; font-weight: bold; cursor: pointer; }
@@ -21,13 +21,14 @@
         .nav-item { flex: 1; text-align: center; padding: 10px; color: #888; cursor: pointer; font-size: 12px; }
         .nav-item.active { color: var(--primary); }
         .nav-item i { font-size: 20px; display: block; margin-bottom: 2px; }
+        .stock-item { display: flex; gap: 10px; border-bottom: 1px solid #eee; padding: 10px 0; align-items: center; }
+        .btn-edit { background: #555; color: white; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer; font-size: 12px; }
         #preview-box { width: 100%; height: 150px; border: 2px dashed #ddd; border-radius: 10px; display: flex; align-items: center; justify-content: center; margin-bottom: 10px; overflow: hidden; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
     </style>
 </head>
 <body>
 
-<header><div class="header-title">K.M.W ADMIN</div></header>
+<header><div class="header-title">K.M.W ADMIN (EDIT MODE)</div></header>
 
 <div class="container">
     <div id="page-orders" class="page active">
@@ -40,23 +41,25 @@
 
     <div id="page-add" class="page">
         <div class="card">
-            <h3>ပစ္စည်းအသစ်ထည့်ရန်</h3>
-            <div id="preview-box" onclick="document.getElementById('p-file').click()">
+            <h3 id="form-title">ပစ္စည်းအသစ်ထည့်ရန်</h3>
+            <input type="hidden" id="edit-id"> <div id="preview-box" onclick="document.getElementById('p-file').click()">
                 <span id="pre-txt">ပုံရွေးရန် နှိပ်ပါ</span>
                 <img id="p-img" style="display:none; width:100%; height:100%; object-fit:cover;">
             </div>
             <input type="file" id="p-file" hidden onchange="preview(this)">
 
             <input type="text" id="p-name" placeholder="ပစ္စည်းအမည်">
-            <input type="number" id="p-price" placeholder="၁ ခုချင်းဈေး (Retail Price)">
+            <input type="number" id="p-retail" placeholder="၁ ခုချင်းဈေး (Retail Price)">
+            <input type="number" id="p-wholesale" placeholder="လက်ကားဈေး (Wholesale Price)">
             
             <div style="display:flex; gap:10px;">
-                <input type="text" id="p-size" placeholder="ဆိုဒ် (ဥပမာ- S, M, L)">
-                <input type="text" id="p-color" placeholder="အရောင် (ဥပမာ- နီ, ပြာ)">
+                <input type="text" id="p-size" placeholder="ဆိုဒ် (S, M, L)">
+                <input type="text" id="p-color" placeholder="အရောင် (နီ, ပြာ)">
             </div>
 
-            <textarea id="p-desc" placeholder="အသေးစိတ်ဖော်ပြချက်" rows="3"></textarea>
-            <button class="btn-main" onclick="saveItem()">ပစ္စည်း သိမ်းဆည်းမည်</button>
+            <textarea id="p-desc" placeholder="အသေးစိတ်ဖော်ပြချက်" rows="2"></textarea>
+            <button class="btn-main" id="btn-save" onclick="saveItem()">ပစ္စည်း သိမ်းဆည်းမည်</button>
+            <button id="btn-cancel" style="display:none; margin-top:10px; border:none; background:none; color:grey; width:100%;" onclick="cancelEdit()">Edit မလုပ်တော့ပါ</button>
         </div>
     </div>
 </div>
@@ -72,11 +75,13 @@
     const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx0dXNrbmtwd2J5cmlpa2V5ZGF5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYyMTYxNDksImV4cCI6MjA4MTc5MjE0OX0.7TXAvr2tHl03m_gYZNYq8xyy0yYHTx0sYMN4tS6GDnA";
     const _supa = supabase.createClient(SB_URL, SB_KEY);
 
+    let currentImgUrl = ""; // Edit လုပ်ရင် ပုံအဟောင်းကို ပြန်သုံးဖို့
+
     function nav(id, el) {
         document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
         document.getElementById(id).classList.add('active');
         document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-        el.classList.add('active');
+        if(el) el.classList.add('active');
         if(id === 'page-stocks') loadStocks();
     }
 
@@ -93,45 +98,94 @@
     }
 
     async function saveItem() {
+        const id = document.getElementById('edit-id').value;
         const file = document.getElementById('p-file').files[0];
         const name = document.getElementById('p-name').value;
-        const price = document.getElementById('p-price').value;
+        const retail = document.getElementById('p-retail').value;
+        const wholesale = document.getElementById('p-wholesale').value;
         const size = document.getElementById('p-size').value;
         const color = document.getElementById('p-color').value;
 
-        if(!file || !name || !price) return alert("အချက်အလက် အကုန်ဖြည့်ပါ");
+        if(!name || !retail) return alert("အမည်နှင့် ဈေးနှုန်း ဖြည့်ပါ");
 
-        const fileName = Date.now() + ".jpg";
-        const { data: upData, error: upErr } = await _supa.storage.from('products').upload(fileName, file);
-        if(upErr) return alert("Upload Error: " + upErr.message);
+        let imgUrl = currentImgUrl;
+        
+        // ပုံအသစ်ရွေးထားရင် Upload တင်မယ်
+        if (file) {
+            const fileName = Date.now() + ".jpg";
+            const { data: upData, error: upErr } = await _supa.storage.from('products').upload(fileName, file);
+            if(upErr) return alert("Upload Error: " + upErr.message);
+            const { data: url } = _supa.storage.from('products').getPublicUrl(fileName);
+            imgUrl = url.publicUrl;
+        }
 
-        const { data: url } = _supa.storage.from('products').getPublicUrl(fileName);
-
-        // သင့် Database က retail_price ဆိုတဲ့ နာမည်နဲ့ ကိုက်ညီအောင် ပြင်ဆင်ထားပါတယ်
-        const { error } = await _supa.from('products').insert([{
+        const productData = {
             name: name,
-            retail_price: parseInt(price), 
-            image_url: url.publicUrl,
-            category: `Size: ${size} | Color: ${color}`, // ပုံထဲက category column ထဲမှာ size နဲ့ color ကို ခွဲသိမ်းပေးလိုက်ပါတယ်
+            retail_price: parseInt(retail),
+            wholesale_pri: parseInt(wholesale), // သင့် database ပုံအရ wholesale_pri ဖြစ်ပါသည်
+            image_url: imgUrl,
+            category: `Size: ${size} | Color: ${color}`,
             is_new: true
-        }]);
+        };
 
-        if(!error) {
-            alert("အောင်မြင်စွာ သိမ်းဆည်းပြီးပါပြီ");
+        let result;
+        if (id) {
+            // Edit ပြန်လုပ်ခြင်း
+            result = await _supa.from('products').update(productData).eq('id', id);
+        } else {
+            // အသစ်ထည့်ခြင်း
+            result = await _supa.from('products').insert([productData]);
+        }
+
+        if(!result.error) {
+            alert(id ? "ပြင်ဆင်ပြီးပါပြီ" : "သိမ်းဆည်းပြီးပါပြီ");
             location.reload();
         } else {
-            alert("DB Error: " + error.message);
+            alert("Error: " + result.error.message);
         }
     }
 
     async function loadStocks() {
         const { data } = await _supa.from('products').select('*').order('id', {ascending: false});
         if(data) document.getElementById('stock-list').innerHTML = data.map(p => `
-            <div style="display:flex; gap:10px; border-bottom:1px solid #eee; padding:10px 0;">
+            <div class="stock-item">
                 <img src="${p.image_url}" style="width:50px; height:50px; border-radius:5px; object-fit:cover;">
-                <div><b>${p.name}</b><br><small>${p.retail_price} Ks</small></div>
+                <div style="flex:1">
+                    <b>${p.name}</b><br>
+                    <small>R: ${p.retail_price} | W: ${p.wholesale_pri}</small>
+                </div>
+                <button class="btn-edit" onclick='openEdit(${JSON.stringify(p).replace(/'/g, "&apos;")})'>Edit</button>
             </div>
         `).join('');
+    }
+
+    function openEdit(p) {
+        nav('page-add');
+        document.getElementById('form-title').innerText = "ပစ္စည်းအချက်အလက် ပြင်ဆင်ရန်";
+        document.getElementById('edit-id').value = p.id;
+        document.getElementById('p-name').value = p.name;
+        document.getElementById('p-retail').value = p.retail_price;
+        document.getElementById('p-wholesale').value = p.wholesale_pri;
+        
+        // Category ထဲက Size နဲ့ Color ကို ပြန်ခွဲထုတ်ခြင်း
+        const parts = p.category ? p.category.split('|') : [];
+        document.getElementById('p-size').value = parts[0] ? parts[0].replace('Size: ', '').trim() : '';
+        document.getElementById('p-color').value = parts[1] ? parts[1].replace('Color: ', '').trim() : '';
+        
+        document.getElementById('p-desc').value = p.description || "";
+        
+        // ပုံပြသရန်
+        currentImgUrl = p.image_url;
+        document.getElementById('p-img').src = p.image_url;
+        document.getElementById('p-img').style.display = 'block';
+        document.getElementById('pre-txt').style.display = 'none';
+        
+        document.getElementById('btn-save').innerText = "ပြင်ဆင်ချက်များ သိမ်းမည်";
+        document.getElementById('btn-cancel').style.display = "block";
+    }
+
+    function cancelEdit() {
+        location.reload();
     }
 </script>
 </body>
