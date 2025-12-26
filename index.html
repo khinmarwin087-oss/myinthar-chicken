@@ -134,36 +134,35 @@ header { background:var(--primary); color:white; padding:12px 15px; display:flex
 
 <script>
 const SB_URL = "https://ltusknkpwbyriikeyday.supabase.co";
-    const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx0dXNrbmtwd2J5cmlpa2V5ZGF5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYyMTYxNDksImV4cCI6MjA4MTc5MjE0OX0.7TXAvr2tHl03m_gYZNYq8xyy0yYHTx0sYMN4tS6GDnA";
-    const _supabase = supabase.createClient(SB_URL, SB_KEY);
+const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx0dXNrbmtwd2J5cmlpa2V5ZGF5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYyMTYxNDksImV4cCI6MjA4MTc5MjE0OX0.7TXAvr2tHl03m_gYZNYq8xyy0yYHTx0sYMN4tS6GDnA";
+const _supabase = supabase.createClient(SB_URL, SB_KEY);
+
+let productsData = [];
+let cart = []; // ခြင်းထဲက ပစ္စည်းများသိမ်းရန်
+let currentItem = null;
+let wholesalePrices = [];
 
 // ================== Navigation ==================
 function navigate(id){
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   document.getElementById(id)?.classList.add('active');
   document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  
   if(id==='home') document.getElementById('btn-home').classList.add('active');
-  if(id==='cart') document.getElementById('btn-cart').classList.add('active');
+  if(id==='cart') {
+    document.getElementById('btn-cart').classList.add('active');
+    renderCheckoutList(); // Cart page ရောက်ရင် စာရင်းပြန်ဆွဲရန်
+  }
 }
 
-// ================== Toast ==================
-function showToast(){
-  const t=document.getElementById("toast");
-  t.className="show";
-  setTimeout(()=>{ t.className=t.className.replace("show",""); },3000);
-}
-
-// ================== Load Items ==================
+// ================== Load & Render Items ==================
 async function loadItems(){
-  // items -> products သို့ပြောင်း
   const { data, error } = await _supabase.from("products").select("*");
   if(error){ alert(error.message); return; }
   productsData = data;
   renderItems(data);
 }
-  
 
-// ================== Render Items ==================
 function renderItems(items){
   const box=document.getElementById("product-list");
   box.innerHTML="";
@@ -173,37 +172,30 @@ function renderItems(items){
     div.innerHTML=`<img src="${item.image_url || ''}">
       <div class="p-info">
         <div style="font-size:14px;height:35px;overflow:hidden;">${item.name}</div>
-          <div class="p-price">${item.retail_price.toLocaleString()} K</div>
+        <div class="p-price">${(item.retail_price || 0).toLocaleString()} K</div>
       </div>`;
     div.onclick=()=>openDetail(item.id);
     box.appendChild(div);
   });
 }
 
-// ================== Search ==================
-document.getElementById('search-input')?.addEventListener('input', e=>{
-  const query = e.target.value.toLowerCase();
-  renderItems(productsData.filter(p=>p.name.toLowerCase().includes(query)));
-});
-
-// ================== Detail Page ==================
+// ================== Detail & Wholesale Calculation ==================
 async function openDetail(id){
   const { data, error } = await _supabase.from("products").select("*").eq("id", id).single();
   if(error){ alert(error.message); return; }
   
   currentItem = data;
-  // wholesale_prices အစား wholesale_tiers ကို ယူသုံးမည်
   wholesalePrices = data.wholesale_tiers || []; 
 
   const html = `
     <img src="${data.image_url}" class="detail-img">
     <div class="detail-content">
-      <h2 style="color:red;margin:0;">${data.retail_price} K</h2>
+      <h2 style="color:red;margin:0;">${data.retail_price.toLocaleString()} K</h2>
       <h3>${data.name}</h3>
       <p style="font-size:14px; color:#666;">${data.description || ""}</p>
       <div class="qty-box">
         <button class="qty-btn" onclick="changeQty(-1)">-</button>
-        <input type="number" id="qtyInput" value="1" min="1" style="width:50px;text-align:center;" onchange="changeQty(0)">
+        <input type="number" id="qtyInput" value="1" min="1" style="width:50px;text-align:center;">
         <button class="qty-btn" onclick="changeQty(1)">+</button>
       </div>
       <button class="btn-main" onclick="addToCart(${data.id})">Add to Cart</button>
@@ -211,33 +203,26 @@ async function openDetail(id){
   document.getElementById('detail-data').innerHTML = html;
   navigate('detail');
 }
-  
 
-// ================== Wholesale Price Calculation ==================
 function getWholesalePrice(qty, prices, basePrice) {
   let price = basePrice;
   if (prices && Array.isArray(prices)) {
-    // Admin JSON ထဲက min_qty နဲ့ price ကို ပြန်စစ်ခြင်း
     prices.sort((a, b) => a.min_qty - b.min_qty).forEach(p => {
       if (qty >= p.min_qty) price = p.price;
     });
   }
   return price;
 }
-  
 
-// Detail Page မှာ Quantity ပြောင်းရင် ဈေးနှုန်းချက်ချင်းလိုက်ပြောင်းရန်
 function changeQty(n) {
   const i = document.getElementById("qtyInput");
   i.value = Math.max(1, parseInt(i.value || 1) + n);
   const qty = parseInt(i.value);
-  // base_price -> retail_price သို့ပြောင်း
   const currentPrice = getWholesalePrice(qty, wholesalePrices, currentItem.retail_price);
   document.querySelector('#detail-data h2').innerText = `${currentPrice.toLocaleString()} K (x${qty})`;
 }
-  
 
-// ================== Add to Cart (Wholesale Aware) ==================
+// ================== Cart Logic ==================
 function addToCart(id) {
   const item = productsData.find(x => x.id === id);
   const qty = parseInt(document.getElementById("qtyInput")?.value || 1);
@@ -254,9 +239,7 @@ function addToCart(id) {
   showToast();
   navigate('home');
 }
-  
 
-// ================== Checkout List Logic ==================
 function renderCheckoutList() {
   let total = 0;
   const list = document.getElementById('cart-items-list');
@@ -275,7 +258,8 @@ function renderCheckoutList() {
   }).join('');
   document.getElementById('total-price').innerText = total.toLocaleString() + " K";
 }
-// ================== Confirm Order (Database Insert) ==================
+
+// ================== Order & History ==================
 async function confirmOrder() {
   const name = document.getElementById('cust-name').value.trim();
   const phone = document.getElementById('cust-phone').value.trim();
@@ -306,7 +290,7 @@ async function confirmOrder() {
     localStorage.setItem('order_history', JSON.stringify(history));
 
     renderVoucher(name, phone, addr, [...cart], data[0].id);
-    cart = [];
+    cart = []; 
     navigate('voucher-page');
   } catch (err) {
     alert("မှာယူမှု မအောင်မြင်ပါ: " + err.message);
@@ -315,32 +299,20 @@ async function confirmOrder() {
     btn.disabled = false;
   }
 }
-    // Local History ထဲ သိမ်းခြင်း
-    const history = JSON.parse(localStorage.getItem('order_history') || '[]');
-    history.push({ id: data[0].id, name, phone, addr, items: [...cart], total, date: new Date().toLocaleString() });
-    localStorage.setItem('order_history', JSON.stringify(history));
 
-    renderVoucher(name, phone, addr, [...cart], data[0].id);
-    cart = []; // ခြင်းကို ရှင်းပစ်ခြင်း
-    navigate('voucher-page');
-
-  } catch (err) {
-    alert("မှာယူမှု မအောင်မြင်ပါ: " + err.message);
-  } finally {
-    btn.innerText = "Confirm Order";
-    btn.disabled = false;
-  }
+// ================== Utility ==================
+function showToast(){
+  const t=document.getElementById("toast");
+  t.className="show";
+  setTimeout(()=>{ t.className=t.className.replace("show",""); },3000);
 }
 
-// ================== Voucher Rendering ==================
 function renderVoucher(name, phone, addr, items, orderId) {
-  let html = '';
-  items.forEach(item => {
-    html += `<div style="display:flex; justify-content:space-between; font-size:13px; margin-bottom:5px; border-bottom:1px solid #eee; padding-bottom:5px;">
+  let html = items.map(item => `
+    <div style="display:flex; justify-content:space-between; font-size:13px; margin-bottom:5px; border-bottom:1px solid #eee; padding-bottom:5px;">
       <span>${item.name} (x${item.buyQty})</span>
       <b>${(item.price * item.buyQty).toLocaleString()} K</b>
-    </div>`;
-  });
+    </div>`).join('');
 
   document.getElementById('voucher-details').innerHTML = `
     <div style="font-size:12px; margin-bottom:10px;">
@@ -349,38 +321,32 @@ function renderVoucher(name, phone, addr, items, orderId) {
       <b>Phone:</b> ${phone}<br>
       <b>Address:</b> ${addr}<br>
       <b>Date:</b> ${new Date().toLocaleString()}
-    </div>
-  `;
+    </div>`;
   document.getElementById('voucher-items-list').innerHTML = html;
   document.getElementById('voucher-total-area').innerText = "Total: " + items.reduce((a, b) => a + (b.price * b.buyQty), 0).toLocaleString() + " K";
 }
 
-// ================== History Viewer ==================
 function loadHistory() {
   const history = JSON.parse(localStorage.getItem('order_history') || '[]');
   if (history.length === 0) { alert('History မရှိသေးပါ'); return; }
-  
   let html = history.reverse().map(h => `
     <div style="padding:15px; margin-bottom:10px; background:white; border-radius:12px; box-shadow:0 2px 5px rgba(0,0,0,0.05);">
       <div style="color:#888; font-size:11px;">${h.date}</div>
       <div style="font-weight:bold; margin-top:5px;">Order ID: #${h.id}</div>
       <div style="font-size:13px;">${h.name} (${h.phone})</div>
       <div style="color:red; font-weight:bold; margin-top:5px; text-align:right;">${h.total.toLocaleString()} K</div>
-    </div>
-  `).join('');
-
-  // History ကို Window အသစ်ဖြင့် ပြသခြင်း
+    </div>`).join('');
   const win = window.open('', 'History', 'width=400,height=600');
-  win.document.write(`
-    <body style="font-family:sans-serif; background:#f5f7fb; padding:20px;">
-      <h3 style="text-align:center;">Order History</h3>
-      ${html}
-    </body>
-  `);
+  win.document.write(`<body style="font-family:sans-serif; background:#f5f7fb; padding:20px;"><h3 style="text-align:center;">Order History</h3>${html}</body>`);
 }
 
-// Initialize application
+document.getElementById('search-input')?.addEventListener('input', e=>{
+  const query = e.target.value.toLowerCase();
+  renderItems(productsData.filter(p=>p.name.toLowerCase().includes(query)));
+});
+
 loadItems();
+                  
 </script>
   </body>
 </html>
