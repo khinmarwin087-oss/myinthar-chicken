@@ -187,15 +187,30 @@ async function openDetail(id){
   currentItem = data;
   wholesalePrices = data.wholesale_tiers || []; 
 
+  // Wholesale Tiers များကို စာရင်းလိုက်ပြရန် HTML ထုတ်ခြင်း
+  let tiersHtml = "";
+  if (wholesalePrices.length > 0) {
+    tiersHtml = `<div style="margin:15px 0; background:#fff3f3; padding:10px; border-radius:10px; border:1px solid #ffcccc;">
+      <h4 style="margin:0 0 5px 0; color:#FF4747; font-size:14px;">လက်ကားဈေးနှုန်းများ</h4>`;
+    wholesalePrices.sort((a, b) => a.min_qty - b.min_qty).forEach(p => {
+      tiersHtml += `<div style="display:flex; justify-content:space-between; font-size:13px; margin-bottom:3px;">
+        <span>${p.min_qty} ခုနှင့်အထက်</span>
+        <b style="color:#28a745;">${p.price.toLocaleString()} K</b>
+      </div>`;
+    });
+    tiersHtml += `</div>`;
+  }
+
   const html = `
     <img src="${data.image_url}" class="detail-img">
     <div class="detail-content">
       <h2 style="color:red;margin:0;">${data.retail_price.toLocaleString()} K</h2>
       <h3>${data.name}</h3>
       <p style="font-size:14px; color:#666;">${data.description || ""}</p>
-      <div class="qty-box">
+      
+      ${tiersHtml} <div class="qty-box">
         <button class="qty-btn" onclick="changeQty(-1)">-</button>
-        <input type="number" id="qtyInput" value="1" min="1" style="width:50px;text-align:center;">
+        <input type="number" id="qtyInput" value="1" min="1" style="width:50px;text-align:center;" onchange="changeQty(0)">
         <button class="qty-btn" onclick="changeQty(1)">+</button>
       </div>
       <button class="btn-main" onclick="addToCart(${data.id})">Add to Cart</button>
@@ -203,24 +218,39 @@ async function openDetail(id){
   document.getElementById('detail-data').innerHTML = html;
   navigate('detail');
 }
+  
 
 function getWholesalePrice(qty, prices, basePrice) {
   let price = basePrice;
   if (prices && Array.isArray(prices)) {
+    // အရေအတွက် အနည်းဆုံးကနေ အများဆုံးကို စီပြီး စစ်ဆေးသည်
     prices.sort((a, b) => a.min_qty - b.min_qty).forEach(p => {
       if (qty >= p.min_qty) price = p.price;
     });
   }
   return price;
 }
-
+  
 function changeQty(n) {
   const i = document.getElementById("qtyInput");
   i.value = Math.max(1, parseInt(i.value || 1) + n);
   const qty = parseInt(i.value);
+  
+  // လက်ရှိအရေအတွက်နဲ့ ကိုက်ညီတဲ့ဈေးကို တွက်မယ်
   const currentPrice = getWholesalePrice(qty, wholesalePrices, currentItem.retail_price);
-  document.querySelector('#detail-data h2').innerText = `${currentPrice.toLocaleString()} K (x${qty})`;
+  
+  // အပေါ်က ဈေးနှုန်းစာသားကို Update လုပ်မယ်
+  document.querySelector('#detail-data h2').innerText = `${currentPrice.toLocaleString()} K`;
+  
+  // လက်ကားဈေး ဖြစ်သွားရင် အရောင်ပြောင်းပေးတာမျိုး (Optional)
+  if(currentPrice < currentItem.retail_price) {
+    document.querySelector('#detail-data h2').style.color = "#28a745"; // လက်ကားဈေးဆို အစိမ်းရောင်
+  } else {
+    document.querySelector('#detail-data h2').style.color = "red";
+  }
 }
+  
+
 
 // ================== Cart Logic ==================
 function addToCart(id) {
