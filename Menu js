@@ -1,0 +1,72 @@
+const menuData = [
+    {
+        id: 1,
+        name: "Vintage Oversized Tee",
+        price: 15000,
+        description: "100% Cotton, Breathable fabric. အသားအေးပြီး ဝတ်လို့ကောင်းတဲ့ Oversized တီရှပ် ဖြစ်ပါတယ်။",
+        images: [
+            "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=500",
+            "https://images.unsplash.com/photo-1583743814966-8936f5b7be1a?w=500",
+            "https://images.unsplash.com/photo-1562157873-818bc0726f68?w=500",
+            "https://images.unsplash.com/photo-1576566588028-4147f3842f27?w=500",
+            "https://images.unsplash.com/photo-1503342217505-b0a15ec3261c?w=500",
+            "https://images.unsplash.com/photo-1554568218-0f1715e72254?w=500"
+        ]
+    },
+    {
+        id: 2,
+        name: "Casual Linen Shirt",
+        price: 22000,
+        description: "ရုံးတက်၊ အပြင်သွား ဘယ်နေရာသွားသွား စတိုင်ကျနေမယ့် လင်နင်ရှပ်အင်္ကျီ ဖြစ်ပါတယ်။",
+        images: [
+            "https://images.unsplash.com/photo-1596755094514-f87034a26cc1?w=500",
+            "https://images.unsplash.com/photo-1602810318383-e386cc2a3ccf?w=500",
+            "https://images.unsplash.com/photo-1621072156002-e2fcc103e86e?w=500",
+            "https://images.unsplash.com/photo-1603252109303-2751441dd15e?w=500",
+            "https://images.unsplash.com/photo-1604644401890-0bd678c83788?w=500",
+            "https://images.unsplash.com/photo-1598033129183-c4f50c7176c8?w=500"
+        ]
+    },
+    {
+        id: 3,
+        name: "Classic Denim Jacket",
+        price: 35000,
+        description: "ဘယ်တော့မှ ရိုးမသွားတဲ့ Classic Denim Design ပါ။ ဂျင်းသားအထူစား သုံးထားပါတယ်။",
+        images: [
+            "https://images.unsplash.com/photo-1576905064611-7395ef25ba75?w=500",
+            "https://images.unsplash.com/photo-1551537482-f2075a1d41f2?w=500",
+            "https://images.unsplash.com/photo-1611312449412-6cefac5c684f?w=500",
+            "https://images.unsplash.com/photo-1495105787522-5334e3ffa0ef?w=500",
+            "https://images.unsplash.com/photo-1523205771623-e0faa4d2813d?w=500",
+            "https://images.unsplash.com/photo-1542272604-787c3835535d?w=500"
+        ]
+    },
+    {
+        id: 4,
+        name: "Summer Floral Dress",
+        price: 28000,
+        description: "နွေရာသီမှာ ပေါ့ပေါ့ပါးပါးနဲ့ လှပနေစေမယ့် ပန်းပွင့်ဂါဝန်လေး ဖြစ်ပါတယ်။",
+        images: [
+            "https://images.unsplash.com/photo-1572804013309-59a88b7e92f1?w=500",
+            "https://images.unsplash.com/photo-1496747611176-843222e1e57c?w=500",
+            "https://images.unsplash.com/photo-1585487000160-6ebcfceb0d03?w=500",
+            "https://images.unsplash.com/photo-1591366754631-13b305273760?w=500",
+            "https://images.unsplash.com/photo-1618932260643-eee4a2f652a6?w=500",
+            "https://images.unsplash.com/photo-1515372039744-b8f02a3ae446?w=500"
+        ]
+    },
+    {
+        id: 5,
+        name: "Activewear Hoodie",
+        price: 26000,
+        description: "Gym သွားရင်ဖြစ်ဖြစ်၊ အပြင်သွားရင်ဖြစ်ဖြစ် ဝတ်လို့အဆင်ပြေတဲ့ Hoodie အင်္ကျီ ဖြစ်ပါတယ်။",
+        images: [
+            "https://images.unsplash.com/photo-1556821840-3a63f95609a7?w=500",
+            "https://images.unsplash.com/photo-1513258496099-48168024adb0?w=500",
+            "https://images.unsplash.com/photo-1521223344201-d169129f7b7d?w=500",
+            "https://images.unsplash.com/photo-1509942704429-a399c4c7390b?w=500",
+            "https://images.unsplash.com/photo-1485043433441-db091a258e5a?w=500",
+            "https://images.unsplash.com/photo-1483393458323-5a11a0b6d1c7?w=500"
+        ]
+    }
+];
