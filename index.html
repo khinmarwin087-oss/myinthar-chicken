@@ -3,230 +3,517 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>MYA Fashion - Tiered POS</title>
-    <link href="https://fonts.googleapis.com/css2?family=Pyidaungsu:wght@400;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <title>Myin Thar POS System</title>
+    <link href="https://fonts.googleapis.com/css2?family=Pyidaungsu:wght@400;600;700&family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
     <style>
-        :root { --pearl: #ffffff; --bg: #f8fafc; --accent: #f59e0b; --text: #0f172a; --sub: #64748b; --success: #10b981; }
-        body { font-family: 'Pyidaungsu', sans-serif; background: var(--bg); margin: 0; padding-bottom: 90px; color: var(--text); }
+        :root {
+            --primary: #f59e0b; /* Amber */
+            --primary-dark: #b45309;
+            --bg: #f8fafc;
+            --sidebar-bg: #1e293b;
+            --white: #ffffff;
+            --text: #334155;
+            --text-light: #94a3b8;
+            --success: #10b981;
+            --danger: #ef4444;
+            --border: #e2e8f0;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
 
-        /* Nav & Search */
-        .top-nav { background: var(--pearl); padding: 15px; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
-        .search-box { background: #f1f5f9; border-radius: 12px; padding: 5px 12px; display: flex; align-items: center; margin-top: 10px; }
-        .search-box input { border: none; background: transparent; padding: 8px; width: 100%; outline: none; }
+        * { box-sizing: border-box; outline: none; -webkit-tap-highlight-color: transparent; }
+        body { margin: 0; font-family: 'Inter', 'Pyidaungsu', sans-serif; background: var(--bg); color: var(--text); height: 100vh; overflow: hidden; display: flex; }
+
+        /* --- Layout --- */
+        /* Sidebar */
+        .sidebar { width: 80px; background: var(--sidebar-bg); display: flex; flex-direction: column; align-items: center; padding-top: 20px; z-index: 50; transition: 0.3s; }
+        .logo { color: var(--primary); font-size: 24px; margin-bottom: 30px; }
+        .nav-item { color: var(--text-light); font-size: 20px; margin-bottom: 25px; cursor: pointer; position: relative; padding: 10px; border-radius: 12px; transition: 0.2s; }
+        .nav-item:hover, .nav-item.active { background: rgba(255,255,255,0.1); color: var(--white); }
+        .nav-item .badge { position: absolute; top: 0; right: 0; background: var(--danger); color: white; font-size: 10px; width: 16px; height: 16px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; display: none; }
+
+        /* Main Content */
+        .main-content { flex: 1; display: flex; flex-direction: column; height: 100%; position: relative; }
         
-        .cat-row { display: flex; overflow-x: auto; gap: 8px; padding: 12px 0; scrollbar-width: none; }
-        .cat-btn { background: var(--pearl); border: 1px solid #e2e8f0; padding: 8px 16px; border-radius: 20px; white-space: nowrap; font-size: 13px; cursor: pointer; }
-        .cat-btn.active { background: var(--text); color: white; }
-
-        /* Menu Grid */
-        .container { padding: 12px; max-width: 600px; margin: auto; }
-        .menu-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
-        .card { background: var(--pearl); border-radius: 16px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.02); border: 1px solid #f1f5f9; }
-        .card-img { width: 100%; height: 180px; object-fit: cover; cursor: pointer; }
-        .card-info { padding: 12px; text-align: center; }
-        .item-price { color: var(--accent); font-weight: 800; font-size: 15px; }
-
-        /* Full Detail Page */
-        #detailPage { display: none; position: fixed; inset: 0; background: white; z-index: 500; overflow-y: auto; animation: slideIn 0.3s ease-out; }
-        @keyframes slideIn { from { transform: translateX(100%); } to { transform: translateX(0); } }
+        /* Top Header */
+        .header { height: 70px; background: var(--white); border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; padding: 0 20px; }
+        .search-bar { background: var(--bg); border: 1px solid var(--border); border-radius: 10px; padding: 8px 15px; display: flex; align-items: center; width: 300px; }
+        .search-bar input { border: none; background: transparent; margin-left: 10px; width: 100%; font-family: 'Pyidaungsu'; }
         
-        .slider-area { position: relative; height: 55vh; background: #000; }
-        .slider-container { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; height: 100%; scrollbar-width: none; }
-        .slider-container img { width: 100%; flex-shrink: 0; object-fit: cover; scroll-snap-align: start; }
-        
-        .back-btn { position: absolute; top: 15px; left: 15px; background: white; width: 40px; height: 40px; border-radius: 50%; border: none; cursor: pointer; z-index: 10; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
-        .img-badge { position: absolute; bottom: 15px; right: 15px; background: rgba(0,0,0,0.6); color: white; padding: 4px 12px; border-radius: 20px; font-size: 11px; }
+        /* Filter Tags */
+        .category-scroll { padding: 15px 20px; display: flex; gap: 10px; overflow-x: auto; scrollbar-width: none; background: var(--bg); }
+        .cat-chip { background: var(--white); border: 1px solid var(--border); padding: 8px 16px; border-radius: 20px; font-size: 13px; font-weight: 600; cursor: pointer; white-space: nowrap; transition: 0.2s; }
+        .cat-chip.active { background: var(--sidebar-bg); color: var(--white); border-color: var(--sidebar-bg); }
 
-        .tier-table { background: #f0fdf4; border: 1px dashed var(--success); padding: 15px; border-radius: 12px; margin: 15px 0; }
-        .tier-row { display: flex; justify-content: space-between; padding: 5px 0; border-bottom: 1px solid #e0e7ff; }
-
-        /* Floating Cart Bar */
-        .cart-bar { position: fixed; bottom: 20px; left: 15px; right: 15px; background: #1e293b; color: white; padding: 15px 20px; border-radius: 18px; display: flex; justify-content: space-between; align-items: center; max-width: 500px; margin: auto; z-index: 100; }
-
-        /* Cart Sheet */
-        .overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 400; backdrop-filter: blur(4px); }
-        .modal-sheet { background: white; position: absolute; bottom: 0; left: 0; right: 0; border-radius: 24px 24px 0 0; max-height: 85vh; overflow-y: auto; padding: 20px; max-width: 600px; margin: auto; }
+        /* Grid Area */
+        .page-view { flex: 1; overflow-y: auto; padding: 20px; display: none; }
+        .page-view.active { display: block; }
         
-        .cart-item { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid #f1f5f9; }
-        .qty-group { display: flex; align-items: center; background: #f1f5f9; border-radius: 8px; padding: 4px; gap: 10px; }
-        .qty-btn { border: none; background: white; width: 26px; height: 26px; border-radius: 6px; font-weight: bold; cursor: pointer; }
+        .menu-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 15px; padding-bottom: 100px; }
+        .product-card { background: var(--white); border-radius: 16px; overflow: hidden; box-shadow: var(--shadow); transition: 0.2s; cursor: pointer; border: 1px solid transparent; }
+        .product-card:hover { transform: translateY(-3px); border-color: var(--primary); }
+        .p-img { width: 100%; height: 120px; object-fit: cover; background: #eee; }
+        .p-info { padding: 12px; }
+        .p-name { font-weight: 700; font-size: 14px; margin-bottom: 5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .p-price { color: var(--primary-dark); font-weight: 800; }
+
+        /* --- Right Sidebar (Cart) --- */
+        .cart-panel { width: 350px; background: var(--white); border-left: 1px solid var(--border); display: flex; flex-direction: column; height: 100%; position: absolute; right: 0; top: 0; z-index: 40; transition: 0.3s; }
+        .cart-header { padding: 20px; border-bottom: 1px solid var(--border); font-weight: 700; font-size: 18px; display: flex; justify-content: space-between; }
+        .cart-items { flex: 1; overflow-y: auto; padding: 15px; }
+        .c-item { display: flex; align-items: center; margin-bottom: 15px; }
+        .c-img { width: 40px; height: 40px; border-radius: 8px; object-fit: cover; margin-right: 10px; }
+        .c-details { flex: 1; }
+        .c-title { font-size: 13px; font-weight: bold; display: block; }
+        .c-price { font-size: 12px; color: var(--text-light); }
+        .c-actions { display: flex; align-items: center; gap: 8px; background: #f1f5f9; padding: 4px; border-radius: 8px; }
+        .btn-qty { border: none; background: white; width: 24px; height: 24px; border-radius: 6px; cursor: pointer; font-weight: bold; box-shadow: 0 1px 2px rgba(0,0,0,0.1); }
         
-        .btn-main { width: 100%; padding: 16px; background: var(--accent); color: white; border: none; border-radius: 14px; font-weight: bold; font-size: 16px; cursor: pointer; margin-top: 15px; }
+        .cart-footer { padding: 20px; border-top: 1px solid var(--border); background: #fafafa; }
+        .row-calc { display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 14px; }
+        .total { font-size: 20px; font-weight: 800; color: var(--sidebar-bg); }
+        .btn-checkout { width: 100%; background: var(--sidebar-bg); color: white; padding: 15px; border-radius: 12px; border: none; font-size: 16px; font-weight: bold; cursor: pointer; margin-top: 10px; display: flex; justify-content: space-between; align-items: center; }
+        .btn-checkout:active { transform: scale(0.98); }
+
+        /* --- Order Tracking & History Styling --- */
+        .order-card { background: white; padding: 15px; border-radius: 12px; margin-bottom: 15px; border: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+        .order-id { font-weight: 800; color: var(--primary-dark); font-size: 16px; }
+        .order-status { padding: 5px 10px; border-radius: 20px; font-size: 12px; font-weight: bold; }
+        .status-pending { background: #fff7ed; color: #c2410c; }
+        .status-completed { background: #ecfdf5; color: #047857; }
+        .btn-action { background: var(--sidebar-bg); color: white; border: none; padding: 8px 12px; border-radius: 8px; cursor: pointer; font-size: 12px; }
+
+        /* --- Invoice Modal --- */
+        .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 100; display: none; align-items: center; justify-content: center; backdrop-filter: blur(3px); }
+        .receipt-box { background: white; width: 320px; padding: 20px; border-radius: 10px; text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.2); }
+        .receipt-header { border-bottom: 2px dashed #ccc; padding-bottom: 10px; margin-bottom: 10px; }
+        .receipt-body { text-align: left; font-family: 'Courier New', monospace; font-size: 13px; line-height: 1.6; }
+        .receipt-row { display: flex; justify-content: space-between; }
+        .btn-print { width: 100%; background: var(--success); color: white; padding: 10px; border: none; border-radius: 8px; margin-top: 15px; cursor: pointer; font-weight: bold; }
+
+        /* Notification Dropdown */
+        .notif-panel { position: absolute; top: 10px; left: 90px; width: 300px; background: white; border-radius: 12px; box-shadow: var(--shadow); border: 1px solid var(--border); padding: 10px; display: none; z-index: 60; }
+        .notif-item { padding: 10px; border-bottom: 1px solid #f1f5f9; font-size: 13px; }
+        .notif-item:last-child { border: none; }
+        .notif-time { font-size: 11px; color: #94a3b8; display: block; margin-top: 2px; }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .cart-panel { position: fixed; width: 100%; height: 60%; bottom: 0; top: auto; border-radius: 20px 20px 0 0; transform: translateY(110%); box-shadow: 0 -5px 20px rgba(0,0,0,0.1); }
+            .cart-panel.open { transform: translateY(0); }
+            .sidebar { width: 60px; }
+            .menu-grid { grid-template-columns: repeat(2, 1fr); }
+            .header { padding: 0 10px; }
+            .search-bar { width: 180px; }
+        }
     </style>
 </head>
 <body>
 
-<div class="top-nav">
-    <h2 style="text-align:center; margin:0;">👗 MYA Fashion Store</h2>
-    <div class="search-box">
-        <i class="fa-solid fa-magnifying-glass" style="color:#94a3b8;"></i>
-        <input type="text" id="searchInput" placeholder="အထည်အမည်ဖြင့် ရှာဖွေပါ..." onkeyup="renderMenu()">
+<nav class="sidebar">
+    <div class="logo"><i class="fa-solid fa-drumstick-bite"></i></div>
+    
+    <div class="nav-item active" onclick="switchView('menu')" title="Menu">
+        <i class="fa-solid fa-border-all"></i>
     </div>
-    <div class="cat-row" id="catRow">
-        <div class="cat-btn active" onclick="filterCat('All', this)">All</div>
-        <div class="cat-btn" onclick="filterCat('အင်္ကျီ', this)">အင်္ကျီ</div>
-        <div class="cat-btn" onclick="filterCat('ဘောင်းဘီ', this)">ဘောင်းဘီ</div>
-        <div class="cat-btn" onclick="filterCat('ဂါဝန်', this)">ဂါဝန်</div>
+    
+    <div class="nav-item" onclick="switchView('orders')" title="Orders Tracking">
+        <i class="fa-solid fa-list-check"></i>
     </div>
-</div>
-
-<div class="container">
-    <div id="grid-box" class="menu-grid"></div>
-</div>
-
-<div class="cart-bar" id="cart-bar" style="display: none;">
-    <div>စုစုပေါင်း: <b id="bar-total">0</b> Ks</div>
-    <button onclick="openCart()" style="background:var(--accent); border:none; color:white; padding:10px 18px; border-radius:10px; font-weight:bold;">ခြင်းတောင်းကြည့်မည်</button>
-</div>
-
-<div id="detailPage">
-    <div class="slider-area">
-        <button class="back-btn" onclick="hideDetail()"><i class="fa-solid fa-arrow-left"></i></button>
-        <div class="slider-container" id="slider-content"></div>
-        <div class="img-badge" id="img-badge">1 / 1</div>
-    </div>
-    <div id="detail-body" style="padding: 20px;"></div>
-</div>
-
-<div id="cart-sheet" class="overlay">
-    <div class="modal-sheet">
-        <h3 style="margin-top:0;">ခြင်းတောင်း</h3>
-        <div id="cart-list"></div>
-        <div id="checkout-form" style="display:none; margin-top:20px; border-top:1px dashed #ccc; padding-top:20px;">
-            <input type="text" id="cust-name" placeholder="အမည်">
-            <input type="text" id="cust-phone" placeholder="ဖုန်းနံပါတ်">
-            <button class="btn-main" onclick="sendToTele()">Telegram သို့ ပို့မည်</button>
+    
+    <div class="nav-item" onclick="toggleNotif()" title="Notifications">
+        <i class="fa-solid fa-bell"></i>
+        <div class="badge" id="notif-badge">0</div>
+        <div class="notif-panel" id="notif-panel">
+            <h4 style="margin:0 0 10px; font-size:14px;">အသိပေးချက်များ</h4>
+            <div id="notif-list">
+                <div style="text-align:center; color:#999; font-size:12px;">No notifications</div>
+            </div>
         </div>
-        <button id="next-btn" class="btn-main" onclick="showForm()">အော်ဒါတင်မည် ➔</button>
+    </div>
+
+    <div class="nav-item" onclick="location.reload()" title="Refresh">
+        <i class="fa-solid fa-arrows-rotate"></i>
+    </div>
+</nav>
+
+<main class="main-content">
+    <header class="header">
+        <h3 style="margin:0; font-family:'Pyidaungsu'">🍗 မြင်သာကြက်ကင် POS</h3>
+        <div class="search-bar">
+            <i class="fa-solid fa-magnifying-glass" style="color:#94a3b8"></i>
+            <input type="text" id="searchInput" placeholder="Search item..." onkeyup="renderMenu()">
+        </div>
+    </header>
+
+    <div id="view-menu" class="page-view active">
+        <div class="category-scroll">
+            <div class="cat-chip active" onclick="filterCat('All', this)">All Items</div>
+            <div class="cat-chip" onclick="filterCat('အသား', this)">အသား</div>
+            <div class="cat-chip" onclick="filterCat('အရိုး', this)">အရိုး</div>
+            <div class="cat-chip" onclick="filterCat('ကလီစာ', this)">ကလီစာ</div>
+            <div class="cat-chip" onclick="filterCat('အသီးအရွက်', this)">အသီးအရွက်</div>
+            <div class="cat-chip" onclick="filterCat('အရေခွံ', this)">အရေခွံ</div>
+            <div class="cat-chip" onclick="filterCat('ဥ', this)">ဥ</div>
+        </div>
+        <div class="menu-grid" id="grid-box"></div>
+    </div>
+
+    <div id="view-orders" class="page-view">
+        <h2 style="margin-top:0;">📋 Order Tracking</h2>
+        <div id="order-list-container"></div>
+    </div>
+</main>
+
+<aside class="cart-panel" id="cart-panel">
+    <div class="cart-header">
+        <span>Current Order</span>
+        <button style="border:none; background:transparent; font-size:14px; color:#ef4444; cursor:pointer;" onclick="clearCart()">Clear</button>
+    </div>
+    
+    <div class="cart-items" id="cart-items-box">
+        <div style="text-align:center; margin-top:50px; color:#94a3b8;">
+            <i class="fa-solid fa-basket-shopping" style="font-size:40px; margin-bottom:10px;"></i>
+            <p>ခြင်းတောင်း လွတ်နေပါသည်</p>
+        </div>
+    </div>
+
+    <div class="cart-footer">
+        <div class="row-calc">
+            <span>Subtotal</span>
+            <span id="cart-subtotal">0</span>
+        </div>
+        <div class="row-calc">
+            <span>Tax (0%)</span>
+            <span>0</span>
+        </div>
+        <div style="border-top:1px dashed #ccc; margin:10px 0;"></div>
+        <div class="row-calc">
+            <span style="font-weight:bold;">Total Amount</span>
+            <span class="total" id="cart-total">0 Ks</span>
+        </div>
+        <button class="btn-checkout" onclick="processCheckout()">
+            <span>Pay & Print Invoice</span>
+            <i class="fa-solid fa-print"></i>
+        </button>
+    </div>
+    
+    <div style="position:absolute; top:-30px; left:0; right:0; height:30px; display:flex; justify-content:center; align-items:center; background:white; border-radius:15px 15px 0 0; box-shadow: 0 -2px 5px rgba(0,0,0,0.1); display:none;" id="mobile-handle" onclick="toggleMobileCart()">
+        <div style="width:40px; height:4px; background:#ccc; border-radius:2px;"></div>
+    </div>
+</aside>
+
+<div class="modal-overlay" id="invoice-modal">
+    <div class="receipt-box">
+        <div class="receipt-header">
+            <h3 style="margin:0;">MYIN THAR CHICKEN</h3>
+            <p style="margin:5px 0; font-size:12px;">Yangon, Myanmar</p>
+            <p style="margin:0; font-size:12px;">Tel: 09-9767287345</p>
+        </div>
+        <div class="receipt-body" id="receipt-content">
+            </div>
+        <div style="border-top: 2px dashed #ccc; margin-top:10px; padding-top:10px;">
+            <p style="font-size:12px; margin:0;">Thank you for your purchase!</p>
+        </div>
+        <button class="btn-print" onclick="printReceipt()">🖨️ Print / Save</button>
+        <button onclick="closeModal()" style="background:transparent; border:none; color:#666; margin-top:10px; font-size:12px; cursor:pointer;">Close</button>
     </div>
 </div>
 
-<script src="menu.js"></script>
 <script>
+    // --- Data ---
+    const menuData = [
+        { id: 1, name: 'ကြက်ပေါင်', price: 4000, category: 'အသား', image: 'https://i.ibb.co/JWsqDFX9/1768228481848.png' },
+        { id: 2, name: 'ကြက်ရင်အုံ', price: 4000, category: 'အသား', image: 'https://via.placeholder.com/150?text=Chicken+Breast' },
+        { id: 3, name: 'ဆိတ်သားကင်', price: 1500, category: 'အသား', image: 'https://i.ibb.co/twQjTScV/IMG-20251231-003231.png' },
+        { id: 4, name: 'အသားချောင်း', price: 800, category: 'အသား', image: 'https://i.ibb.co/rRd5P91j/1767118697374.png' },
+        { id: 5, name: 'အရေခွံ', price: 500, category: 'အရေခွံ', image: 'https://i.ibb.co/MkJqnDyG/1767147480724.png' },
+        { id: 6, name: 'အတောင်ပျံ', price: 500, category: 'အရိုး', image: 'https://i.ibb.co/rKJY26TM/1767147666947.png' },
+        { id: 7, name: 'အတောင်ပျံ (CP)', price: 1000, category: 'အရိုး', image: 'https://via.placeholder.com/150?text=Wing+CP' },
+        { id: 8, name: 'အူ', price: 500, category: 'ကလီစာ', image: 'https://via.placeholder.com/150?text=Intestine' },
+        { id: 9, name: 'ခေါင်း', price: 300, category: 'အရိုး', image: 'https://via.placeholder.com/150?text=Head' },
+        { id: 10, name: 'လည်ချောင်း', price: 300, category: 'အရိုး', image: 'https://i.ibb.co/bjL850PP/1768208169381.png' },
+        { id: 11, name: 'အသည်းမြစ်', price: 500, category: 'ကလီစာ', image: 'https://i.ibb.co/twRsK5S7/1767147537379.png' },
+        { id: 12, name: 'ခြေထောက်', price: 300, category: 'အရိုး', image: 'https://via.placeholder.com/150?text=Feet' },
+        { id: 14, name: 'လက်မောင်းလုံး', price: 1000, category: 'အသား', image: 'https://via.placeholder.com/150?text=Drumstick' },
+        { id: 15, name: 'အဆီပူး', price: 800, category: 'အရေခွံ', image: 'https://i.ibb.co/PGcW9j6r/1767118749960.png' },
+        { id: 16, name: 'အသားတု', price: 400, category: 'အသီးအရွက်', image: 'https://i.ibb.co/hpPRPDr/1768208099763.png' },
+        { id: 17, name: 'ရုံးပတေသီး', price: 300, category: 'အသီးအရွက်', image: 'https://i.ibb.co/cSCzCKN5/1768228376693.png' },
+        { id: 18, name: 'အပ်မှို', price: 1000, category: 'အသီးအရွက်', image: 'https://i.ibb.co/PsGSSTK4/1768228089572.png' },
+        { id: 19, name: 'ငုံးဥ', price: 1000, category: 'ဥ', image: 'https://i.ibb.co/xtyy8V0N/1768211447515.png' }
+    ];
+
     let cart = {};
     let activeCat = 'All';
+    let orders = JSON.parse(localStorage.getItem('pos_orders')) || [];
+    let notifications = [];
 
-    // ဈေးနှုန်းတွက်ချက်မှု Logic (Tiered Price)
-    function getPrice(item, qty) {
-        const tiers = [...item.priceTiers].sort((a, b) => b.minQty - a.minQty);
-        const matched = tiers.find(t => qty >= t.minQty);
-        return matched ? matched.price : item.priceTiers[0].price;
+    // --- Sound System (Using Web Audio API for no external dependencies) ---
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    
+    function playTone(freq, type, duration) {
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = type;
+        osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+        gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + duration);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + duration);
+    }
+
+    function soundBeep() { playTone(800, 'sine', 0.1); } // Add item
+    function soundSuccess() { playTone(600, 'sine', 0.1); setTimeout(() => playTone(1200, 'sine', 0.2), 100); } // Checkout
+    function soundError() { playTone(300, 'sawtooth', 0.3); } // Error
+
+    // --- Core UI Functions ---
+    function init() {
+        renderMenu();
+        updateCartUI();
+        if(window.innerWidth <= 768) document.getElementById('mobile-handle').style.display = 'flex';
+        renderOrderList();
+    }
+
+    function switchView(viewName) {
+        document.querySelectorAll('.page-view').forEach(el => el.classList.remove('active'));
+        document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+        
+        document.getElementById(`view-${viewName}`).classList.add('active');
+        
+        // Highlight active sidebar icon
+        if(viewName === 'menu') document.querySelector('.nav-item:nth-child(2)').classList.add('active');
+        if(viewName === 'orders') {
+            document.querySelector('.nav-item:nth-child(3)').classList.add('active');
+            renderOrderList();
+        }
     }
 
     function renderMenu() {
         const q = document.getElementById('searchInput').value.toLowerCase();
         const grid = document.getElementById('grid-box');
         const items = menuData.filter(i => (activeCat === 'All' || i.category === activeCat) && i.name.toLowerCase().includes(q));
+        
         grid.innerHTML = items.map(i => `
-            <div class="card" onclick="showDetail(${i.id})">
-                <img src="${i.images[0]}" class="card-img">
-                <div class="card-info">
-                    <div style="font-weight:700; font-size:14px; margin-bottom:5px;">${i.name}</div>
-                    <div class="item-price">${i.priceTiers[0].price.toLocaleString()} Ks</div>
+            <div class="product-card" onclick="addToCart(${i.id})">
+                <img src="${i.image}" class="p-img" onerror="this.src='https://placehold.co/150x100?text=No+Image'">
+                <div class="p-info">
+                    <div class="p-name">${i.name}</div>
+                    <div class="p-price">${i.price.toLocaleString()} Ks</div>
                 </div>
             </div>`).join('');
     }
 
-    function showDetail(id) {
-        const item = menuData.find(m => m.id === id);
-        const slider = document.getElementById('slider-content');
-        const body = document.getElementById('detail-body');
-        const badge = document.getElementById('img-badge');
+    function filterCat(cat, el) {
+        activeCat = cat;
+        document.querySelectorAll('.cat-chip').forEach(c => c.classList.remove('active'));
+        el.classList.add('active');
+        renderMenu();
+    }
 
-        slider.innerHTML = item.images.map(img => `<img src="${img}">`).join('');
-        badge.innerText = `1 / ${item.images.length}`;
+    // --- Cart Logic ---
+    function addToCart(id) {
+        cart[id] = (cart[id] || 0) + 1;
+        soundBeep();
+        updateCartUI();
+        // Mobile auto open cart hint
+        if(window.innerWidth <= 768 && Object.keys(cart).length === 1) {
+             document.getElementById('cart-panel').classList.add('open');
+        }
+    }
+
+    function updateCartUI() {
+        const box = document.getElementById('cart-items-box');
+        let html = '', total = 0;
         
-        let tiersHtml = item.priceTiers.map(t => `
-            <div class="tier-row">
-                <span>${t.minQty} ထည်မှစ၍</span>
-                <b style="color:var(--success);">${t.price.toLocaleString()} Ks</b>
-            </div>`).join('');
-
-        body.innerHTML = `
-            <h2 style="margin:0;">${item.name}</h2>
-            <div class="tier-table">
-                <p style="margin:0 0 10px; font-weight:bold;"><i class="fa-solid fa-layer-group"></i> ဈေးနှုန်းသတ်မှတ်ချက်များ</p>
-                ${tiersHtml}
-            </div>
-            <p style="color:var(--sub); line-height:1.6;">${item.description}</p>
-            <button class="btn-main" onclick="addToCart(${item.id}); hideDetail();">ခြင်းတောင်းထဲထည့်မည်</button>
-        `;
-        document.getElementById('detailPage').style.display = 'block';
-        slider.onscroll = (e) => {
-            badge.innerText = `${Math.round(e.target.scrollLeft / e.target.clientWidth) + 1} / ${item.images.length}`;
-        };
-    }
-
-    function addToCart(id) { cart[id] = (cart[id] || 0) + 1; updateBar(); }
-
-    function updateBar() {
-        let total = 0;
-        for (let id in cart) {
-            let item = menuData.find(m => m.id == id);
-            total += getPrice(item, cart[id]) * cart[id];
+        if (Object.keys(cart).length === 0) {
+            box.innerHTML = `<div style="text-align:center; margin-top:50px; color:#94a3b8;"><i class="fa-solid fa-basket-shopping" style="font-size:40px; margin-bottom:10px;"></i><p>No items in cart</p></div>`;
+            document.getElementById('cart-total').innerText = "0 Ks";
+            document.getElementById('cart-subtotal').innerText = "0";
+            return;
         }
-        document.getElementById('cart-bar').style.display = total > 0 ? 'flex' : 'none';
-        document.getElementById('bar-total').innerText = total.toLocaleString();
-    }
 
-    function openCart() {
-        const list = document.getElementById('cart-list');
-        let html = '', grandTotal = 0;
         for (let id in cart) {
-            let item = menuData.find(m => m.id == id);
-            let qty = cart[id];
-            let p = getPrice(item, qty);
-            grandTotal += p * qty;
+            const item = menuData.find(m => m.id == id);
+            const sum = item.price * cart[id];
+            total += sum;
             html += `
-                <div class="cart-item">
-                    <img src="${item.images[0]}" style="width:50px; height:50px; border-radius:8px; object-fit:cover;">
-                    <div style="flex:1;">
-                        <div style="font-weight:bold; font-size:13px;">${item.name}</div>
-                        <div style="color:var(--success); font-size:12px;">${p.toLocaleString()} Ks</div>
-                    </div>
-                    <div class="qty-group">
-                        <button class="qty-btn" onclick="changeQty(${id},-1)">-</button>
-                        <span>${qty}</span>
-                        <button class="qty-btn" onclick="changeQty(${id},1)">+</button>
-                    </div>
-                </div>`;
+            <div class="c-item">
+                <img src="${item.image}" class="c-img" onerror="this.src='https://placehold.co/40'">
+                <div class="c-details">
+                    <span class="c-title">${item.name}</span>
+                    <span class="c-price">${item.price} x ${cart[id]} = ${sum.toLocaleString()}</span>
+                </div>
+                <div class="c-actions">
+                    <button class="btn-qty" onclick="changeQty(${id}, -1)">-</button>
+                    <span style="font-size:13px; font-weight:bold; min-width:20px; text-align:center;">${cart[id]}</span>
+                    <button class="btn-qty" onclick="changeQty(${id}, 1)">+</button>
+                </div>
+            </div>`;
         }
-        list.innerHTML = html + `<div style="text-align:right; padding:15px 0;">စုစုပေါင်း: <b style="font-size:18px; color:var(--accent);">${grandTotal.toLocaleString()}</b> Ks</div>`;
-        document.getElementById('cart-sheet').style.display = 'block';
+        box.innerHTML = html;
+        document.getElementById('cart-subtotal').innerText = total.toLocaleString();
+        document.getElementById('cart-total').innerText = total.toLocaleString() + " Ks";
     }
 
-    function changeQty(id, d) {
-        cart[id] += d;
-        if(cart[id] <= 0) delete cart[id];
-        if(Object.keys(cart).length === 0) document.getElementById('cart-sheet').style.display = 'none'; else openCart();
-        updateBar();
+    function changeQty(id, delta) {
+        cart[id] += delta;
+        if (cart[id] <= 0) delete cart[id];
+        updateCartUI();
     }
 
-    function showForm() { document.getElementById('checkout-form').style.display = 'block'; document.getElementById('next-btn').style.display = 'none'; }
-    function hideDetail() { document.getElementById('detailPage').style.display = 'none'; }
-    function filterCat(c, el) { 
-        activeCat = c; 
-        document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
-        el.classList.add('active'); renderMenu(); 
+    function clearCart() {
+        cart = {};
+        updateCartUI();
+        document.getElementById('cart-panel').classList.remove('open');
     }
 
-    function sendToTele() {
-        const name = document.getElementById('cust-name').value;
-        const phone = document.getElementById('cust-phone').value;
-        let items = [];
+    function toggleMobileCart() {
+        document.getElementById('cart-panel').classList.toggle('open');
+    }
+
+    // --- Invoice & Order System ---
+    function processCheckout() {
+        if (Object.keys(cart).length === 0) return soundError();
+        
+        soundSuccess();
+        const orderId = 'INV-' + Math.floor(100000 + Math.random() * 900000);
+        const date = new Date().toLocaleString('my-MM');
         let total = 0;
-        for(let id in cart) {
-            let itm = menuData.find(m => m.id == id);
-            let p = getPrice(itm, cart[id]);
-            items.push(`- ${itm.name} (${cart[id]} ထည် x ${p})`);
-            total += p * cart[id];
+        let itemsHtml = '';
+        let orderItems = [];
+
+        for (let id in cart) {
+            const item = menuData.find(m => m.id == id);
+            const lineTotal = item.price * cart[id];
+            total += lineTotal;
+            orderItems.push({ name: item.name, qty: cart[id], price: item.price });
+            
+            // Receipt HTML
+            itemsHtml += `
+            <div class="receipt-row">
+                <span>${item.name} x${cart[id]}</span>
+                <span>${lineTotal.toLocaleString()}</span>
+            </div>`;
         }
-        const msg = `🛍️ **New Order**\n👤 အမည်: ${name}\n📞 ဖုန်း: ${phone}\n----------\n${items.join('\n')}\n----------\n💰 စုစုပေါင်း: ${total.toLocaleString()} Ks`;
-        window.location.href = `https://t.me/959767287345?text=${encodeURIComponent(msg)}`;
+
+        // Generate Invoice HTML
+        document.getElementById('receipt-content').innerHTML = `
+            <div class="receipt-row" style="margin-bottom:5px;">
+                <span>ID: ${orderId}</span>
+                <span>${date.split(',')[1]}</span>
+            </div>
+            <div style="border-bottom:1px solid #eee; margin-bottom:10px;"></div>
+            ${itemsHtml}
+            <div style="border-top:1px dashed #000; margin-top:10px; padding-top:5px; font-weight:bold;">
+                <div class="receipt-row">
+                    <span>TOTAL</span>
+                    <span>${total.toLocaleString()} Ks</span>
+                </div>
+            </div>
+        `;
+
+        // Save Order for Tracking
+        const newOrder = {
+            id: orderId,
+            time: date,
+            total: total,
+            items: orderItems,
+            status: 'Pending'
+        };
+        orders.unshift(newOrder);
+        localStorage.setItem('pos_orders', JSON.stringify(orders)); // Persist Data
+        
+        // Add Notification
+        addNotification(`New Order ${orderId} placed successfully.`);
+
+        // Show Modal
+        document.getElementById('invoice-modal').style.display = 'flex';
+        
+        // Reset Cart
+        cart = {};
+        updateCartUI();
     }
 
-    window.onload = renderMenu;
+    function closeModal() {
+        document.getElementById('invoice-modal').style.display = 'none';
+    }
+
+    function printReceipt() {
+        const content = document.querySelector('.receipt-box').innerHTML;
+        const win = window.open('', '', 'height=600,width=400');
+        win.document.write('<html><head><title>Receipt</title><style>body{font-family:monospace; padding:20px;}</style></head><body>');
+        win.document.write(content);
+        win.document.write('</body></html>');
+        win.document.close();
+        win.print();
+    }
+
+    // --- Order Tracking Logic ---
+    function renderOrderList() {
+        const container = document.getElementById('order-list-container');
+        if (orders.length === 0) {
+            container.innerHTML = '<p style="text-align:center; color:#999;">No orders yet.</p>';
+            return;
+        }
+        
+        container.innerHTML = orders.map(o => `
+            <div class="order-card">
+                <div>
+                    <div class="order-id">#${o.id}</div>
+                    <div style="font-size:12px; color:#666;">${o.time} • ${o.items.length} Items</div>
+                    <div style="font-size:13px; font-weight:bold;">${o.total.toLocaleString()} Ks</div>
+                </div>
+                <div style="text-align:right;">
+                    <span class="order-status ${o.status === 'Completed' ? 'status-completed' : 'status-pending'}">${o.status}</span>
+                    ${o.status === 'Pending' ? `<br><button class="btn-action" style="margin-top:5px;" onclick="completeOrder('${o.id}')">Mark Done</button>` : ''}
+                </div>
+            </div>
+        `).join('');
+    }
+
+    function completeOrder(id) {
+        const order = orders.find(o => o.id === id);
+        if(order) {
+            order.status = 'Completed';
+            localStorage.setItem('pos_orders', JSON.stringify(orders));
+            renderOrderList();
+            soundSuccess();
+            addNotification(`Order ${id} is ready!`);
+        }
+    }
+
+    // --- Notifications ---
+    function addNotification(msg) {
+        notifications.unshift({ msg, time: new Date().toLocaleTimeString() });
+        const badge = document.getElementById('notif-badge');
+        badge.style.display = 'flex';
+        badge.innerText = notifications.length;
+        
+        // Render List
+        const list = document.getElementById('notif-list');
+        list.innerHTML = notifications.map(n => `
+            <div class="notif-item">
+                ${n.msg}
+                <span class="notif-time">${n.time}</span>
+            </div>
+        `).join('');
+    }
+
+    function toggleNotif() {
+        const p = document.getElementById('notif-panel');
+        p.style.display = p.style.display === 'block' ? 'none' : 'block';
+        // Clear badge on open
+        if(p.style.display === 'block') {
+             document.getElementById('notif-badge').style.display = 'none';
+        }
+    }
+
+    // Initialize
+    window.onload = init;
 </script>
 </body>
 </html>
