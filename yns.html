@@ -323,32 +323,30 @@ function renderMenu() {
     const items = menuData.filter(i => (activeCat === 'All' || i.category === activeCat) && i.name.toLowerCase().includes(q));
     
     grid.innerHTML = items.map(i => {
-        // ပစ္စည်းရနိုင်/မရနိုင် စစ်ဆေးခြင်း
-        const isAvailable = i.available !== false;
-        
-        let buttonHtml = '';
-        if (!isShopOpen) {
-            // ဆိုင်ပိတ်ထားလျှင်
-            buttonHtml = `<button class="btn-add" disabled style="background:#fecaca; color:#ef4444; cursor:not-allowed;">ဆိုင်ပိတ်ထားပါသည် 🔒</button>`;
-        } else if (!isAvailable) {
-            // ပစ္စည်းကုန်နေလျှင်
-            buttonHtml = `<button class="btn-add" disabled style="background:#cbd5e1; color:#94a3b8; cursor:not-allowed;">ကုန်နေပါသည် ❌</button>`;
-        } else {
-            // ပုံမှန် အော်ဒါတင်နိုင်လျှင်
-            buttonHtml = `<button class="btn-add" onclick="addToCart(${i.id})">+ ထည့်မည်</button>`;
-        }
-        
-        return `
-        <div class="card" style="${(!isAvailable || !isShopOpen) ? 'opacity: 0.7;' : ''}">
-            <img src="${i.image || 'https://via.placeholder.com/150'}" class="card-img" onclick="openImageViewer('${i.image || 'https://via.placeholder.com/150'}', '${i.name}')">
-            <div class="card-info">
-                <span class="item-name">${i.name}</span>
-                <span class="item-price">${i.price} Ks</span>
-                ${buttonHtml}
-            </div>
-        </div>`;
-    }).join('');
-}
+    const isAvailable = i.available !== false;
+    
+    // ပုံရှိရင် ပုံပြမယ်၊ ပုံမရှိရင် လှပတဲ့ အိုင်ကွန်နဲ့ နောက်ခံဘောက်စ်ကို ပြမယ်
+    const imageHtml = i.image 
+        ? `<img src="${i.image}" class="card-img" onclick="openImageViewer('${i.image}', '${i.name}')">`
+        : `<div style="width: 100%; height: 100px; background: linear-gradient(135deg, #f59e0b 0%, #b45309 100%); display: flex; flex-direction: column; align-items: center; justify-content: center; color: white; cursor: pointer;" onclick="openImageViewer('https://i.ibb.co/FLb4YzNT/1771770596329.png', '${i.name}')">
+             <i class="fa-solid fa-drumstick-bite" style="font-size: 28px; margin-bottom: 4px; text-shadow: 0 2px 4px rgba(0,0,0,0.2);"></i>
+             <span style="font-size: 11px; font-weight: bold; opacity: 0.9;">မြင်သာကြက်ကင်</span>
+           </div>`;
+
+    return `
+    <div class="card" style="${!isAvailable ? 'opacity: 0.7;' : ''}">
+        ${imageHtml}
+        <div class="card-info">
+            <span class="item-name">${i.name}</span>
+            <span class="item-price">${i.price} Ks</span>
+            ${isAvailable 
+                ? `<button class="btn-add" onclick="addToCart(${i.id})">+ ထည့်မည်</button>`
+                : `<button class="btn-add" disabled style="background:#cbd5e1; color:#94a3b8; cursor:not-allowed;">မရနိုင်သေးပါ ❌</button>`
+            }
+        </div>
+    </div>`;
+}).join('');
+    
     
 function checkSearchInput() {
     const q = document.getElementById('searchInput').value;
