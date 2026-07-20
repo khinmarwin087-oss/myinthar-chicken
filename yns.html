@@ -275,7 +275,7 @@ let activeCat = 'All', chosenDay = 'today';
 async function fetchStoreStatus() {
     try {
         // သတိပြုရန်: အောက်ပါနေရာတွင် သင် Copy ကူးလာသော Google Sheet CSV Link ကို အစားထိုးထည့်သွင်းပေးပါ။
-        const sheetCSV_URL = "YOUR_GOOGLE_SHEET_CSV_LINK_HERE";
+        const sheetCSV_URL = "https://docs.google.com/spreadsheets/d/1ZZ3GQtozKwBC-kIB7r4MBCLdvKsEwW0MjohzFbzJMyY/edit?usp=sharing";
         
         if (sheetCSV_URL !== "YOUR_GOOGLE_SHEET_CSV_LINK_HERE") {
             const res = await fetch(sheetCSV_URL);
