@@ -246,89 +246,53 @@ const CHAT_ID = "8116152317";
 const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxnIbbPu40NB079FzI77kjLKqBUCRtqXF2PMddxX7N9RNGrfMx9dMNEByes8tq0ZbUv7Q/exec"; 
 
 // Google Sheet မှ ရယူမည့် အခြေအနေ (Default အနေဖြင့် ဆိုင်ဖွင့်သည်ဟု သတ်မှတ်ထားသည်)
-let isShopOpen = true; 
+// let isShopOpen = true; 
 
 const menuData = [
-  { id: 2, name: 'ကြက်ရင်အုံ', price: 4000, category: 'အသား', image: 'https://i.ibb.co/FLb4YzNT/1771770596329.png' },
-  { id: 20, name: 'ကြက်ပေါင်', price: 4000, category: 'အသား', image: 'https://i.ibb.co/twQQYmYN/1771771044356.png' },
-  { id: 1, name: 'ကြက်ပေါင်', price: 3000, category: 'အသား', image: 'https://i.ibb.co/JWsqDFX9/1768228481848.png', available: false },
-  { id: 3, name: 'ဆိတ်သားကင်', price: 1500, category: 'အသား', image: 'https://i.ibb.co/twQjTScV/IMG-20251231-003231.png' },
-  { id: 14, name: 'လက်မောင်းလုံး', price: 1000, category: 'အသား', image: '' },
-  { id: 7, name: 'အတောင်ပျံ (CP)', price: 1000, category: 'အရိုး', image: 'https://i.ibb.co/rKJY26TM/1767147666947.png' },
-  { id: 18, name: 'အပ်မှို', price: 1000, category: 'အသီးအရွက်', image: 'https://i.ibb.co/PsGSSTK4/1768228089572.png' },
-  { id: 19, name: 'ငုံးဥ', price: 1000, category: 'ဥ', image: 'https://i.ibb.co/xtyy8V0N/1768211447515.png' },
-  { id: 4, name: 'အသား ချောင်း(ကြက်)', price: 1000, category: 'အသား', image: 'https://i.ibb.co/rRd5P91j/1767118697374.png' },
-  { id: 15, name: 'အဆီပူး', price: 1000, category: 'အရေခွံ', image: 'https://i.ibb.co/PGcW9j6r/1767118749960.png' },
-  { id: 13, name: 'ခြေထောက်(CP)', price: 700, category: 'အရိုး', image: 'https://i.ibb.co/7dPMPdR9/1771774751760.png' },
-  { id: 5, name: 'အရေခွံ', price: 700, category: 'အရေခွံ', image: 'https://i.ibb.co/MkJqnDyG/1767147480724.png' },
-  { id: 6, name: 'အတောင်ပျံ', price: 700, category: 'အရိုး', image: 'https://i.ibb.co/7dpqp2BJ/1771771310595.png' },
-  { id: 8, name: 'အူ', price: 700, category: 'ကလီစာ', image: 'https://i.ibb.co/0VZfW6jW/1771771269724.png' },
-  { id: 11, name: 'အသည်းမြစ်', price: 700, category: 'ကလီစာ', image: 'https://i.ibb.co/twRsK5S7/1767147537379.png' },
-  { id: 16, name: 'အသားတု', price: 400, category: 'အသီးအရွက်', image: 'https://i.ibb.co/hpPRPDr/1768208099763.png' },
-  { id: 21, name: 'အာလူး', price: 500, category: 'အသီးအရွက်', image: '' },
-  { id: 9, name: 'ခေါင်း', price: 400, category: 'အရိုး', image: 'https://i.ibb.co/Y4dYQ0Q2/1771774457826.png' },
-  { id: 10, name: 'လည် ချောင်း', price: 400, category: 'အရိုး', image: 'https://i.ibb.co/bjL850PP/1768208169381.png' },
-  { id: 12, name: 'ခြေထောက်', price: 400, category: 'အရိုး', image: '' },
-  { id: 17, name: 'ရုံးပတေသီး', price: 300, category: 'အသီးအရွက်', image: 'https://i.ibb.co/cSCzCKN5/1768228376693.png' },
-     { id: 22, name: 'ကြက်ဥပေါင်း', price: 1500, category: 'အသီးအရွက်', image: '' },
-     { id: 23, name: 'ကြက်စပ်ပြား', price: 1500, category: 'အသီးအရွက်', image: '' }
+    { id: 2, name: 'ကြက်ရင်အုံ', price: 4000, category: 'အသား', image: 'https://i.ibb.co/FLb4YzNT/1771770596329.png' },
+    { id: 20, name: 'ကြက်ပေါင်', price: 4000, category: 'အသား', image: 'https://i.ibb.co/twQQYmYN/1771771044356.png' },
+    { id: 1, name: 'ကြက်ပေါင်', price: 3000, category: 'အသား', image: 'https://i.ibb.co/JWsqDFX9/1768228481848.png', available: false },
+    { id: 3, name: 'ဆိတ်သားကင်', price: 1500, category: 'အသား', image: 'https://i.ibb.co/twQjTScV/IMG-20251231-003231.png' },
+    { id: 14, name: 'လက်မောင်းလုံး', price: 1000, category: 'အသား', image: '' },
+    { id: 7, name: 'အတောင်ပျံ (CP)', price: 1000, category: 'အရိုး', image: 'https://i.ibb.co/rKJY26TM/1767147666947.png' },
+    { id: 18, name: 'အပ်မှို', price: 1000, category: 'အသီးအရွက်', image: 'https://i.ibb.co/PsGSSTK4/1768228089572.png' },
+    { id: 19, name: 'ငုံးဥ', price: 1000, category: 'ဥ', image: 'https://i.ibb.co/xtyy8V0N/1768211447515.png' },
+    { id: 4, name: 'အသား ချောင်း(ကြက်)', price: 1000, category: 'အသား', image: 'https://i.ibb.co/rRd5P91j/1767118697374.png' },
+    { id: 15, name: 'အဆီပူး', price: 1000, category: 'အရေခွံ', image: 'https://i.ibb.co/PGcW9j6r/1767118749960.png' },
+    { id: 13, name: 'ခြေထောက်(CP)', price: 700, category: 'အရိုး', image: 'https://i.ibb.co/7dPMPdR9/1771774751760.png' },
+    { id: 5, name: 'အရေခွံ', price: 700, category: 'အရေခွံ', image: 'https://i.ibb.co/MkJqnDyG/1767147480724.png' },
+    { id: 6, name: 'အတောင်ပျံ', price: 700, category: 'အရိုး', image: 'https://i.ibb.co/7dpqp2BJ/1771771310595.png' },
+    { id: 8, name: 'အူ', price: 700, category: 'ကလီစာ', image: 'https://i.ibb.co/0VZfW6jW/1771771269724.png' },
+    { id: 11, name: 'အသည်းမြစ်', price: 700, category: 'ကလီစာ', image: 'https://i.ibb.co/twRsK5S7/1767147537379.png' },
+    { id: 16, name: 'အသားတု', price: 400, category: 'အသီးအရွက်', image: 'https://i.ibb.co/hpPRPDr/1768208099763.png' },
+    { id: 21, name: 'အာလူး', price: 500, category: 'အသီးအရွက်', image: '' },
+    { id: 9, name: 'ခေါင်း', price: 400, category: 'အရိုး', image: 'https://i.ibb.co/Y4dYQ0Q2/1771774457826.png' },
+    { id: 10, name: 'လည် ချောင်း', price: 400, category: 'အရိုး', image: 'https://i.ibb.co/bjL850PP/1768208169381.png' },
+    { id: 12, name: 'ခြေထောက်', price: 400, category: 'အရိုး', image: '' },
+    { id: 17, name: 'ရုံးပတေသီး', price: 300, category: 'အသီးအရွက်', image: 'https://i.ibb.co/cSCzCKN5/1768228376693.png' },
+    { id: 22, name: 'ကြက်ဥပေါင်း', price: 1500, category: 'အသီးအရွက်', image: '' },
+    { id: 23, name: 'ကြက်စပ်ပြား', price: 1500, category: 'အသီးအရွက်', image: '' }
 ];
 
 let cart = {};
-let activeCat = 'All', chosenDay = 'today';
+let activeCat = 'All';
+let chosenDay = 'today';
+let isShopOpen = true;
 
-// --- Google Sheet မှ အချက်အလက်လှမ်းယူမည့် Function ---
-async function fetchStoreStatus() {
-    try {
-        // သတိပြုရန်: အောက်ပါနေရာတွင် သင် Copy ကူးလာသော Google Sheet CSV Link ကို အစားထိုးထည့်သွင်းပေးပါ။
-        const sheetCSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRoGuqvfRIqIDOBoMxT6fK5HsDmLZ8qS7Pnxnf9Yyj2v5rV-uO1tlk9ZYqzlm3Uw-2g5Nwmfloud0yN/pub?output=csv";
-        
-        if (sheetCSV_URL !== "YOUR_GOOGLE_SHEET_CSV_LINK_HERE") {
-            const res = await fetch(sheetCSV_URL);
-            const csvText = await res.text();
-            
-            const rows = csvText.split('\n');
-            rows.forEach(row => {
-                const cols = row.split(',');
-                if(cols.length >= 2) {
-                    const key = cols[0].trim();
-                    const val = cols[1].trim().toLowerCase();
-                    
-                    if(key === 'shop_status') {
-                        isShopOpen = (val === 'open'); // 'open' ဖြစ်မှသာ ဆိုင်ဖွင့်မည်
-                    } else {
-                        // Menu Item ID များအတွက် (ဥပမာ- 2, 20 စသည်)
-                        const itemId = parseInt(key);
-                        const item = menuData.find(m => m.id === itemId);
-                        if(item) {
-                            // true ဆိုလျှင် ရနိုင်သည်၊ false ဆိုလျှင် ပစ္စည်းကုန်သည်
-                            item.available = (val === 'true' || val === 'yes');
-                        }
-                    }
-                }
-            });
-        }
-    } catch(e) {
-        console.log("Error loading external status, using defaults.");
-    }
-    
-    // ဆိုင်ပိတ်ထားပါက Banner ပြရန်
-    const banner = document.getElementById('shopClosedBanner');
-    if (banner) {
-        banner.style.display = isShopOpen ? 'none' : 'block';
-    }
-    
-    renderMenu(); // အချက်အလက်များ ရယူပြီးမှ Menu ကို စဆွဲမည်
-}
+const WEB_APP_URL = "သင့်ရဲ့_Google_Apps_Script_Web_App_URL_ကို_ဒီမှာ_ထည့်ပါ"; // 👈 အစောက ရထားတဲ့ Web App URL လင့်ခ်ထည့်ရန်
+
+// --- မီနူးများ ဖော်ပြခြင်း ---
 function renderMenu() {
-    const q = document.getElementById('searchInput').value.toLowerCase();
+    const searchInput = document.getElementById('searchInput');
+    const q = searchInput ? searchInput.value.toLowerCase() : '';
     const grid = document.getElementById('grid-box');
+    if (!grid) return;
+
     const items = menuData.filter(i => (activeCat === 'All' || i.category === activeCat) && i.name.toLowerCase().includes(q));
     
     grid.innerHTML = items.map(i => {
         const isAvailable = i.available !== false;
         
-        // ပုံရှိရင် ပုံပြမယ်၊ ပုံမရှိရင် လှပတဲ့ အိုင်ကွန်နဲ့ နောက်ခံဘောက်စ်ကို ပြမယ်
         const imageHtml = i.image 
             ? `<img src="${i.image}" class="card-img" onclick="openImageViewer('${i.image}', '${i.name}')">`
             : `<div style="width: 100%; height: 100px; background: linear-gradient(135deg, #f59e0b 0%, #b45309 100%); display: flex; flex-direction: column; align-items: center; justify-content: center; color: white; cursor: pointer;" onclick="openImageViewer('https://i.ibb.co/FLb4YzNT/1771770596329.png', '${i.name}')">
@@ -350,6 +314,169 @@ function renderMenu() {
         </div>`;
     }).join('');
 }
+
+// --- Google Sheet မှ အချက်အလက်များ ယူရန် ---
+async function fetchStoreStatus() {
+    try {
+        const sheetCSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRoGuqvfRIqIDOBoMxT6fK5HsDmLZ8qS7Pnxnf9Yyj2v5rV-uO1tlk9ZYqzlm3Uw-2g5Nwmfloud0yN/pub?output=csv";
+        const res = await fetch(sheetCSV_URL);
+        const csvText = await res.text();
+        
+        const rows = csvText.split('\n');
+        rows.forEach(row => {
+            const cols = row.split(',');
+            if(cols.length >= 2) {
+                const key = cols[0].trim();
+                const val = cols[1].trim().toLowerCase();
+                
+                if(key === 'shop_status') {
+                    isShopOpen = (val === 'open');
+                } else {
+                    const itemId = parseInt(key);
+                    const item = menuData.find(m => m.id === itemId);
+                    if(item) {
+                        item.available = (val === 'true' || val === 'yes');
+                    }
+                }
+            }
+        });
+    } catch(e) {
+        console.log("Error loading status.");
+    }
+    
+    const banner = document.getElementById('shopClosedBanner');
+    if (banner) {
+        banner.style.display = isShopOpen ? 'none' : 'block';
+    }
+    
+    renderMenu();
+}
+
+// --- Pro Admin Panel ဖွင့်ရန် ---
+async function openAdminPanel() {
+    let password = prompt("🔐 Admin Password ထည့်ပါ:");
+    if (password !== "1234") { 
+        if(password !== null) alert("Password မှားယွင်းနေပါသည် ❌");
+        return;
+    }
+
+    const cartContent = document.getElementById('cart-content-wrapper');
+    if(cartContent) cartContent.style.display = 'none';
+
+    const modalTitle = document.getElementById('modal-title');
+    if(modalTitle) modalTitle.innerText = "🛠️ ဆိုင်ရှင် Admin Dashboard";
+
+    const badge = document.getElementById('item-count-badge');
+    if(badge) badge.innerText = "Admin";
+
+    const modalBack = document.getElementById('modal-back');
+    if(modalBack) modalBack.onclick = () => { document.getElementById('cart-sheet').style.display = 'none'; };
+
+    const receiptView = document.getElementById('receipt-view');
+    if(!receiptView) return;
+
+    receiptView.style.display = 'block';
+    receiptView.innerHTML = `<div style="text-align:center; padding:30px;"><i class="fa-solid fa-spinner fa-spin" style="font-size:28px; color:#f59e0b;"></i><p style="margin-top:10px; font-weight:bold;">အချက်အလက်များ ဆွဲထုတ်နေပါသည်...</p></div>`;
+    
+    const cartSheet = document.getElementById('cart-sheet');
+    if(cartSheet) cartSheet.style.display = 'block';
+
+    try {
+        let response = await fetch(WEB_APP_URL);
+        let orders = await response.json();
+        window.cachedOrders = orders;
+        renderAdminDashboard('new');
+    } catch (err) {
+        receiptView.innerHTML = `<p style="text-align:center; color:#ef4444; padding:20px; font-weight:bold;">ဒေတာချိတ်ဆက်၍ မရပါ (Network Error) ❌</p>`;
+    }
+}
+
+// --- Admin Dashboard Tabs ---
+function renderAdminDashboard(tabType) {
+    const orders = window.cachedOrders || [];
+    const receiptView = document.getElementById('receipt-view');
+    if(!receiptView) return;
+
+    let html = `
+    <div style="display: flex; gap: 4px; overflow-x: auto; margin-bottom: 15px; padding-bottom: 5px;">
+        <button onclick="renderAdminDashboard('new')" style="padding: 6px 10px; border-radius: 8px; border: none; font-weight: bold; font-size: 11px; cursor: pointer; white-space: nowrap; background: ${tabType==='new'?'#1e293b':'#e2e8f0'}; color: ${tabType==='new'?'#fff':'#1e293b'};">📥 အော်ဒါအသစ်</button>
+        <button onclick="renderAdminDashboard('finished')" style="padding: 6px 10px; border-radius: 8px; border: none; font-weight: bold; font-size: 11px; cursor: pointer; white-space: nowrap; background: ${tabType==='finished'?'#1e293b':'#e2e8f0'}; color: ${tabType==='finished'?'#fff':'#1e293b'};">✅ ပြီးစီး</button>
+        <button onclick="renderAdminDashboard('history')" style="padding: 6px 10px; border-radius: 8px; border: none; font-weight: bold; font-size: 11px; cursor: pointer; white-space: nowrap; background: ${tabType==='history'?'#1e293b':'#e2e8f0'}; color: ${tabType==='history'?'#fff':'#1e293b'};">📜 မှတ်တမ်းအဟောင်း</button>
+        <button onclick="renderAdminDashboard('customers')" style="padding: 6px 10px; border-radius: 8px; border: none; font-weight: bold; font-size: 11px; cursor: pointer; white-space: nowrap; background: ${tabType==='customers'?'#1e293b':'#e2e8f0'}; color: ${tabType==='customers'?'#fff':'#1e293b'};">👥 ဝယ်သူများ</button>
+        <button onclick="renderAdminDashboard('upload')" style="padding: 6px 10px; border-radius: 8px; border: none; font-weight: bold; font-size: 11px; cursor: pointer; white-space: nowrap; background: ${tabType==='upload'?'#1e293b':'#e2e8f0'}; color: ${tabType==='upload'?'#fff':'#1e293b'};">➕ မီနူးထည့်ရန်</button>
+    </div>
+    <div style="display:flex; justify-content:flex-end; margin-bottom:10px;">
+        <button class="btn-view-voucher" onclick="openAdminPanel()" style="font-size:11px; padding:4px 10px;"><i class="fa-solid fa-rotate"></i> Refresh</button>
+    </div>`;
+
+    if (tabType === 'new' || tabType === 'finished' || tabType === 'history') {
+        let filtered = orders;
+        if (tabType === 'new') filtered = orders.filter(o => (o.Status || o.status || 'Pending') === 'Pending');
+        if (tabType === 'finished') filtered = orders.filter(o => (o.Status || o.status) === 'Finished');
+
+        if (filtered.length === 0) {
+            html += `<p style="text-align:center; color:#64748b; padding:30px; font-weight:bold;">အော်ဒါစာရင်း မရှိသေးပါ 📭</p>`;
+        } else {
+            html += `<div style="display:flex; flex-direction:column; gap:10px;">`;
+            [...filtered].reverse().forEach(o => {
+                html += `
+                <div style="background:#fff; border:1px solid #cbd5e1; border-radius:12px; padding:12px;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+                        <b style="color:#ef4444; font-size:13px;">${o.Voucher || o.voucher || ''}</b>
+                        <span style="font-size:11px; color:#64748b;">${o.Date || o.date || ''} (${o.Time || o.time || ''})</span>
+                    </div>
+                    <div style="font-size:12px; font-weight:bold; margin-bottom:4px;">👤 ${o.Name || o.name || ''} | 📞 ${o.Phone || o.phone || ''}</div>
+                    <div style="font-size:12px; color:#1e293b; background:#f8fafc; padding:8px; border-radius:8px; margin-bottom:8px;">🛒 ${o.Items || o.items || ''}</div>
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <span style="font-weight:900; color:#ef4444; font-size:13px;">ကျသင့်ငွေ: ${o.Total || o.total || ''} Ks</span>
+                        ${tabType === 'new' ? `<button onclick="alert('Google Sheet ထဲတွင် Status ကို Finished ဟု ပြောင်းပေးပါရန်')" style="background:#10b981; color:#fff; border:none; padding:5px 10px; border-radius:6px; font-size:11px; font-weight:bold; cursor:pointer;">✅ ပြီးစီးအောင်လုပ်မည်</button>` : ''}
+                    </div>
+                </div>`;
+            });
+            html += `</div>`;
+        }
+    } else if (tabType === 'customers') {
+        let customersMap = {};
+        orders.forEach(o => {
+            let phone = o.Phone || o.phone || 'Unknown';
+            if(!customersMap[phone]) {
+                customersMap[phone] = { name: o.Name || o.name || '', phone: phone, count: 0 };
+            }
+            customersMap[phone].count++;
+        });
+
+        html += `<h4 style="margin:5px 0 10px; font-size:13px;">👥 ဝယ်ယူဖူးသူများစာရင်း (${Object.keys(customersMap).length} ယောက်)</h4>`;
+        html += `<div style="display:flex; flex-direction:column; gap:8px;">`;
+        for(let phone in customersMap) {
+            let c = customersMap[phone];
+            html += `
+            <div style="background:#fff; border:1px solid #cbd5e1; border-radius:10px; padding:10px; font-size:12px; font-weight:bold;">
+                👤 ${c.name} <br>
+                📞 ဖုန်းနံပါတ်: ${c.phone} <br>
+                🛒 မှာယူဖူးကြိမ်: ${c.count} ကြိမ်
+            </div>`;
+        }
+        html += `</div>`;
+    } else if (tabType === 'upload') {
+        html += `
+        <div style="background:#fff; border:1px solid #cbd5e1; border-radius:12px; padding:15px; font-size:12px; line-height:1.6;">
+            <b style="font-size:13px; color:#1e293b; display:block; margin-bottom:8px;">📸 မီနူးနှင့် ပုံအသစ်ထည့်သွင်းနည်း</b>
+            <p style="margin:0 0 10px; color:#64748b;">ဟင်းပွဲအသစ်နှင့် ပုံအသစ်ထည့်လိုပါက အောက်ပါအတိုင်း ပြုလုပ်နိုင်ပါသည် -</p>
+            <ol style="padding-left:15px; margin:0 0 15px;">
+                <li>ပုံကို <a href="https://imgbb.com" target="_blank" style="color:#2563eb;">ImgBB</a> ကဲ့သို့ ပုံတင်ဆိုက်တစ်ခုတွင် တင်ပြီး Direct Link ကို ရယူပါ။</li>
+                <li>ဝဘ်ဆိုဒ်ကုဒ်ထဲရှိ <b>menuData</b> တွင် ဟင်းပွဲအသစ်ကို ထည့်ပါ။</li>
+                <li>Google Sheet ထဲတွင်လည်း အဆိုပါ ID နာမည်ဖြင့် ထည့်ပေးပါ။</li>
+            </ol>
+        </div>`;
+    }
+
+    receiptView.innerHTML = html;
+}
+
+// ပုံမှန် စတင်ချိန်တွင် တွန်းပို့ရန်
+window.onload = function() {
+    fetchStoreStatus();
+};
     
     
 function checkSearchInput() {
@@ -612,124 +739,7 @@ function closeImageViewer() {
     
 // Page စတက်လာလျှင် Google Sheet ကို အရင်လှမ်းဖတ်မည်
 window.onload = fetchStoreStatus;
-
-    // --- Pro Admin Panel ဖွင့်ရန် ---
-async function openAdminPanel() {
-    let password = prompt("🔐 Admin Password ထည့်ပါ:");
-    if (password !== "1234") { 
-        if(password !== null) alert("Password မှားယွင်းနေပါသည် ❌");
-        return;
-    }
-
-    document.getElementById('cart-content-wrapper').style.display = 'none';
-    document.getElementById('modal-title').innerText = "🛠️ ဆိုင်ရှင် Admin Dashboard";
-    document.getElementById('item-count-badge').innerText = "Admin";
-    document.getElementById('modal-back').onclick = () => { document.getElementById('cart-sheet').style.display = 'none'; };
-
-    const receiptView = document.getElementById('receipt-view');
-    receiptView.style.display = 'block';
-    receiptView.innerHTML = `<div style="text-align:center; padding:30px;"><i class="fa-solid fa-spinner fa-spin" style="font-size:28px; color:#f59e0b;"></i><p style="margin-top:10px; font-weight:bold;">အချက်အလက်များ ဆွဲထုတ်နေပါသည်...</p></div>`;
     
-    document.getElementById('cart-sheet').style.display = 'block';
-
-    try {
-        let response = await fetch(WEB_APP_URL);
-        let orders = await response.json();
-
-        window.cachedOrders = orders; // ဒေတာများကို သိမ်းထားမည်
-        renderAdminDashboard('new'); // ပုံမှန်အားဖြင့် အော်ဒါအသစ် Tab ကို ပြမည်
-
-    } catch (err) {
-        receiptView.innerHTML = `<p style="text-align:center; color:#ef4444; padding:20px; font-weight:bold;">ဒေတာချိတ်ဆက်၍ မရပါ (Network Error) ❌</p>`;
-    }
-}
-
-// Admin Dashboard ရဲ့ Tab များနှင့် UI ကို တည်ဆောက်ခြင်း
-function renderAdminDashboard(tabType) {
-    const orders = window.cachedOrders || [];
-    const receiptView = document.getElementById('receipt-view');
-
-    // Tab ခလုတ်များအတွက် Style နှင့် HTML
-    let html = `
-    <div style="display: flex; gap: 4px; overflow-x: auto; margin-bottom: 15px; padding-bottom: 5px; scrollbar-width: none;">
-        <button onclick="renderAdminDashboard('new')" style="padding: 6px 10px; border-radius: 8px; border: none; font-weight: bold; font-size: 11px; cursor: pointer; white-space: nowrap; background: ${tabType==='new'?'#1e293b':'#e2e8f0'}; color: ${tabType==='new'?'#fff':'#1e293b'};">📥 အော်ဒါအသစ်</button>
-        <button onclick="renderAdminDashboard('finished')" style="padding: 6px 10px; border-radius: 8px; border: none; font-weight: bold; font-size: 11px; cursor: pointer; white-space: nowrap; background: ${tabType==='finished'?'#1e293b':'#e2e8f0'}; color: ${tabType==='finished'?'#fff':'#1e293b'};">✅ ပြီးစီး</button>
-        <button onclick="renderAdminDashboard('history')" style="padding: 6px 10px; border-radius: 8px; border: none; font-weight: bold; font-size: 11px; cursor: pointer; white-space: nowrap; background: ${tabType==='history'?'#1e293b':'#e2e8f0'}; color: ${tabType==='history'?'#fff':'#1e293b'};">📜 မှတ်တမ်းအဟောင်း</button>
-        <button onclick="renderAdminDashboard('customers')" style="padding: 6px 10px; border-radius: 8px; border: none; font-weight: bold; font-size: 11px; cursor: pointer; white-space: nowrap; background: ${tabType==='customers'?'#1e293b':'#e2e8f0'}; color: ${tabType==='customers'?'#fff':'#1e293b'};">👥 ဝယ်သူများ</button>
-        <button onclick="renderAdminDashboard('upload')" style="padding: 6px 10px; border-radius: 8px; border: none; font-weight: bold; font-size: 11px; cursor: pointer; white-space: nowrap; background: ${tabType==='upload'?'#1e293b':'#e2e8f0'}; color: ${tabType==='upload'?'#fff':'#1e293b'};">➕ မီနူးထည့်ရန်</button>
-    </div>
-    <div style="display:flex; justify-content:flex-end; margin-bottom:10px;">
-        <button class="btn-view-voucher" onclick="openAdminPanel()" style="font-size:11px; padding:4px 10px;"><i class="fa-solid fa-rotate"></i> Refresh</button>
-    </div>`;
-
-    if (tabType === 'new' || tabType === 'finished' || tabType === 'history') {
-        let filtered = orders;
-        if (tabType === 'new') filtered = orders.filter(o => (o.Status || o.status || 'Pending') === 'Pending');
-        if (tabType === 'finished') filtered = orders.filter(o => (o.Status || o.status) === 'Finished');
-
-        if (filtered.length === 0) {
-            html += `<p style="text-align:center; color:#64748b; padding:30px; font-weight:bold;">အော်ဒါစာရင်း မရှိသေးပါ 📭</p>`;
-        } else {
-            html += `<div style="display:flex; flex-direction:column; gap:10px;">`;
-            filtered.reverse().forEach((o, idx) => {
-                html += `
-                <div style="background:#fff; border:1px solid #cbd5e1; border-radius:12px; padding:12px; box-shadow:0 2px 4px rgba(0,0,0,0.02);">
-                    <div style="display:flex; justify-content:between; align-items:center; margin-bottom:6px;">
-                        <b style="color:#ef4444; font-size:13px;">${o.Voucher || o.voucher || ''}</b>
-                        <span style="font-size:11px; color:#64748b;">${o.Date || o.date || ''} (${o.Time || o.time || ''})</span>
-                    </div>
-                    <div style="font-size:12px; font-weight:bold; margin-bottom:4px;">👤 ${o.Name || o.name || ''} | 📞 ${o.Phone || o.phone || ''}</div>
-                    <div style="font-size:12px; color:#1e293b; background:#f8fafc; padding:8px; border-radius:8px; margin-bottom:8px;">🛒 ${o.Items || o.items || ''}</div>
-                    <div style="display:flex; justify-content:space-between; align-items:center;">
-                        <span style="font-weight:900; color:#ef4444; font-size:13px;">ကျသင့်ငွေ: ${o.Total || o.total || ''} Ks</span>
-                        ${tabType === 'new' ? `<button onclick="alert('Google Sheet ထဲတွင် Status ကို Finished ဟု ပြောင်းပေးပါရန်')" style="background:#10b981; color:#fff; border:none; padding:5px 10px; border-radius:6px; font-size:11px; font-weight:bold; cursor:pointer;">✅ ပြီးစီးအောင်လုပ်မည်</button>` : ''}
-                    </div>
-                </div>`;
-            });
-            html += `</div>`;
-        }
-    } else if (tabType === 'customers') {
-        // Customer Information စုဆောင်းပြသခြင်း
-        let customersMap = {};
-        orders.forEach(o => {
-            let phone = o.Phone || o.phone || 'Unknown';
-            if(!customersMap[phone]) {
-                customersMap[phone] = { name: o.Name || o.name || '', phone: phone, count: 0, totalSpent: 0 };
-            }
-            customersMap[phone].count++;
-        });
-
-        html += `<h4 style="margin:5px 0 10px; font-size:13px;">👥 ဝယ်ယူဖူးသူများစာရင်း (${Object.keys(customersMap).length} ယောက်)</h4>`;
-        html += `<div style="display:flex; flex-direction:column; gap:8px;">`;
-        for(let phone in customersMap) {
-            let c = customersMap[phone];
-            html += `
-            <div style="background:#fff; border:1px solid #cbd5e1; border-radius:10px; padding:10px; font-size:12px; font-weight:bold;">
-                👤 ${c.name} <br>
-                📞 ဖုန်း/ID: ${c.phone} <br>
-                🛒 မှာယူဖူးကြိမ်: ${c.count} ကြိမ်
-            </div>`;
-        }
-        html += `</div>`;
-    } else if (tabType === 'upload') {
-        // Upload Menu & Photo အကြံပြုချက်နှင့် ပုံတင်နည်း လမ်းညွှန်
-        html += `
-        <div style="background:#fff; border:1px solid #cbd5e1; border-radius:12px; padding:15px; font-size:12px; line-height:1.6;">
-            <b style="font-size:13px; color:#1e293b; display:block; margin-bottom:8px;">📸 မီနူးနှင့် ပုံအသစ်ထည့်သွင်းနည်း</b>
-            <p style="margin:0 0 10px; color:#64748b;">ဟင်းပွဲအသစ်နှင့် ပုံအသစ်ထည့်လိုပါက အောက်ပါအတိုင်း ပြုလုပ်နိုင်ပါသည် -</p>
-            <ol style="padding-left:15px; margin:0 0 15px;">
-                <li>ပုံကို <a href="https://imgbb.com" target="_blank" style="color:#2563eb;">ImgBB</a> ကဲ့သို့ ပုံတင်ဆိုက်တစ်ခုတွင် တင်ပြီး <b>Direct Image Link</b> ကို ရယူပါ။</li>
-                <li>ဝဘ်ဆိုဒ်ကုဒ်ထဲရှိ <b>` + `menuData`</b> အပိုင်းတွင် ဟင်းပွဲအသစ်ကို `{ id: ၂၄, name: '...', price: ..., category: '...', image: 'လင့်ခ်' }` ပုံစံဖြင့် ထည့်ပါ။</li>
-                <li>Google Sheet ထဲတွင်လည်း အဆိုပါ ID နာမည်ဖြင့် ရနိုင်/မနိုင် စာရင်းထည့်ပေးပါ။</li>
-            </ol>
-            <div style="background:#fef3c7; border:1px solid #f59e0b; padding:10px; border-radius:8px; color:#b45309; font-weight:bold;">
-                💡 အကြံပြုချက်: နောင်လာမည့် ဗားရှင်းများတွင် Website ထဲမှနေ၍ တိုက်ရိုက် မီနူးအသစ်ပေါင်းထည့်နိုင်ရန် ဆက်လက်ဖန်တီးပေးပါမည်။
-            </div>
-        </div>`;
-    }
-
-    receiptView.innerHTML = html;
-}
 </script>
 </body>
 </html>
