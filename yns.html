@@ -240,6 +240,7 @@
 <script>
 const BOT_TOKEN = "8215695761:AAF1qDjAJn7gjiHyzf8t7W6c8e51cim98sU";
 const CHAT_ID = "8116152317";
+const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxnIbbPu40NB079FzI77kjLKqBUCRtqXF2PMddxX7N9RNGrfMx9dMNEByes8tq0ZbUv7Q/exec"; 
 
 // Google Sheet မှ ရယူမည့် အခြေအနေ (Default အနေဖြင့် ဆိုင်ဖွင့်သည်ဟု သတ်မှတ်ထားသည်)
 let isShopOpen = true; 
@@ -590,6 +591,123 @@ function closeImageViewer() {
 // Page စတက်လာလျှင် Google Sheet ကို အရင်လှမ်းဖတ်မည်
 window.onload = fetchStoreStatus;
 
+    // --- Pro Admin Panel ဖွင့်ရန် ---
+async function openAdminPanel() {
+    let password = prompt("🔐 Admin Password ထည့်ပါ:");
+    if (password !== "1234") { 
+        if(password !== null) alert("Password မှားယွင်းနေပါသည် ❌");
+        return;
+    }
+
+    document.getElementById('cart-content-wrapper').style.display = 'none';
+    document.getElementById('modal-title').innerText = "🛠️ ဆိုင်ရှင် Admin Dashboard";
+    document.getElementById('item-count-badge').innerText = "Admin";
+    document.getElementById('modal-back').onclick = () => { document.getElementById('cart-sheet').style.display = 'none'; };
+
+    const receiptView = document.getElementById('receipt-view');
+    receiptView.style.display = 'block';
+    receiptView.innerHTML = `<div style="text-align:center; padding:30px;"><i class="fa-solid fa-spinner fa-spin" style="font-size:28px; color:#f59e0b;"></i><p style="margin-top:10px; font-weight:bold;">အချက်အလက်များ ဆွဲထုတ်နေပါသည်...</p></div>`;
+    
+    document.getElementById('cart-sheet').style.display = 'block';
+
+    try {
+        let response = await fetch(WEB_APP_URL);
+        let orders = await response.json();
+
+        window.cachedOrders = orders; // ဒေတာများကို သိမ်းထားမည်
+        renderAdminDashboard('new'); // ပုံမှန်အားဖြင့် အော်ဒါအသစ် Tab ကို ပြမည်
+
+    } catch (err) {
+        receiptView.innerHTML = `<p style="text-align:center; color:#ef4444; padding:20px; font-weight:bold;">ဒေတာချိတ်ဆက်၍ မရပါ (Network Error) ❌</p>`;
+    }
+}
+
+// Admin Dashboard ရဲ့ Tab များနှင့် UI ကို တည်ဆောက်ခြင်း
+function renderAdminDashboard(tabType) {
+    const orders = window.cachedOrders || [];
+    const receiptView = document.getElementById('receipt-view');
+
+    // Tab ခလုတ်များအတွက် Style နှင့် HTML
+    let html = `
+    <div style="display: flex; gap: 4px; overflow-x: auto; margin-bottom: 15px; padding-bottom: 5px; scrollbar-width: none;">
+        <button onclick="renderAdminDashboard('new')" style="padding: 6px 10px; border-radius: 8px; border: none; font-weight: bold; font-size: 11px; cursor: pointer; white-space: nowrap; background: ${tabType==='new'?'#1e293b':'#e2e8f0'}; color: ${tabType==='new'?'#fff':'#1e293b'};">📥 အော်ဒါအသစ်</button>
+        <button onclick="renderAdminDashboard('finished')" style="padding: 6px 10px; border-radius: 8px; border: none; font-weight: bold; font-size: 11px; cursor: pointer; white-space: nowrap; background: ${tabType==='finished'?'#1e293b':'#e2e8f0'}; color: ${tabType==='finished'?'#fff':'#1e293b'};">✅ ပြီးစီး</button>
+        <button onclick="renderAdminDashboard('history')" style="padding: 6px 10px; border-radius: 8px; border: none; font-weight: bold; font-size: 11px; cursor: pointer; white-space: nowrap; background: ${tabType==='history'?'#1e293b':'#e2e8f0'}; color: ${tabType==='history'?'#fff':'#1e293b'};">📜 မှတ်တမ်းအဟောင်း</button>
+        <button onclick="renderAdminDashboard('customers')" style="padding: 6px 10px; border-radius: 8px; border: none; font-weight: bold; font-size: 11px; cursor: pointer; white-space: nowrap; background: ${tabType==='customers'?'#1e293b':'#e2e8f0'}; color: ${tabType==='customers'?'#fff':'#1e293b'};">👥 ဝယ်သူများ</button>
+        <button onclick="renderAdminDashboard('upload')" style="padding: 6px 10px; border-radius: 8px; border: none; font-weight: bold; font-size: 11px; cursor: pointer; white-space: nowrap; background: ${tabType==='upload'?'#1e293b':'#e2e8f0'}; color: ${tabType==='upload'?'#fff':'#1e293b'};">➕ မီနူးထည့်ရန်</button>
+    </div>
+    <div style="display:flex; justify-content:flex-end; margin-bottom:10px;">
+        <button class="btn-view-voucher" onclick="openAdminPanel()" style="font-size:11px; padding:4px 10px;"><i class="fa-solid fa-rotate"></i> Refresh</button>
+    </div>`;
+
+    if (tabType === 'new' || tabType === 'finished' || tabType === 'history') {
+        let filtered = orders;
+        if (tabType === 'new') filtered = orders.filter(o => (o.Status || o.status || 'Pending') === 'Pending');
+        if (tabType === 'finished') filtered = orders.filter(o => (o.Status || o.status) === 'Finished');
+
+        if (filtered.length === 0) {
+            html += `<p style="text-align:center; color:#64748b; padding:30px; font-weight:bold;">အော်ဒါစာရင်း မရှိသေးပါ 📭</p>`;
+        } else {
+            html += `<div style="display:flex; flex-direction:column; gap:10px;">`;
+            filtered.reverse().forEach((o, idx) => {
+                html += `
+                <div style="background:#fff; border:1px solid #cbd5e1; border-radius:12px; padding:12px; box-shadow:0 2px 4px rgba(0,0,0,0.02);">
+                    <div style="display:flex; justify-content:between; align-items:center; margin-bottom:6px;">
+                        <b style="color:#ef4444; font-size:13px;">${o.Voucher || o.voucher || ''}</b>
+                        <span style="font-size:11px; color:#64748b;">${o.Date || o.date || ''} (${o.Time || o.time || ''})</span>
+                    </div>
+                    <div style="font-size:12px; font-weight:bold; margin-bottom:4px;">👤 ${o.Name || o.name || ''} | 📞 ${o.Phone || o.phone || ''}</div>
+                    <div style="font-size:12px; color:#1e293b; background:#f8fafc; padding:8px; border-radius:8px; margin-bottom:8px;">🛒 ${o.Items || o.items || ''}</div>
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <span style="font-weight:900; color:#ef4444; font-size:13px;">ကျသင့်ငွေ: ${o.Total || o.total || ''} Ks</span>
+                        ${tabType === 'new' ? `<button onclick="alert('Google Sheet ထဲတွင် Status ကို Finished ဟု ပြောင်းပေးပါရန်')" style="background:#10b981; color:#fff; border:none; padding:5px 10px; border-radius:6px; font-size:11px; font-weight:bold; cursor:pointer;">✅ ပြီးစီးအောင်လုပ်မည်</button>` : ''}
+                    </div>
+                </div>`;
+            });
+            html += `</div>`;
+        }
+    } else if (tabType === 'customers') {
+        // Customer Information စုဆောင်းပြသခြင်း
+        let customersMap = {};
+        orders.forEach(o => {
+            let phone = o.Phone || o.phone || 'Unknown';
+            if(!customersMap[phone]) {
+                customersMap[phone] = { name: o.Name || o.name || '', phone: phone, count: 0, totalSpent: 0 };
+            }
+            customersMap[phone].count++;
+        });
+
+        html += `<h4 style="margin:5px 0 10px; font-size:13px;">👥 ဝယ်ယူဖူးသူများစာရင်း (${Object.keys(customersMap).length} ယောက်)</h4>`;
+        html += `<div style="display:flex; flex-direction:column; gap:8px;">`;
+        for(let phone in customersMap) {
+            let c = customersMap[phone];
+            html += `
+            <div style="background:#fff; border:1px solid #cbd5e1; border-radius:10px; padding:10px; font-size:12px; font-weight:bold;">
+                👤 ${c.name} <br>
+                📞 ဖုန်း/ID: ${c.phone} <br>
+                🛒 မှာယူဖူးကြိမ်: ${c.count} ကြိမ်
+            </div>`;
+        }
+        html += `</div>`;
+    } else if (tabType === 'upload') {
+        // Upload Menu & Photo အကြံပြုချက်နှင့် ပုံတင်နည်း လမ်းညွှန်
+        html += `
+        <div style="background:#fff; border:1px solid #cbd5e1; border-radius:12px; padding:15px; font-size:12px; line-height:1.6;">
+            <b style="font-size:13px; color:#1e293b; display:block; margin-bottom:8px;">📸 မီနူးနှင့် ပုံအသစ်ထည့်သွင်းနည်း</b>
+            <p style="margin:0 0 10px; color:#64748b;">ဟင်းပွဲအသစ်နှင့် ပုံအသစ်ထည့်လိုပါက အောက်ပါအတိုင်း ပြုလုပ်နိုင်ပါသည် -</p>
+            <ol style="padding-left:15px; margin:0 0 15px;">
+                <li>ပုံကို <a href="https://imgbb.com" target="_blank" style="color:#2563eb;">ImgBB</a> ကဲ့သို့ ပုံတင်ဆိုက်တစ်ခုတွင် တင်ပြီး <b>Direct Image Link</b> ကို ရယူပါ။</li>
+                <li>ဝဘ်ဆိုဒ်ကုဒ်ထဲရှိ <b>` + `menuData`</b> အပိုင်းတွင် ဟင်းပွဲအသစ်ကို `{ id: ၂၄, name: '...', price: ..., category: '...', image: 'လင့်ခ်' }` ပုံစံဖြင့် ထည့်ပါ။</li>
+                <li>Google Sheet ထဲတွင်လည်း အဆိုပါ ID နာမည်ဖြင့် ရနိုင်/မနိုင် စာရင်းထည့်ပေးပါ။</li>
+            </ol>
+            <div style="background:#fef3c7; border:1px solid #f59e0b; padding:10px; border-radius:8px; color:#b45309; font-weight:bold;">
+                💡 အကြံပြုချက်: နောင်လာမည့် ဗားရှင်းများတွင် Website ထဲမှနေ၍ တိုက်ရိုက် မီနူးအသစ်ပေါင်းထည့်နိုင်ရန် ဆက်လက်ဖန်တီးပေးပါမည်။
+            </div>
+        </div>`;
+    }
+
+    receiptView.innerHTML = html;
+}
 </script>
 </body>
 </html>
