@@ -475,7 +475,25 @@ async function sendOrder() {
     const ownerMsg = `🍗 *မြင်သာကြက်ကင် - အော်ဒါအသစ်*\n🧾 *ဘောက်ချာနံပါတ်:* \`${vCode}\`\n👤 *အမည်:* ${name}\n📞 *ဖုန်း/ID:* ${phone}\n📅 *နေ့ရက်:* ${dayStr}\n🕒 *အချိန်:* ${time}\n━━━━━━━━━━━━━━\n${itemsText.join('\n')}\n━━━━━━━━━━━━━━\n💰 *စုစုပေါင်း:* *${formattedTotal} MMK*`;
 
     try {
+        // ၁။ Telegram သို့ အော်ဒါပို့ရန်
         await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ chat_id: CHAT_ID, text: ownerMsg, parse_mode: 'Markdown' }) });
+
+        // ၂။ Google Sheet သို့ အော်ဒါပို့ရန် (Admin Panel အတွက်)
+        await fetch(WEB_APP_URL, {
+            method: 'POST',
+            mode: 'no-cors',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                voucher: vCode,
+                name: name,
+                phone: phone,
+                date: dayStr,
+                time: time,
+                items: itemsText.join(', '),
+                total: formattedTotal,
+                status: "Pending"
+            })
+        });
 
         let orderHistory = JSON.parse(localStorage.getItem('order_history') || '[]');
         orderHistory.unshift({ vCode, name, phone, date: dayStr, time, total: formattedTotal, tableRowsHtml: receiptTableRowsHtml, canvasItems });
@@ -490,6 +508,7 @@ async function sendOrder() {
         submitBtn.innerHTML = "<i class='fa-solid fa-circle-check'></i> အော်ဒါအတည်ပြုမည် ➔";
     }
 }
+
 
 function showReceipt(vCode, name, phone, date, time, tableRowsHtml, total, canvasItems) {
     document.getElementById('cart-content-wrapper').style.display = 'none';
