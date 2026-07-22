@@ -2,102 +2,336 @@
 <html lang="my">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin - မြင်သာကြက်ကင်</title>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>🛠️ မြင်သာကြက်ကင် - Admin Panel</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Pyidaungsu:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
     <style>
-        body { font-family: sans-serif; background: #f4f7f6; padding: 20px; }
-        .card { background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); margin-bottom: 20px; }
-        input, select { width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #ddd; border-radius: 5px; box-sizing: border-box; }
-        button { width: 100%; padding: 12px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; }
-        .btn-add { background: #2ecc71; color: white; }
-        .item-list { display: grid; grid-template-columns: 1fr; gap: 10px; }
-        .item { background: white; padding: 10px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #eee; }
-        .item img { width: 50px; height: 50px; border-radius: 5px; object-fit: cover; }
+        :root { --pearl: #ffffff; --bg: #f1f5f9; --accent: #f59e0b; --text: #1e293b; --sub: #64748b; --danger: #ef4444; }
+        body { font-family: 'Pyidaungsu', sans-serif; background: var(--bg); margin: 0; padding-bottom: 70px; color: var(--text); font-size: 14px; }
+
+        .top-nav { background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); padding: 18px 14px; position: sticky; top: 0; z-index: 100; border-radius: 0 0 24px 24px; box-shadow: 0 4px 20px rgba(15, 23, 42, 0.15); color: white; display: flex; justify-content: space-between; align-items: center; }
+        .brand-title { font-size: 18px; font-weight: 800; margin: 0; display: flex; align-items: center; gap: 8px; }
+        
+        .container { padding: 15px; max-width: 500px; margin: auto; }
+        .card { background: #fff; border: 1px solid #cbd5e1; border-radius: 12px; padding: 12px; margin-bottom: 12px; }
+        .btn-main { width: 100%; padding: 12px; background: #0f172a; color: white; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; text-align: center; }
+        
+        input, select { width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 8px; margin-bottom: 10px; box-sizing: border-box; font-size: 13px; background: #f8fafc; }
+        input:focus, select:focus { border-color: var(--accent); background: white; outline: none; }
+
+        .bottom-bar { position: fixed; bottom: 0; left: 0; right: 0; max-width: 500px; margin: auto; background: #1e293b; display: flex; justify-content: space-around; padding: 10px 5px; z-index: 300; border-top-left-radius: 16px; border-top-right-radius: 16px; box-shadow: 0 -4px 10px rgba(0,0,0,0.1); }
+        .nav-btn { background: none; border: none; color: #94a3b8; display: flex; flex-direction: column; align-items: center; font-size: 10px; font-weight: bold; cursor: pointer; }
+        .nav-btn.active { color: #fbbf24; }
+
+        .login-box { max-width: 350px; margin: 80px auto; background: white; padding: 25px; border-radius: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); text-align: center; }
     </style>
 </head>
 <body>
 
-<h2>🍗 Admin Panel (Menu စီမံရန်)</h2>
+    <!-- Login Screen -->
+    <div id="loginOverlay" class="login-box">
+        <h3 style="margin-top:0;">🔐 ဆိုင်ရှင် Admin ဝင်ရန်</h3>
+        <p style="font-size: 12px; color: #64748b;">Password ရိုက်ထည့်ပါ (မူလ: 1234)</p>
+        <input type="password" id="adminPasswordInput" placeholder="Password" style="text-align: center; font-size: 16px;">
+        <button class="btn-main" onclick="checkLogin()">ဝင်မည်</button>
+    </div>
 
-<div class="card">
-    <h3>➕ မီနူးအသစ်ထည့်ရန်</h3>
-    <input type="text" id="name" placeholder="ဟင်းပွဲအမည်">
-    <input type="number" id="price" placeholder="စျေးနှုန်း">
-    <input type="number" id="stock" placeholder="Stock အရေအတွက်">
-    <select id="category">
-        <option value="single">တစ်ခုချင်း</option>
-        <option value="set-10000">၁၀၀၀၀ တန်ဆပ်</option>
-        <option value="set-20000">၂၀၀၀၀ တန်ဆပ်</option>
-    </select>
-    <label>ပုံရွေးပါ (ဖုန်းထဲမှ):</label>
-    <input type="file" id="fileInput" accept="image/*">
-    <button class="btn-add" onclick="uploadAndSave()">သိမ်းဆည်းမည်</button>
-</div>
+    <!-- Main Admin Dashboard -->
+    <div id="adminMainContent" style="display: none;">
+        <div class="top-nav">
+            <h2 class="brand-title"><i class="fa-solid fa-toolbox"></i> Admin Dashboard</h2>
+            <button onclick="location.reload()" style="background: rgba(255,255,255,0.2); border: none; color: white; padding: 6px 10px; border-radius: 8px; font-size: 11px; font-weight: bold; cursor: pointer;"><i class="fa-solid fa-rotate"></i> Refresh</button>
+        </div>
 
-<div class="card">
-    <h3>📦 လက်ရှိမီနူးများ</h3>
-    <div id="admin-menu-list" class="item-list">ဒေတာများ ဆွဲယူနေသည်...</div>
-</div>
+        <div class="container" id="adminViewArea">
+            <!-- Dynamic Content -->
+        </div>
 
-<script>
-    const SB_URL = "https://deabtvqzxpkepgcdutzd.supabase.co";
-    const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRlYWJ0dnF6eHBrZXBnY2R1dHpkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYyNzQzNDMsImV4cCI6MjA4MTg1MDM0M30.BbxmM65uoTDcf_nTP6w5siSF6Y5_eM4peqYJCAxR90I";
-    const _supabase = window.supabase.createClient(SB_URL, SB_KEY);
+        <div class="bottom-bar">
+            <button class="nav-btn active" id="tab-dashboard" onclick="switchTab('dashboard')">
+                <i class="fa-solid fa-chart-pie" style="font-size:16px; margin-bottom:2px;"></i> Dashboard
+            </button>
+            <button class="nav-btn" id="tab-new" onclick="switchTab('new')">
+                <i class="fa-solid fa-bell" style="font-size:16px; margin-bottom:2px;"></i> အော်ဒါအသစ်
+            </button>
+            <button class="nav-btn" id="tab-finished" onclick="switchTab('finished')">
+                <i class="fa-solid fa-check-circle" style="font-size:16px; margin-bottom:2px;"></i> ပြီးစီးပြီး
+            </button>
+            <button class="nav-btn" id="tab-menu" onclick="switchTab('menu')">
+                <i class="fa-solid fa-utensils" style="font-size:16px; margin-bottom:2px;"></i> မီနူးစာရင်း
+            </button>
+        </div>
+    </div>
 
-    async function uploadAndSave() {
-        const file = document.getElementById('fileInput').files[0];
-        const name = document.getElementById('name').value;
-        const price = document.getElementById('price').value;
-        const stock = document.getElementById('stock').value;
-        const cat = document.getElementById('category').value;
+    <script>
+    const WEB_APP_URL = "သင့်ရဲ့_Google_Apps_Script_Web_App_URL_ကို_ဒီမှာ_ထည့်ပါ"; // 👈 Sheet ရဲ့ Web App URL ကို ဤနေရာတွင် ထည့်ပါ
 
-        if (!file || !name || !price) return alert("အချက်အလက် အကုန်ဖြည့်ပါ");
+    let cachedOrders = [];
+    let menuData = [];
+    let isShopOpen = true;
+    let currentTab = 'dashboard';
 
-        // 1. Upload Image to Storage
-        const fileName = Date.now() + "_" + file.name;
-        const { data: uploadData, error: uploadError } = await _supabase.storage
-            .from('menu-images')
-            .upload(fileName, file);
-
-        if (uploadError) return alert("Upload Error: " + uploadError.message);
-
-        // 2. Get Public URL
-        const { data: urlData } = _supabase.storage.from('menu-images').getPublicUrl(fileName);
-        const imgUrl = urlData.publicUrl;
-
-        // 3. Save to Database
-        const { error: dbError } = await _supabase.from('menu_items').insert([
-            { name: name, price: parseInt(price), stock_qty: parseInt(stock), category: cat, image_url: imgUrl }
-        ]);
-
-        if (dbError) alert("DB Error: " + dbError.message);
-        else { alert("အောင်မြင်စွာ သိမ်းဆည်းပြီးပါပြီ"); location.reload(); }
-    }
-
-    async function loadMenu() {
-        const { data } = await _supabase.from('menu_items').select('*').order('id', { ascending: false });
-        const list = document.getElementById('admin-menu-list');
-        list.innerHTML = data.map(item => `
-            <div class="item">
-                <img src="${item.image_url || 'https://via.placeholder.com/50'}" alt="">
-                <div>
-                    <b>${item.name}</b><br>
-                    <small>${item.price} K | Stock: ${item.stock_qty}</small>
-                </div>
-                <button onclick="deleteItem(${item.id})" style="width:auto; background:#ff4757; color:white; padding:5px 10px;">ဖျက်ရန်</button>
-            </div>
-        `).join('');
-    }
-
-    async function deleteItem(id) {
-        if (confirm("ဖျက်မှာ သေချာပါသလား?")) {
-            await _supabase.from('menu_items').delete().eq('id', id);
-            location.reload();
+    function checkLogin() {
+        let pass = document.getElementById('adminPasswordInput').value;
+        if(pass === "1234") {
+            document.getElementById('loginOverlay').style.display = 'none';
+            document.getElementById('adminMainContent').style.display = 'block';
+            initAdmin();
+        } else {
+            alert("Password မှားယွင်းနေပါသည် ❌");
         }
     }
 
-    window.onload = loadMenu;
-</script>
+    async function initAdmin() {
+        await fetchSettings();
+        await fetchMenus();
+        await fetchOrders();
+        switchTab('dashboard');
+        setInterval(fetchOrders, 10000); // 10 စက္ကန့်တစ်ကြိမ် အော်ဒါအသစ်ဝင်မဝင် စစ်မည်
+    }
+
+    async function fetchSettings() {
+        try {
+            let res = await fetch(WEB_APP_URL + "?action=settings");
+            let data = await res.json();
+            if(data.shop_status !== undefined) {
+                isShopOpen = String(data.shop_status) === 'true';
+            }
+        } catch(e){}
+    }
+
+    async function fetchMenus() {
+        try {
+            let res = await fetch(WEB_APP_URL + "?action=menus");
+            let data = await res.json();
+            if(Array.isArray(data)) {
+                menuData = data.map(m => ({
+                    id: Number(m.id || m.ID),
+                    name: m.name || m.Name,
+                    price: Number(m.price || m.Price),
+                    category: m.category || m.Category,
+                    image: m.image || m.Image || ''
+                }));
+            }
+        } catch(e){}
+    }
+
+    async function fetchOrders() {
+        try {
+            let res = await fetch(WEB_APP_URL + "?action=orders");
+            cachedOrders = await res.json();
+            renderContent();
+        } catch(e){}
+    }
+
+    function switchTab(tab) {
+        currentTab = tab;
+        document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+        document.getElementById('tab-' + tab).classList.add('active');
+        renderContent();
+    }
+
+    function renderContent() {
+        const area = document.getElementById('adminViewArea');
+        if(!area) return;
+
+        const pendingOrders = cachedOrders.filter(o => (o.Status || o.status || 'Pending') === 'Pending');
+
+        if(currentTab === 'dashboard') {
+            let totalSales = 0;
+            let uniqueCustomers = new Set();
+            cachedOrders.forEach(o => {
+                let cleanTotal = parseFloat((o.Total || o.total || '0').toString().replace(/,/g, '')) || 0;
+                totalSales += cleanTotal;
+                if(o.Phone || o.phone) uniqueCustomers.add(o.Phone || o.phone);
+            });
+
+            area.innerHTML = `
+            <div class="card" style="display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                    <b style="font-size: 14px; display: block; color: #1e293b;">🏪 ဆိုင်အဖွင့်အပိတ် အခြေအနေ</b>
+                    <span style="font-size: 11px; color: ${isShopOpen ? '#10b981' : '#ef4444'}; font-weight: bold;">${isShopOpen ? 'ဆိုင်ဖွင့်ထားသည် (Open)' : 'ဆိုင်ပိတ်ထားသည် (Closed)'}</span>
+                </div>
+                <button onclick="toggleShopStatus()" style="background: ${isShopOpen ? '#ef4444' : '#10b981'}; color: white; border: none; padding: 8px 16px; border-radius: 8px; font-weight: bold; font-size: 12px; cursor: pointer;">
+                    ${isShopOpen ? 'ဆိုင်ပိတ်မည် 🔒' : 'ဆိုင်ဖွင့်မည် 🔓'}
+                </button>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px;">
+                <div style="background: linear-gradient(135deg, #3b82f6, #1d4ed8); color: white; padding: 15px; border-radius: 12px;">
+                    <div style="font-size: 11px; opacity: 0.9;"><i class="fa-solid fa-shopping-bag"></i> စုစုပေါင်းအော်ဒါ</div>
+                    <div style="font-size: 20px; font-weight: bold; margin-top: 5px;">${cachedOrders.length} ခု</div>
+                </div>
+                <div style="background: linear-gradient(135deg, #10b981, #047857); color: white; padding: 15px; border-radius: 12px;">
+                    <div style="font-size: 11px; opacity: 0.9;"><i class="fa-solid fa-money-bill-wave"></i> ရောင်းရငွေစုစုပေါင်း</div>
+                    <div style="font-size: 16px; font-weight: bold; margin-top: 5px;">${totalSales.toLocaleString()} Ks</div>
+                </div>
+                <div style="background: linear-gradient(135deg, #f59e0b, #b45309); color: white; padding: 15px; border-radius: 12px;">
+                    <div style="font-size: 11px; opacity: 0.9;"><i class="fa-solid fa-users"></i> ဝယ်သူဦးရေ</div>
+                    <div style="font-size: 20px; font-weight: bold; margin-top: 5px;">${uniqueCustomers.size} ဦး</div>
+                </div>
+                <div style="background: linear-gradient(135deg, #ef4444, #b91c1c); color: white; padding: 15px; border-radius: 12px;">
+                    <div style="font-size: 11px; opacity: 0.9;"><i class="fa-solid fa-bell"></i> အော်ဒါအသစ်</div>
+                    <div style="font-size: 20px; font-weight: bold; margin-top: 5px;">${pendingOrders.length} ခု</div>
+                </div>
+            </div>`;
+        }
+        else if(currentTab === 'new' || currentTab === 'finished') {
+            let filtered = currentTab === 'new' ? pendingOrders : cachedOrders.filter(o => (o.Status || o.status) === 'Finished');
+            if(filtered.length === 0) {
+                area.innerHTML = `<p style="text-align:center; color:#64748b; padding:40px; font-weight:bold;">အော်ဒါစာရင်း မရှိသေးပါ 📭</p>`;
+            } else {
+                let html = `<div style="display:flex; flex-direction:column; gap:12px;">`;
+                [...filtered].reverse().forEach(o => {
+                    let phoneNum = o.Phone || o.phone || '';
+                    let custName = o.Name || o.name || '';
+                    let vCode = o.Voucher || o.voucher || '';
+                    let dateStr = o.Date || o.date || '';
+                    let timeStr = o.Time || o.time || '';
+                    let totalStr = o.Total || o.total || '';
+                    let statusVal = o.Status || o.status || 'Pending';
+
+                    let itemsTableRows = '';
+                    try {
+                        let parsedItems = JSON.parse(o.Items || o.items || '[]');
+                        if(Array.isArray(parsedItems)) {
+                            parsedItems.forEach(it => {
+                                itemsTableRows += `<tr><td style="padding:4px;">${it.name}</td><td style="padding:4px; text-align:right;">${it.price}</td><td style="padding:4px; text-align:center;">${it.qty}</td><td style="padding:4px; text-align:right; font-weight:bold;">${it.total}</td></tr>`;
+                            });
+                        }
+                    } catch(e) {
+                        itemsTableRows = `<tr><td colspan="4">${o.Items || o.items || ''}</td></tr>`;
+                    }
+
+                    html += `
+                    <div class="card">
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px; border-bottom: 1px solid #e2e8f0; padding-bottom: 6px;">
+                            <b style="color:#ef4444; font-size:13px;">${vCode}</b>
+                            <span style="font-size:11px; color:#64748b;">${dateStr} (${timeStr})</span>
+                        </div>
+                        <div style="font-size: 13px; font-weight: bold; margin-bottom: 6px;">👤 ${custName} | <a href="tel:${phoneNum}" style="color: #2563eb;">📞 ${phoneNum}</a></div>
+                        <div style="background:#f8fafc; border-radius:8px; padding:6px; margin-bottom:8px; overflow-x:auto;">
+                            <table style="width:100%; font-size:11px; border-collapse:collapse;">
+                                <tr style="background:#e2e8f0;"><th style="text-align:left; padding:4px;">Name</th><th style="text-align:right; padding:4px;">Price</th><th style="text-align:center; padding:4px;">Qty</th><th style="text-align:right; padding:4px;">Total</th></tr>
+                                ${itemsTableRows}
+                            </table>
+                        </div>
+                        <div style="display:flex; justify-content:space-between; align-items:center;">
+                            <span style="font-weight:900; color:#ef4444; font-size:13px;">ကျသင့်ငွေ: ${totalStr} Ks</span>
+                            ${statusVal === 'Pending' ? `<button onclick="finishOrder('${vCode}')" style="background:#10b981; color:#fff; border:none; padding:8px 14px; border-radius:8px; font-size:12px; font-weight:bold; cursor:pointer;"><i class="fa-solid fa-check"></i> ပြီးစီးပြီ (Finish)</button>` : `<span style="color:#10b981; font-weight:bold; font-size:12px;">✅ ပြီးစီးပြီး</span>`}
+                        </div>
+                    </div>`;
+                });
+                html += `</div>`;
+                area.innerHTML = html;
+            }
+        }
+        else if(currentTab === 'menu') {
+            let html = `
+            <div class="card">
+                <b style="font-size:13px; display:block; margin-bottom:10px;"><i class="fa-solid fa-plus-circle"></i> Google Sheet သို့ မီနူးအသစ်ထည့်ရန်</b>
+                <label style="font-size:11px; font-weight:bold;">ဟင်းပွဲအမည်:</label>
+                <input type="text" id="newMenuName" placeholder="ဥပမာ- ကြက်ဥစပ်">
+                <label style="font-size:11px; font-weight:bold;">ဈေးနှုန်း (Ks):</label>
+                <input type="number" id="newMenuPrice" placeholder="1500">
+                <label style="font-size:11px; font-weight:bold;">အမျိုးအစား:</label>
+                <select id="newMenuCat">
+                    <option value="အသား">အသား</option>
+                    <option value="အရိုး">အရိုး</option>
+                    <option value="အသီးအရွက်">အသီးအရွက်</option>
+                    <option value="အရေခွံ">အရေခွံ</option>
+                    <option value="ကလီစာ">ကလီစာ</option>
+                    <option value="ဥ">ဥ</option>
+                </select>
+                <label style="font-size:11px; font-weight:bold;">ပုံလင့်ခ် (Image URL):</label>
+                <input type="text" id="newMenuImg" placeholder="https://i.ibb.co/...">
+                <button onclick="saveNewMenu()" style="width:100%; background:#2563eb; color:white; border:none; padding:10px; border-radius:8px; font-weight:bold; cursor:pointer;">သိမ်းမည်</button>
+            </div>
+            <b style="font-size:13px; display:block; margin-bottom:8px;">လက်ရှိ မီနူးစာရင်းများ (${menuData.length} ခု)</b>
+            <div style="display:flex; flex-direction:column; gap:6px;">`;
+
+            menuData.forEach(m => {
+                html += `<div class="card" style="padding:8px 12px; display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+                    <div><b>${m.name}</b> (${m.category}) - <span style="color:#ef4444;">${m.price} Ks</span></div>
+                    <button onclick="deleteCustomMenu(${m.id})" style="background:#fee2e2; color:#ef4444; border:none; padding:4px 8px; border-radius:6px; cursor:pointer;"><i class="fa-solid fa-trash"></i></button>
+                </div>`;
+            });
+            html += `</div>`;
+            area.innerHTML = html;
+        }
+    }
+
+    async function toggleShopStatus() {
+        isShopOpen = !isShopOpen;
+        try {
+            await fetch(WEB_APP_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                body: JSON.stringify({ action: 'updateSettings', key: 'shop_status', value: isShopOpen })
+            });
+            renderContent();
+            alert(isShopOpen ? "ဆိုင်ဖွင့်လိုက်ပါပြီ 🔓" : "ဆိုင်ပိတ်လိုက်ပါပြီ 🔒");
+        } catch(e) {
+            alert("မအောင်မြင်ပါ");
+        }
+    }
+
+    async function finishOrder(voucherCode) {
+        try {
+            await fetch(WEB_APP_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                body: JSON.stringify({ action: 'updateStatus', voucher: voucherCode, status: 'Finished' })
+            });
+            await fetchOrders();
+        } catch(e) {
+            alert("Error");
+        }
+    }
+
+    async function saveNewMenu() {
+        let name = document.getElementById('newMenuName').value.trim();
+        let price = parseInt(document.getElementById('newMenuPrice').value);
+        let category = document.getElementById('newMenuCat').value;
+        let image = document.getElementById('newMenuImg').value.trim();
+
+        if(!name || isNaN(price)) return alert("အမည်နှင့် ဈေးနှုန်းဖြည့်ပါ။");
+
+        let newId = menuData.length > 0 ? Math.max(...menuData.map(m => m.id)) + 1 : 1;
+        try {
+            await fetch(WEB_APP_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                body: JSON.stringify({ action: 'saveMenu', id: newId, name, price, category, image })
+            });
+            await fetchMenus();
+            renderContent();
+            alert("✅ ထည့်သွင်းပြီးပါပြီ!");
+        } catch(e) {
+            alert("Error");
+        }
+    }
+
+    async function deleteCustomMenu(id) {
+        if(confirm("ဖျက်မှာ သေချာပါသလား?")) {
+            try {
+                await fetch(WEB_APP_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                    body: JSON.stringify({ action: 'deleteMenu', id: id })
+                });
+                await fetchMenus();
+                renderContent();
+            } catch(e) {
+                alert("Error");
+            }
+        }
+    }
+    </script>
 </body>
 </html>
